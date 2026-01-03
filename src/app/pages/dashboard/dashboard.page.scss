@@ -1,0 +1,62 @@
+.welcome-section {
+  text-align: center;
+  padding: 40px 0;
+
+  .welcome-icon {
+    font-size: 80px;
+    color: var(--ion-color-primary);
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+  }
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.project-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  &.coming-soon {
+    opacity: 0.6;
+    cursor: not-allowed;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .project-icon {
+    font-size: 48px;
+    color: var(--ion-color-primary);
+    margin-bottom: 8px;
+  }
+
+  ion-card-header {
+    text-align: center;
+  }
+
+  ion-card-title {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  ion-card-content {
+    text-align: center;
+    color: var(--ion-color-medium);
+  }
+}

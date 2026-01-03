@@ -1,0 +1,66 @@
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="login-container">
+
+    <!-- Logo o titulo -->
+    <div class="login-card">
+      <h1 class="app-title">Gestion</h1>
+      <p class="app-subtitle"> Sistema de Administracion</p>
+    </div>
+
+    <!-- Tarjeta de login -->
+    <ion-card class="login-card">
+      <ion-card-header>
+        <ion-card-title>Iniciar Sesión</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+          <!-- Campo de usuario -->
+          <ion-item class="input-item" lines="none">
+            <ion-icon name="person-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Usuario</ion-label>
+            <ion-input formControlName="username" type="text" placeholder="Ingresa tu usuario"
+              [disabled]="isLoading"></ion-input>
+          </ion-item>
+
+          <!-- Errores de usuario -->
+          <div class="error-message" *ngIf="username?.invalid && username?.touched">
+            <ion-text color="danger" *ngIf="username?.errors?.['required']">El usuario es requerido</ion-text>
+            <ion-text color="danger" *ngIf="username?.errors?.['minlength']">Minimo 3 caracteres</ion-text>
+          </div>
+
+          <!-- Campo de contraseña -->
+          <ion-item class="input-item" lines="none">
+            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Contraseña</ion-label>
+            <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+              placeholder="Ingresa tu contraseña" [disabled]="isLoading"></ion-input>
+            <ion-button fill="clear" slot="end" (click)="togglePasswordVisibility()"
+              [disabled]="isLoading"></ion-button>
+            <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
+          </ion-item>
+
+          <!-- Errores de contraseña -->
+          <div class="error-message" *ngIf="password?.invalid && password?.touched">
+            <ion-text color="danger" *ngIf="password?.errors?.['required']">La contraseña es requerida</ion-text>
+            <ion-text color="danger" *ngIf="password?.errors?.['minlength']">Minimo 6 caracteres</ion-text>
+          </div>
+
+          <!-- Boton de login -->
+          <ion-button expand="block" type="submit" [disabled]="loginForm.invalid || isLoading" class="login-button">
+            <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+            <span *ngIf="!isLoading">Iniciar sesión</span>
+          </ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Footer -->
+    <div class="footer-section">
+      <ion-text color="medium">
+        <p>Version 1.0.0</p>
+      </ion-text>
+    </div>
+  </div>
+</ion-content>

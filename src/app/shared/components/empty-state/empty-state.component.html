@@ -1,0 +1,8 @@
+<div class="empty-state">
+  <ion-icon [name]="icon" class="empty-icon"></ion-icon>
+  <h3>{{ title }}</h3>
+  <p>{{ message }}</p>
+  <ion-button *ngIf="showButton" [fill]="buttonFill" [color]="buttonColor" (click)="onAction()">
+    {{ buttonText }}
+  </ion-button>
+</div>

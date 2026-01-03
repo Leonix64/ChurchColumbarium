@@ -1,0 +1,33 @@
+<app-header title="Dashboard"></app-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="welcome-section">
+    <ion-icon name="person-circle-outline" class="welcome-icon"></ion-icon>
+    <h1>¡Bienvenido, {{ currentUser()?.fullName }}!</h1>
+    <ion-text color="medium">
+      <p>Rol: {{ currentUser()?.role }}</p>
+    </ion-text>
+  </div>
+
+  <div class="projects-grid">
+    <ion-card class="project-card" (click)="goToProject('columbarium')">
+      <ion-card-header>
+        <ion-icon name="business-outline" class="project-icon"></ion-icon>
+        <ion-card-title>Columbarium</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Gestion de nichos, clientes y ventas</p>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="project-card coming-soon">
+      <ion-card-header>
+        <ion-icon name="business-outline" class="project-icon"></ion-icon>
+        <ion-card-title>Peregrinaciones</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Proximamente...</p>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

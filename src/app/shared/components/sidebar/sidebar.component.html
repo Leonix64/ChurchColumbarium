@@ -1,0 +1,91 @@
+<ion-menu contentId="main-content" type="overlay">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>Menú</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content>
+    <!-- Sección de Usuario -->
+    <div class="user-section">
+      <ion-avatar class="user-avatar">
+        <ion-icon name="person-circle-outline"></ion-icon>
+      </ion-avatar>
+      <div class="user-info">
+        <h3>{{ currentUser()?.fullName }}</h3>
+        <ion-note>{{ currentUser()?.email }}</ion-note>
+        <ion-text class="user-role" [color]="currentUser()?.role === 'admin' ? 'danger' : 'medium'">
+          <small>{{ currentUser()?.role }}</small>
+        </ion-text>
+      </div>
+    </div>
+
+    <!-- Separador -->
+    <ion-item-divider></ion-item-divider>
+
+
+    <!-- Menu Dashboard -->
+    <ion-list *ngIf="!isInProject('columbarium') && !isInProject('pilgrimages')">
+      <ion-menu-toggle auto-hide="false" *ngFor="let item of dashboardMenu">
+        <ion-item [routerLink]="item.url" routerLinkActive="active-item" [routerLinkActiveOptions]="{exact: true}"
+          lines="none" detail="false">
+          <ion-icon [name]="item.icon" slot="start" [color]="item.color || 'primary'">
+          </ion-icon>
+          <ion-label>{{ item.title }}</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+    </ion-list>
+
+    <!-- Menu Columbarium -->
+    <ion-list *ngIf="isInProject('columbarium')">
+      <ion-menu-toggle auto-hide="false" *ngFor="let item of columbariumMenu">
+        <ion-item [routerLink]="item.url" routerLinkActive="active-item" [routerLinkActiveOptions]="{exact: false}"
+          lines="none" detail="false">
+          <ion-icon [name]="item.icon" slot="start" [color]="item.color || 'primary'">
+          </ion-icon>
+          <ion-label>{{ item.title }}</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+    </ion-list>
+
+    <!-- Menu Peregrinaciones (futuro) -->
+    <ion-list *ngIf="isInProject('pilgrimages')">
+      <ion-menu-toggle auto-hide="false" *ngFor="let item of pilgrimagesMenu">
+        <ion-item [routerLink]="item.url" routerLinkActive="active-item" [routerLinkActiveOptions]="{exact: false}"
+          lines="none" detail="false">
+          <ion-icon [name]="item.icon" slot="start" [color]="item.color || 'primary'">
+          </ion-icon>
+          <ion-label>{{ item.title }}</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+    </ion-list>
+
+    <!-- Separador -->
+    <ion-item-divider></ion-item-divider>
+
+    <!-- Opciones globales -->
+    <ion-list>
+      <ion-menu-toggle auto-hide="false">
+        <ion-item routerLink="/auth/profile" routerLinkActive="active-item" lines="none" detail="false">
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          <ion-label>Mi Perfil</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+
+      <ion-menu-toggle auto-hide="false">
+        <ion-item button (click)="logout()" lines="none" detail="false">
+          <ion-icon name="log-out-outline" slot="start" color="danger"></ion-icon>
+          <ion-label color="danger">Cerrar Sesión</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+    </ion-list>
+
+    <!-- Footer -->
+    <div class="menu-footer">
+      <ion-text color="medium">
+        <small>Versión 1.0.0</small>
+      </ion-text>
+    </div>
+
+  </ion-content>
+</ion-menu>
