@@ -19,7 +19,7 @@ export class HeaderComponent {
   @Input() title: string = 'Gestion Iglesia';
   @Input() color: string = 'primary';
   @Input() showSearch: boolean = false;
-  @Input() showAdd: boolean = true;
+  @Input() showAdd: boolean = false;
   @Input() showNotifications: boolean = false;
 
   currentUser = this.authService.currentUser;
