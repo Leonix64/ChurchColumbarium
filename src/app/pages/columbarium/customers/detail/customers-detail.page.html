@@ -1,13 +1,161 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>customers-detail</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/columbarium/customers"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle del Cliente</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="presentActionSheet()">
+        <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">customers-detail</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="detail-content">
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading()">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando información...</p>
+  </div>
+
+  <!-- Customer Data -->
+  <div class="customer-wrapper" *ngIf="!loading() && customer()">
+
+    <!-- Header Card -->
+    <div class="header-card">
+      <div class="avatar-section">
+        <ion-icon name="person-circle" class="avatar-icon"></ion-icon>
+      </div>
+      <div class="name-section">
+        <h1 class="customer-name">{{ customer()?.firstName }} {{ customer()?.lastName }}</h1>
+        <ion-badge [color]="customer()?.active ? 'success' : 'medium'" class="status-badge">
+          {{ customer()?.active ? 'Activo' : 'Inactivo' }}
+        </ion-badge>
+      </div>
+    </div>
+
+    <!-- Info Card -->
+    <div class="info-grid">
+
+      <!-- Contacto -->
+      <div class="info-card">
+        <div class="card-header">
+          <ion-icon name="call" class="header-icon"></ion-icon>
+          <h2>Contacto</h2>
+        </div>
+        <div class="card-content">
+          <div class="info-row">
+            <span class="label">Telefono: </span>
+            <a [href]="'tel:' + customer()?.phone" class="value clickable">
+              {{ customer()?.phone }}
+            </a>
+          </div>
+          <div class="info-row" *ngIf="customer()?.email">
+            <span class="label">Email: </span>
+            <a [href]="'mailto:' + customer()?.email" class="value clickable">
+              {{ customer()?.email }}
+            </a>
+          </div>
+          <div class="info-row" *ngIf="customer()?.rfc">
+            <span class="label">RFC: </span>
+            <span class="value">{{ customer()?.rfc }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Direccion -->
+      <div class="info-card" *ngIf="customer()?.address">
+        <div class="card-header">
+          <ion-icon name="location" class="header-icon"></ion-icon>
+          <h2>Direccion</h2>
+        </div>
+        <div class="card-content">
+          <p class="address-text">{{ customer()?.address }}</p>
+        </div>
+      </div>
+
+      <!-- Contacto de Emergencia -->
+      <div class="info-card" *ngIf="customer()?.emergencyContact?.name">
+        <div class="card-header">
+          <ion-icon name="medkit" class="header-icon"></ion-icon>
+          <h2>Contacto de Emergencia</h2>
+        </div>
+        <div class="card-content">
+          <div class="info-row">
+            <span class="label">Nombre: </span>
+            <span class="value">{{ customer()?.emergencyContact?.name }}</span>
+          </div>
+          <div class="info-row" *ngIf="customer()?.emergencyContact?.phone">
+            <span class="label">Teléfono: </span>
+            <a [href]="'tel:' + customer()?.emergencyContact?.phone" class="value clickable">
+              {{ customer()?.emergencyContact?.phone }}
+            </a>
+          </div>
+          <div class="info-row" *ngIf="customer()?.emergencyContact?.relationship">
+            <span class="label">Relación: </span>
+            <span class="value">{{ customer()?.emergencyContact?.relationship }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Beneficiarios -->
+      <div class="info-card" *ngIf="customer()?.beneficiaries && customer()?.beneficiaries!.length > 0">
+        <div class="card-header">
+          <ion-icon name="people" class="header-icon"></ion-icon>
+          <h2>Beneficiarios</h2>
+        </div>
+        <div class="card-content">
+          <div class="beneficiaries-list">
+            <div class="beneficiary-item" *ngFor="let beneficiary of customer()?.beneficiaries">
+              <ion-icon name="person" class="beneficiary-icon"></ion-icon>
+              <span>{{ beneficiary }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metadata -->
+      <div class="info-card metadata-card">
+        <div class="card-header">
+          <ion-icon name="information-circle" class="header-icon"></ion-icon>
+          <h2>Información del Sistema</h2>
+        </div>
+        <div class="card-content">
+          <div class="info-row">
+            <span class="label">Registrado: </span>
+            <span class="value">{{ customer()?.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="info-row" *ngIf="customer()?.updatedAt">
+            <span class="label">Última actualización: </span>
+            <span class="value">{{ customer()?.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <ion-button expand="block" (click)="goToEdit()" [disabled]="!customer()?.active">
+        <ion-icon slot="start" name="create-outline"></ion-icon>
+        Editar Cliente
+      </ion-button>
+
+      <ion-button expand="block" fill="outline" [color]="customer()?.active ? 'danger' : 'success'"
+        (click)="toggleActiveStatus()">
+        <ion-icon slot="start" [name]="customer()?.active ? 'close-circle-outline' : 'checkmark-circle-outline'">
+        </ion-icon>
+        {{ customer()?.active ? 'Desactivar' : 'Activar' }} Cliente
+      </ion-button>
+    </div>
+
+  </div>
+
+  <!-- Estado vacío / error -->
+  <app-empty-state *ngIf="!loading() && !customer()" icon="alert-circle-outline" title="Cliente no encontrado"
+    message="No se pudo cargar la informacion del cliente" [showButton]="true" buttonText="Volver a Clientes"
+    (action)="goBack()">
+  </app-empty-state>
 </ion-content>
