@@ -27,7 +27,7 @@
       </ion-button>
 
       <!-- Avatar del usuario -->
-      <ion-button (click)="goToProfile()">
+      <ion-button *ngIf="showProfile" (click)="goToProfile()">
         <ion-icon name="person-circle-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>

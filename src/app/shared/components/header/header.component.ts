@@ -21,6 +21,7 @@ export class HeaderComponent {
   @Input() showSearch: boolean = false;
   @Input() showAdd: boolean = false;
   @Input() showNotifications: boolean = false;
+  @Input() showProfile: boolean = false;
 
   currentUser = this.authService.currentUser;
 
