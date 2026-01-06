@@ -1,13 +1,159 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>customers-form</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/columbarium/customers"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isEditMode ? 'Editar Cliente' : 'Nuevo Cliente' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onSubmit()" [disabled]="customerForm.invalid || loading()" [strong]="true">
+        <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">customers-form</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <form [formGroup]="customerForm">
+
+    <!-- Datos Personales -->
+    <ion-list-header>
+      <ion-label>Datos Personales</ion-label>
+    </ion-list-header>
+
+    <ion-list inset>
+      <!-- Nombre -->
+      <ion-item>
+        <ion-label position="floating">Nombre *</ion-label>
+        <ion-input formControlName="firstName" type="text" placeholder="Juan" autocapitalize="words"
+          [clearInput]="true">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="firstName?.invalid && firstName?.touched">
+        <ion-text color="danger">
+          <small>{{ getErrorMessage('firstName') }}</small>
+        </ion-text>
+      </div>
+
+      <!-- Apellido -->
+      <ion-item>
+        <ion-label position="floating">Apellido *</ion-label>
+        <ion-input formControlName="lastName" type="text" placeholder="Perez" autocapitalize="words"
+          [clearInput]="true">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="lastName?.invalid && lastName?.touched">
+        <ion-text color="danger">
+          <small>{{ getErrorMessage('lastName') }}</small>
+        </ion-text>
+      </div>
+
+      <!-- Telefono -->
+      <ion-item>
+        <ion-label position="floating">Telefono *</ion-label>
+        <ion-input formControlName="phone" type="tel" placeholder="1234567890" maxlength="10" [clearInput]="true">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="phone?.invalid && phone?.touched">
+        <ion-text color="danger">
+          <small>{{ getErrorMessage('phone') }}</small>
+        </ion-text>
+      </div>
+
+      <!-- Email -->
+      <ion-item>
+        <ion-label position="floating">Email</ion-label>
+        <ion-input formControlName="email" type="email" placeholder="juan.perez@email.com" [clearInput]="true">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="email?.invalid && email?.touched">
+        <ion-text color="danger">
+          <small>Email invalido</small>
+        </ion-text>
+      </div>
+
+      <!-- RFC -->
+      <ion-item>
+        <ion-label position="floating">RFC</ion-label>
+        <ion-input formControlName="rfc" type="text" placeholder="ABC12345678" maxlength="13"
+          (ionInput)="onRfcInput($event)" [clearInput]="true">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="rfc?.invalid && rfc?.touched">
+        <ion-text color="danger">
+          <small>RFC invalido (12-13 caracteress)</small>
+        </ion-text>
+      </div>
+
+      <!-- Direccion -->
+      <ion-item>
+        <ion-label position="floating">Direccion</ion-label>
+        <ion-textarea formControlName="address" rows="3" placeholder="Calle, Numero, Colonia, Ciudad"
+          autocapitalize="sentences"></ion-textarea>
+      </ion-item>
+    </ion-list>
+
+    <!-- Contacto de Emergencia -->
+    <ion-list-header>
+      <ion-label>Contacto de Emergencia</ion-label>
+    </ion-list-header>
+
+    <ion-list inset formGroupName="emergencyContact">
+      <!-- Nombre -->
+      <ion-item>
+        <ion-label position="floating">Nombre</ion-label>
+        <ion-input formControlName="name" type="text" placeholder="Maria Perez" autocapitalize="words"
+          [clearInput]="true"></ion-input>
+      </ion-item>
+
+      <!-- Telefono -->
+      <ion-item>
+        <ion-label position="floating">Telefono</ion-label>
+        <ion-input formControlName="phone" type="tel" placeholder="1234567890" maxlength="10"
+          [clearInput]="true"></ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="emergencyPhone?.invalid && emergencyPhone?.touched">
+        <ion-text color="danger">
+          <small>Telefono invalido (10 digitos)</small>
+        </ion-text>
+      </div>
+
+      <!-- Relacion -->
+      <ion-item>
+        <ion-label position="floating">Relacion</ion-label>
+        <ion-input formControlName="relationship" type="text" placeholder="Esposa, Hijo, etc" autocapitalize="words"
+          [clearInput]="true">
+        </ion-input>
+      </ion-item>
+    </ion-list>
+
+    <!-- Beneficiarios -->
+    <ion-list-header>
+      <ion-label>Beneficiarios (En Desarrollo)</ion-label>
+    </ion-list-header>
+
+    <ion-list inset>
+      <ion-item>
+        <ion-label position="floating">Beneficiarios</ion-label>
+        <ion-textarea formControlName="beneficiariesText" rows="2"
+          placeholder="Separados por coma: Ana Perez, Juan Perez" autocapitalize="words"></ion-textarea>
+      </ion-item>
+      <ion-note class="ion-padding-horizontal">
+        Personas autorizadas para usar el nicho
+      </ion-note>
+    </ion-list>
+  </form>
+
+  <!-- Boton de accion principal -->
+  <div class="action-section">
+    <ion-button expand="block" (click)="onSubmit()" [disabled]="customerForm.invalid || loading()">
+      <ion-spinner name="crescent" *ngIf="loading()"></ion-spinner>
+      <span *ngIf="!loading()">
+        {{isEditMode ? 'Guardar Cambios' : 'Crear Cliente'}}
+      </span>
+    </ion-button>
+
+    <ion-button expand="block" fill="clear" (click)="onCancel()" [disabled]="loading()">
+      Cancelar
+    </ion-button>
+  </div>
 </ion-content>
