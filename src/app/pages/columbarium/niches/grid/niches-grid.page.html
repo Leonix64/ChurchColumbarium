@@ -1,13 +1,115 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>niches-grid</ion-title>
-  </ion-toolbar>
-</ion-header>
+<app-header title="Nichos del Columbario" [showSearch]="true" [showAdd]="false"></app-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">niches-grid</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="niches-content">
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading()">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando nichos...</p>
+  </div>
+
+  <!-- Content -->
+  <div class="niches-wrapper" *ngIf="!loading()">
+
+    <!-- Stats Generales -->
+    <div class="stats-card">
+      <h2 class="stats-title">Resumen General</h2>
+      <div class="stats-grid">
+        <div class="stat-item available">
+          <div class="stat-value">{{ stats().available }}</div>
+          <div class="stat-label">Disponibles</div>
+        </div>
+        <div class="stat-item sold">
+          <div class="stat-value">{{ stats().sold }}</div>
+          <div class="stat-label">Vendidos</div>
+        </div>
+        <div class="stat-item reserved">
+          <div class="stat-value">{{ stats().reserved }}</div>
+          <div class="stat-label">Reservados</div>
+        </div>
+        <div class="stat-item disabled">
+          <div class="stat-value">{{ stats().disabled }}</div>
+          <div class="stat-label">Deshabilitados</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Busqueda rapida -->
+    <div class="search-section">
+      <ion-searchbar [value]="searchModule()" (ionInput)="onSearchModule($event)"
+        placeholder="Buscar por modulo (Ej: Guadalupe, Resurreccion)" debounce="300"></ion-searchbar>
+
+      <ion-button expand="block" fill="outline" class="quick-search-btn" (click)="openQuickSearch()">
+        <ion-icon name="search-outline" slot="start"></ion-icon>
+        Busqueda rapida por codigo
+      </ion-button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-section">
+      <ion-segment [value]="statusFilter()" (ionChange)="onFilterChange($event)">
+        <ion-segment-button value="all">
+          <ion-label>Todos</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="available">
+          <ion-label>Disponibles</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="sold">
+          <ion-label>Vendidos</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- Lista de Modulos -->
+    <div class="modules-list">
+      <div class="module-card" *ngFor="let moduleGroup of filteredModules()" (click)="goToModuleDetail(moduleGroup)">
+        <div class="module-header">
+          <ion-icon name="cube-outline"></ion-icon>
+          <div class="module-info">
+            <h3 class="module-title">{{ moduleGroup.module }}</h3>
+            <p class="module-subtitle">{{ moduleGroup.moduleName }}</p>
+          </div>
+          <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
+        </div>
+
+        <div class="module-stats">
+          <div class="stat-row">
+            <span class="stat-label">Total de nichos:</span>
+            <span class="stat-value">{{ moduleGroup.totalNiches }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Disponibles:</span>
+            <span class="stat-value success">{{ moduleGroup.availableNiches }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Vendidos:</span>
+            <span class="stat-value danger">{{ moduleGroup.soldNiches }}</span>
+          </div>
+          <div class="stat-row" *ngIf="moduleGroup.reservedNiches > 0">
+            <span class="stat-label">Reservados:</span>
+            <span class="stat-value warning">{{ moduleGroup.reservedNiches }}</span>
+          </div>
+        </div>
+
+        <!-- Secciones -->
+        <div class="sections-info">
+          <div class="section-badge" *ngFor="let section of moduleGroup.sections">
+            Seccion: {{ section.section }}: {{ section.totalNiches }} nichos
+          </div>
+        </div>
+
+        <div class="module-action">
+          <ion-button fill="clear" size="small">
+            Ver Grid Visual
+            <ion-icon name="arrow-forward" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <app-empty-state *ngIf="filteredModules().length === 0" icon="cube-outline" title="No se encontraron módulos"
+      [message]="searchModule() ? 'Intenta con otro código' : 'No hay módulos disponibles'">
+    </app-empty-state>
+  </div>
 </ion-content>
