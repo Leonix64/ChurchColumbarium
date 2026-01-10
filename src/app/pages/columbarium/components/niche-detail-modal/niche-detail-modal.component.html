@@ -1,0 +1,88 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Detalle del Nicho</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="niche-modal-content">
+  <div class="niche-card">
+
+    <!-- Header con código -->
+    <div class="niche-header">
+      <div class="niche-code-display">
+        <div class="code-label">Código</div>
+        <div class="code-value">{{ niche.code }}</div>
+      </div>
+      <app-status-badge [status]="niche.status"></app-status-badge>
+    </div>
+
+    <!-- Info Grid -->
+    <div class="info-grid">
+
+      <div class="info-item">
+        <ion-icon name="cube-outline" class="info-icon"></ion-icon>
+        <div class="info-content">
+          <div class="info-label">Módulo</div>
+          <div class="info-value">{{ niche.module }} - {{ nicheService.getModuleName(niche.module) }}</div>
+        </div>
+      </div>
+
+      <div class="info-item">
+        <ion-icon name="location-outline" class="info-icon"></ion-icon>
+        <div class="info-content">
+          <div class="info-label">Ubicación</div>
+          <div class="info-value">Fila {{ niche.row }}, Posición {{ niche.number }}</div>
+        </div>
+      </div>
+
+      <div class="info-item">
+        <div class="type-icon">{{ nicheService.getTypeIcon(niche.type) }}</div>
+        <div class="info-content">
+          <div class="info-label">Tipo</div>
+          <div class="info-value">{{ niche.type === 'wood' ? 'Madera' : niche.type === 'marble' ? 'Mármol' : 'Especial'
+            }}</div>
+        </div>
+      </div>
+
+      <div class="info-item">
+        <ion-icon name="pricetag-outline" class="info-icon"></ion-icon>
+        <div class="info-content">
+          <div class="info-label">Precio</div>
+          <div class="info-value price">\${{ niche.price.toLocaleString('es-MX') }} MXN</div>
+        </div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-content">
+          <div class="info-label">Número visible</div>
+          <div class="info-value">#{{ niche.displayNumber }}</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Notas (si existen) -->
+    <div class="notes-section" *ngIf="niche.notes">
+      <div class="notes-label">Notas:</div>
+      <div class="notes-content">{{ niche.notes }}</div>
+    </div>
+
+  </div>
+
+  <!-- Acciones -->
+  <div class="action-buttons">
+    <ion-button expand="block" (click)="viewInGrid()" fill="outline">
+      Ver en Grid
+    </ion-button>
+
+    <ion-button *ngIf="niche.status === 'available'" expand="block" (click)="sellNiche()" color="primary">
+      Vender Nicho
+    </ion-button>
+  </div>
+
+</ion-content>

@@ -29,7 +29,7 @@ export const columbariumRoutes: Routes = [
         loadComponent: () => import('./niches/grid/niches-grid.page').then(m => m.NichesGridPage)
     },
     {
-        path: 'niches/:id',
+        path: 'niches/module/:module/:section',
         loadComponent: () => import('./niches/detail/niches-detail.page').then(m => m.NichesDetailPage)
     },
     {
