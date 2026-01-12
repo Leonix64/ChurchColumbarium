@@ -1,17 +1,19 @@
-ion-toolbar {
-  --padding-start: 4px;
-  --padding-end: 4px;
+ion-header ion-toolbar {
+  --background: var(--color-white);
+  --color: var(--color-gray-800);
+  --border-width: 0;
+  box-shadow: var(--shadow);
 }
 
-ion-title {
+ion-header ion-title {
   font-weight: 600;
+  font-size: 18px;
 }
 
-ion-button {
-  --padding-start: 8px;
-  --padding-end: 8px;
+ion-header ion-button {
+  --color: var(--color-gray-600);
 }
 
-ion-icon {
-  font-size: 24px;
+ion-header ion-button:hover {
+  --color: var(--color-primary);
 }

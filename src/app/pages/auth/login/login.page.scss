@@ -1,0 +1,122 @@
+ion-content {
+  --background: var(--ion-background-color);
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+  padding: 24px;
+}
+
+.app-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: var(--ion-color-primary);
+  text-align: center;
+}
+
+.app-subtitle {
+  font-size: 16px;
+  color: var(--ion-color-medium);
+  margin: 0 0 40px 0;
+  text-align: center;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  margin: 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+  ion-card-header {
+    text-align: center;
+    padding: 24px 24px 16px;
+
+    ion-card-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+  }
+
+  ion-card-content {
+    padding: 24px;
+  }
+}
+
+.input-item {
+  margin-bottom: 16px;
+  --background: transparent;
+  --border-radius: 8px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+
+  ion-icon {
+    font-size: 20px;
+    color: var(--ion-color-medium);
+    margin-right: 8px;
+  }
+
+  ion-label {
+    font-weight: 500;
+  }
+
+  ion-input {
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+  }
+}
+
+.error-message {
+  padding: 0 16px 8px;
+  margin-top: -8px;
+
+  ion-text {
+    font-size: 13px;
+    font-weight: 500;
+  }
+}
+
+.login-button {
+  margin-top: 24px;
+  font-weight: 600;
+  --border-radius: 8px;
+  height: 48px;
+
+  ion-spinner {
+    margin-right: 8px;
+  }
+}
+
+.footer-section {
+  margin-top: 32px;
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+// Animación para errores
+ion-item.ion-invalid.ion-touched {
+  --border-color: var(--ion-color-danger);
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}

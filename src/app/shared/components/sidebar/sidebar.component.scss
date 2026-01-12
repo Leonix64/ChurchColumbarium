@@ -1,0 +1,108 @@
+ion-menu {
+  --width: 280px;
+}
+
+.user-section {
+  padding: 24px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--ion-color-primary);
+  color: white;
+
+  .user-avatar {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+
+    ion-icon {
+      font-size: 48px;
+      color: white;
+    }
+  }
+
+  .user-info {
+    flex: 1;
+
+    h3 {
+      margin: 0 0 4px 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+    }
+
+    ion-note {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .user-role {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      small {
+        color: rgba(255, 255, 255, 0.9);
+      }
+    }
+  }
+}
+
+ion-list {
+  padding: 8px 0;
+  background: transparent;
+}
+
+ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 48px;
+  font-weight: 500;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 22px;
+    margin-right: 16px;
+  }
+
+  &.active-item {
+    --background: var(--ion-color-primary);
+    --color: white;
+    font-weight: 600;
+
+    ion-icon {
+      color: white;
+    }
+  }
+
+  &:hover:not(.active-item) {
+    --background: var(--ion-color-light);
+  }
+}
+
+ion-item-divider {
+  --background: var(--ion-color-light);
+  min-height: 1px;
+  --padding-start: 0;
+  --padding-end: 0;
+  margin: 8px 0;
+}
+
+.menu-footer {
+  position: absolute;
+  bottom: 16px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 0 16px;
+
+  ion-text {
+    font-size: 12px;
+  }
+}

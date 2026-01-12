@@ -1,15 +1,5 @@
-.search-section {
-  padding: 16px;
-  background: var(--ion-background-color);
-
-  ion-searchbar {
-    padding: 0;
-    margin-bottom: 12px;
-  }
-
-  ion-segment {
-    margin-top: 0;
-  }
+.detail-content {
+  --background: var(--ion-background-color);
 }
 
 .loading-container {
@@ -17,7 +7,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 200px;
+  height: 300px;
   gap: 16px;
 
   ion-spinner {
@@ -30,64 +20,163 @@
   }
 }
 
-ion-list {
-  padding: 0;
-  background: transparent;
+.customer-wrapper {
+  padding: 16px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-ion-item {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --min-height: 72px;
+.header-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: var(--ion-card-background);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-  ion-avatar {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--ion-color-light);
-    margin-right: 16px;
-
+  .avatar-section {
     ion-icon {
-      font-size: 32px;
-      color: var(--ion-color-medium);
+      font-size: 80px;
+      color: var(--ion-color-primary);
     }
   }
 
-  h2 {
-    font-weight: 600;
-    font-size: 16px;
-    margin-bottom: 4px;
-    color: var(--ion-color-dark);
-  }
+  .name-section {
+    flex: 1;
 
-  p {
-    font-size: 14px;
-    color: var(--ion-color-medium);
-    margin: 2px 0;
-  }
+    .customer-name {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+      color: var(--ion-color-dark);
+    }
 
-  ion-badge {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 10px;
-    margin-right: 8px;
+    .status-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 10px;
+    }
   }
 }
 
-ion-fab {
-  margin: 16px;
+.info-grid {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
 
-  ion-fab-button {
-    --background: var(--ion-color-primary);
-    --background-activated: var(--ion-color-primary-shade);
+.info-card {
+  background: var(--ion-card-background);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    .header-icon {
+      font-size: 24px;
+      color: var(--ion-color-primary);
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+      color: var(--ion-color-dark);
+    }
+  }
+
+  .card-content {
+    .info-row {
+      display: flex;
+      margin-bottom: 8px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .label {
+        font-weight: 500;
+        color: var(--ion-color-medium);
+        margin-right: 8px;
+      }
+
+      .value {
+        color: var(--ion-color-dark);
+
+        &.clickable {
+          color: var(--ion-color-primary);
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+
+        &.price {
+          font-size: 18px;
+          font-weight: 600;
+          color: var(--ion-color-success);
+        }
+      }
+    }
+
+    .address-text {
+      color: var(--ion-color-dark);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .beneficiaries-list {
+      .beneficiary-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--ion-color-light);
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .beneficiary-icon {
+          font-size: 20px;
+          color: var(--ion-color-primary);
+        }
+      }
+    }
   }
 }
 
-// Estados vacíos
+.metadata-card {
+  .info-row {
+    .value {
+      font-size: 14px;
+    }
+  }
+}
+
+.action-buttons {
+  display: grid;
+  gap: 12px;
+  padding: 0 16px 24px;
+  max-width: 800px;
+  margin: 0 auto;
+
+  ion-button {
+    font-weight: 600;
+    --border-radius: 8px;
+  }
+}
+
 app-empty-state {
   display: block;
-  padding: 40px 16px;
+  padding: 60px 16px;
 }

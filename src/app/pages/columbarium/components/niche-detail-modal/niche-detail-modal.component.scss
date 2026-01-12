@@ -1,0 +1,117 @@
+.niche-modal-content {
+  --background: var(--ion-background-color);
+}
+
+.niche-card {
+  background: var(--ion-card-background);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.niche-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ion-color-light);
+
+  .niche-code-display {
+    .code-label {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .code-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ion-color-primary);
+      font-family: "Courier New", monospace;
+    }
+  }
+}
+
+.info-grid {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .info-icon,
+  .type-icon {
+    font-size: 24px;
+    color: var(--ion-color-primary);
+    min-width: 24px;
+  }
+
+  .type-icon {
+    font-size: 28px;
+    text-align: center;
+  }
+
+  .info-content {
+    flex: 1;
+
+    .info-label {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ion-color-dark);
+
+      &.price {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--ion-color-success);
+      }
+    }
+  }
+}
+
+.notes-section {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+
+  .notes-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ion-color-medium);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .notes-content {
+    font-size: 14px;
+    color: var(--ion-color-dark);
+    line-height: 1.5;
+  }
+}
+
+.action-buttons {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+
+  ion-button {
+    font-weight: 600;
+    --border-radius: 8px;
+    margin: 0;
+  }
+}
