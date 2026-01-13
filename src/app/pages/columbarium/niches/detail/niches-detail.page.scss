@@ -1,0 +1,370 @@
+.niches-detail-content {
+  --background: var(--ion-background-color);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  gap: 16px;
+
+  ion-spinner {
+    --color: var(--ion-color-primary);
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.niches-detail-wrapper {
+  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// Header section
+.section-header {
+  margin-bottom: 16px;
+
+  .header-info {
+    margin-bottom: 12px;
+
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+      color: var(--ion-color-dark);
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--ion-color-medium);
+      margin: 0;
+    }
+  }
+
+  ion-segment {
+    background: var(--ion-card-background);
+    border-radius: 8px;
+    padding: 4px;
+  }
+}
+
+// Mini stats
+.stats-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+
+  .stat-mini {
+    background: var(--ion-card-background);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    &.available {
+      border-left: 4px solid var(--ion-color-success);
+    }
+
+    &.sold {
+      border-left: 4px solid var(--ion-color-danger);
+    }
+
+    &.reserved {
+      border-left: 4px solid var(--ion-color-warning);
+    }
+
+    .stat-mini-value {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .stat-mini-label {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+// Filtros
+.filters-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+
+  ion-chip {
+    margin: 0;
+    cursor: pointer;
+  }
+}
+
+// Leyenda
+.legend-card {
+  background: var(--ion-card-background);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    color: var(--ion-color-dark);
+  }
+
+  .legend-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .legend-color {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
+      &.available {
+        background: #10dc60;
+      }
+
+      &.sold {
+        background: #f53d3d;
+      }
+
+      &.reserved {
+        background: #ffce00;
+      }
+
+      &.disabled {
+        background: #92949c;
+      }
+    }
+
+    .legend-text {
+      font-size: 14px;
+      color: var(--ion-color-dark);
+    }
+  }
+}
+
+// Grid container
+.grid-container {
+  background: var(--ion-card-background);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  overflow-x: auto;
+
+  .grid-label-top,
+  .grid-label-bottom {
+    text-align: center;
+    padding: 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ion-color-medium);
+  }
+
+  .grid-label-top {
+    margin-bottom: 12px;
+  }
+
+  .grid-label-bottom {
+    margin-top: 12px;
+  }
+}
+
+// Grid de nichos
+.niches-grid {
+  display: grid;
+  gap: 6px;
+  min-width: fit-content;
+}
+
+.niche-cell {
+  position: relative;
+  aspect-ratio: 1;
+  min-width: 50px;
+  min-height: 50px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 2px solid transparent;
+
+  // Estados
+  &.available {
+    background: linear-gradient(135deg, #10dc60 0%, #0ec254 100%);
+    color: white;
+
+    &:hover {
+      background: linear-gradient(135deg, #0ec254 0%, #0ab548 100%);
+      transform: scale(1.05);
+    }
+  }
+
+  &.sold {
+    background: linear-gradient(135deg, #f53d3d 0%, #e42b2b 100%);
+    color: white;
+
+    &:hover {
+      background: linear-gradient(135deg, #e42b2b 0%, #d41f1f 100%);
+    }
+  }
+
+  &.reserved {
+    background: linear-gradient(135deg, #ffce00 0%, #f0c000 100%);
+    color: #333;
+
+    &:hover {
+      background: linear-gradient(135deg, #f0c000 0%, #e0b000 100%);
+    }
+  }
+
+  &.disabled {
+    background: linear-gradient(135deg, #92949c 0%, #7e8089 100%);
+    color: white;
+    opacity: 0.7;
+    cursor: not-allowed;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  // Destacado
+  &.highlighted {
+    border-color: var(--ion-color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.3);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .niche-number {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .niche-type-icon {
+    font-size: 16px;
+  }
+
+  // Tooltip
+  .niche-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    margin-bottom: 8px;
+    z-index: 10;
+
+    .tooltip-code {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .tooltip-price {
+      font-size: 11px;
+      color: #4ade80;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: rgba(0, 0, 0, 0.9);
+    }
+  }
+
+  &:hover .niche-tooltip {
+    opacity: 1;
+  }
+}
+
+// Grid info
+.grid-info {
+  text-align: center;
+  margin-top: 16px;
+
+  p {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin: 0;
+
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+}
+
+// Animación pulse
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(var(--ion-color-primary-rgb), 0.1);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .niche-cell {
+    min-width: 45px;
+    min-height: 45px;
+
+    .niche-number {
+      font-size: 12px;
+    }
+
+    .niche-type-icon {
+      font-size: 14px;
+    }
+  }
+
+  .stats-mini-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+app-empty-state {
+  display: block;
+  padding: 60px 16px;
+}

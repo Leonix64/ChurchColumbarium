@@ -17,7 +17,7 @@ import { CommonModule } from '@angular/common';
 })
 export class HeaderComponent {
   @Input() title: string = 'Gestion Iglesia';
-  @Input() color: string = 'primary';
+  @Input() color: string = 'light';
   @Input() showSearch: boolean = false;
   @Input() showAdd: boolean = false;
   @Input() showNotifications: boolean = false;
