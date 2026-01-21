@@ -1,0 +1,49 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Seleccionar Cliente</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar [value]="searchTerm()" (ionInput)="onSearch($event)"
+      placeholder="Buscar por nombre, teléfono, email o RFC" debounce="300" animated>
+    </ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let customer of filteredCustomers()" button (click)="selectCustomer(customer)" detail>
+
+      <ion-avatar slot="start">
+        <ion-icon name="person-circle-outline"></ion-icon>
+      </ion-avatar>
+
+      <ion-label>
+        <h2>{{ customer.firstName }} {{ customer.lastName }}</h2>
+        <p>
+          <ion-icon name="call-outline"></ion-icon>
+          {{ customer.phone }}
+        </p>
+        <p *ngIf="customer.email">
+          <ion-icon name="mail-outline"></ion-icon>
+          {{ customer.email }}
+        </p>
+        <p *ngIf="customer.rfc">
+          <strong>RFC:</strong>
+          {{ customer.rfc }}
+        </p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="filteredCustomers().length === 0">
+    <ion-icon name="person-circle-outline"></ion-icon>
+    <h3>No se encontraron clientes</h3>
+    <p>Intenta con otro término de búsqueda</p>
+  </div>
+</ion-content>

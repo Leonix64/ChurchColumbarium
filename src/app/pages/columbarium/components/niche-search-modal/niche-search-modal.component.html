@@ -1,0 +1,65 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Seleccionar Nicho</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar [value]="searchTerm()" (ionInput)="onSearch($event)" placeholder="Buscar por código, módulo o número"
+      debounce="300" animated>
+    </ion-searchbar>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [value]="typeFilter()" (ionChange)="onFilterChange($event)">
+      <ion-segment-button value="all">
+        <ion-label>Todos</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="wood">
+        <ion-label>🪵 Madera</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="marble">
+        <ion-label>💎 Mármol</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let niche of filteredNiches()" button (click)="selectNiche(niche)" detail>
+
+      <div class="niche-icon" slot="start">
+        {{ niche.type === 'marble' ? '💎' : '🪵' }}
+      </div>
+
+      <ion-label>
+        <h2>
+          {{ niche.code }}
+          <ion-badge color="primary">#{{ niche.displayNumber }}</ion-badge>
+        </h2>
+        <p>
+          <ion-icon name="location-outline"></ion-icon>
+          Módulo {{ niche.module }} - {{ nicheService.getModuleName(niche.module) }}
+        </p>
+        <p>
+          <ion-icon name="business-outline"></ion-icon>
+          Sección {{ niche.section }}, Fila {{ niche.row }}
+        </p>
+        <p class="price">
+          <ion-icon name="pricetag-outline"></ion-icon>
+          {{ niche.price | currencyMx }}
+        </p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="filteredNiches().length === 0">
+    <ion-icon name="business-outline"></ion-icon>
+    <h3>No se encontraron nichos</h3>
+    <p>Intenta con otro termino de busqueda o filtro</p>
+  </div>
+</ion-content>

@@ -1,13 +1,118 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>payment-register</ion-title>
+    <ion-title>Registrar Pago</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">payment-register</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="payment-content">
+
+  <!-- Info de la venta -->
+  <ion-card class="info-card">
+    <ion-card-content>
+      <div class="info-row">
+        <span class="label">Venta:</span>
+        <span class="value">{{ sale.folio }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Cliente:</span>
+        <span class="value">{{ $any(sale.customer)?.firstName }} {{ $any(sale.customer)?.lastName }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Nicho:</span>
+        <span class="value">{{ $any(sale.niche)?.code }}</span>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Info del pago -->
+  <ion-card class="payment-info-card">
+    <ion-card-content>
+      <h3>
+        <ion-icon name="receipt-outline"></ion-icon>
+        Pago #{{ paymentNumber }}
+      </h3>
+      <div class="payment-details">
+        <div class="detail-item">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <div>
+            <p class="detail-label">Vencimiento</p>
+            <p class="detail-value">{{ getPaymentInfo()?.dueDate | date:'dd/MM/yyyy' }}</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <ion-icon name="cash-outline"></ion-icon>
+          <div>
+            <p class="detail-label">Monto</p>
+            <p class="detail-value">{{ getPaymentInfo()?.amount | currencyMx }}</p>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Formulario -->
+  <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
+    <ion-list>
+      <!-- Monto -->
+      <ion-item>
+        <ion-icon name="cash-outline" slot="start"></ion-icon>
+        <ion-label position="floating">Monto recibido *</ion-label>
+        <ion-input formControlName="amount" type="number" placeholder="0.00" [clearInput]="true">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="amount?.invalid && amount?.touched">
+        <ion-note color="danger">
+          <small>{{ getErrorMessage('amount') }}</small>
+        </ion-note>
+      </div>
+
+      <!-- Método de pago -->
+      <ion-item>
+        <ion-icon name="card-outline" slot="start"></ion-icon>
+        <ion-label position="floating">Método de pago *</ion-label>
+        <ion-select formControlName="method">
+          <ion-select-option *ngFor="let method of paymentMethods" [value]="method.value">
+            {{ method.icon }} {{ method.label }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Notas -->
+      <ion-item>
+        <ion-label position="floating">Notas (opcional)</ion-label>
+        <ion-textarea formControlName="notes" rows="3" placeholder="Ej: Pagó con billete de 500">
+        </ion-textarea>
+      </ion-item>
+      <ion-note class="ion-padding-horizontal">
+        Información adicional sobre el pago
+      </ion-note>
+    </ion-list>
+
+    <!-- Botón de acción -->
+    <div class="action-section">
+      <ion-button expand="block" type="submit" [disabled]="paymentForm.invalid || loading()">
+        <ion-spinner name="crescent" *ngIf="loading()"></ion-spinner>
+        <span *ngIf="!loading()">
+          <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+          Registrar Pago
+        </span>
+      </ion-button>
+
+      <ion-button expand="block" fill="clear" (click)="dismiss()" [disabled]="loading()">
+        Cancelar
+      </ion-button>
+    </div>
+
+    <!-- Nota -->
+    <div class="info-note">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <p>Se generará un recibo automáticamente</p>
+    </div>
+  </form>
+
 </ion-content>

@@ -1,0 +1,399 @@
+.detail-content {
+  --background: var(--ion-background-color);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  gap: 16px;
+
+  ion-spinner {
+    --color: var(--ion-color-primary);
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.sale-wrapper {
+  padding: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+// Summary Card
+.summary-card {
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    ion-card-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    ion-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 14px;
+    }
+  }
+
+  .financial-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+
+    .financial-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--ion-color-light);
+
+      &.highlight {
+        background: rgba(var(--ion-color-warning-rgb), 0.1);
+        border: 2px solid var(--ion-color-warning);
+      }
+
+      .label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--ion-color-medium);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .value {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--ion-color-dark);
+
+        &.success {
+          color: var(--ion-color-success);
+        }
+      }
+    }
+  }
+
+  .progress-section {
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+
+      .progress-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+      }
+
+      .progress-percentage {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--ion-color-primary);
+      }
+    }
+
+    ion-progress-bar {
+      height: 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .progress-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--ion-color-medium);
+
+      .overdue {
+        color: var(--ion-color-danger);
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Info Cards
+.info-card {
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  ion-card-header {
+    padding: 16px 16px 8px 16px;
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .header-icon {
+        font-size: 24px;
+        color: var(--ion-color-primary);
+      }
+
+      h2 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+        color: var(--ion-color-dark);
+      }
+    }
+  }
+
+  ion-card-content {
+    padding: 8px 16px 16px 16px;
+
+    h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--ion-color-medium);
+      margin: 4px 0;
+
+      ion-icon {
+        font-size: 16px;
+      }
+
+      .niche-icon {
+        font-size: 18px;
+      }
+    }
+  }
+}
+
+// Amortization Card
+.amortization-card {
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  ion-card-header {
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 600;
+
+      ion-icon {
+        font-size: 24px;
+      }
+    }
+  }
+
+  .amortization-list {
+    background: transparent;
+    padding: 0;
+
+    ion-item {
+      --padding-start: 16px;
+      --padding-end: 16px;
+      --inner-padding-end: 0;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+
+      &.paid {
+        background: rgba(var(--ion-color-success-rgb), 0.05);
+      }
+
+      &.overdue {
+        background: rgba(var(--ion-color-danger-rgb), 0.05);
+        border-color: var(--ion-color-danger);
+      }
+
+      &.next-payment {
+        background: rgba(var(--ion-color-primary-rgb), 0.1);
+        border-color: var(--ion-color-primary);
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      .payment-number {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        min-width: 60px;
+
+        ion-icon {
+          font-size: 28px;
+        }
+
+        span {
+          font-size: 12px;
+          font-weight: 700;
+          color: var(--ion-color-dark);
+        }
+      }
+
+      ion-label {
+        h3 {
+          font-size: 15px;
+          font-weight: 600;
+          margin-bottom: 4px;
+        }
+
+        p {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 13px;
+          color: var(--ion-color-medium);
+
+          ion-icon {
+            font-size: 14px;
+          }
+        }
+      }
+
+      .payment-amount {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+
+        .amount {
+          font-size: 16px;
+          font-weight: 700;
+          color: var(--ion-color-dark);
+        }
+
+        .status-badge {
+          font-size: 10px;
+          padding: 4px 8px;
+        }
+      }
+    }
+  }
+}
+
+// Action Section
+.action-section {
+  margin-top: 24px;
+
+  .next-payment-card {
+    background: linear-gradient(
+      135deg,
+      var(--ion-color-primary) 0%,
+      var(--ion-color-primary-shade) 100%
+    );
+    color: white;
+    margin-bottom: 16px;
+
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 12px 0;
+    }
+
+    .next-payment-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .label {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+        opacity: 0.9;
+      }
+
+      .date {
+        font-size: 13px;
+        margin: 0;
+        opacity: 0.8;
+      }
+
+      .amount-big {
+        font-size: 28px;
+        font-weight: 700;
+      }
+    }
+  }
+
+  .register-payment-btn {
+    font-weight: 600;
+    height: 56px;
+    font-size: 16px;
+  }
+}
+
+// Completed Section
+.completed-section {
+  margin-top: 24px;
+
+  .completed-card {
+    background: rgba(var(--ion-color-success-rgb), 0.1);
+    border: 2px solid var(--ion-color-success);
+    text-align: center;
+
+    ion-icon {
+      font-size: 64px;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--ion-color-medium);
+      margin: 0;
+    }
+  }
+}
+
+// Animation
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--ion-color-primary-rgb), 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(var(--ion-color-primary-rgb), 0);
+  }
+}
+
+// Responsive
+@media (min-width: 768px) {
+  .financial-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+app-empty-state {
+  display: block;
+  padding: 60px 16px;
+}
