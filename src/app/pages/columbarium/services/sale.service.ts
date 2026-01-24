@@ -4,9 +4,14 @@ import { Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
 
 import { Sale, SalesStats, AmortizationEntry } from '../models/sale.model';
-import { Payment } from '../models/payment.model';
-import { CreateSaleRequest, CreateBulkSaleRequest, RegisterPaymentRequest } from '../models/sale.requests';
+import {
+  CreateSaleRequest,
+  CreateBulkSaleRequest,
+  RegisterPaymentRequest,
+  CancelSaleRequest
+} from '../models/sale.requests';
 import { ApiResponse } from 'src/app/core/models/api-response.model';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -49,10 +54,13 @@ export class SaleService {
     );
   }
 
-  // Registrar pago mensual
+  // Registrar pago con modo flexible
   registerPayment(saleId: string, paymentData: RegisterPaymentRequest): Observable<ApiResponse<any>> {
+    console.log('Enviando pago al backend:', paymentData);
+
     return this.http.post<ApiResponse<any>>(`${this.endpoint}/${saleId}/payment`, paymentData).pipe(
-      tap(() => {
+      tap((response) => {
+        console.log('Respuesta del backend:', response);
         // Actualizar la venta especifica
         this.getById(saleId).subscribe();
         // Actualizar lista completa
@@ -61,7 +69,18 @@ export class SaleService {
     );
   }
 
-  // Obtener estadisticas de ventas
+  // Cancelar venta
+  cancelSale(saleId: string, cancelData: CancelSaleRequest): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.endpoint}/${saleId}/cancel`, cancelData).pipe(
+      tap(() => {
+        // Actualizar listas
+        this.getById(saleId).subscribe();
+        this.getAll().subscribe();
+      })
+    );
+  }
+
+  // Obtener estadísticas de ventas
   getStats(): Observable<ApiResponse<SalesStats>> {
     return this.http.get<ApiResponse<SalesStats>>(`${this.endpoint}/stats`);
   }
@@ -77,7 +96,7 @@ export class SaleService {
     return downPayment > 0 && downPayment < total;
   }
 
-  // obtener color de badge segun estado
+  // Colores de estado
   getStatusColor(status: string): string {
     switch (status) {
       case 'active':
@@ -86,29 +105,35 @@ export class SaleService {
         return 'success';
       case 'cancelled':
         return 'danger';
+      case 'overdue':
+        return 'danger';
       default:
         return 'medium';
     }
   }
 
-  // Obtener label segun estado
+  // Labels de estado
   getStatusLabel(status: string): string {
     switch (status) {
       case 'active':
-        return 'Activo';
+        return 'Activa';
       case 'paid':
-        return 'Pagado';
+        return 'Pagada';
       case 'cancelled':
-        return 'Cancelado';
+        return 'Cancelada';
+      case 'overdue':
+        return 'Vencida';
       default:
         return status;
     }
   }
 
-  // Obtener color de badge segun metodo de pago
+  // Colores de estado de pago
   getPaymentStatusColor(status: string): string {
     switch (status) {
       case 'pending':
+        return 'warning';
+      case 'partial':
         return 'warning';
       case 'paid':
         return 'success';
@@ -119,11 +144,13 @@ export class SaleService {
     }
   }
 
-  // Obtener label segun estado de pago
+  // Labels de estado de pago
   getPaymentStatusLabel(status: string): string {
     switch (status) {
       case 'pending':
         return 'Pendiente';
+      case 'partial':
+        return 'Parcial';
       case 'paid':
         return 'Pagado';
       case 'overdue':
@@ -134,9 +161,21 @@ export class SaleService {
   }
 
   // Calcular progreso de pago
-  calculateProgress(amortizationTable: any[]): number {
+  calculateProgress(amortizationTable: AmortizationEntry[]): number {
+    if (!amortizationTable || amortizationTable.length === 0) return 0;
+
     const total = amortizationTable.length;
     const paid = amortizationTable.filter(p => p.status === 'paid').length;
+
     return Math.round((paid / total) * 100);
+  }
+
+  // Calcular total pagado desde amortizationTable
+  calculateTotalPaid(amortizationTable: AmortizationEntry[]): number {
+    if (!amortizationTable || amortizationTable.length === 0) return 0;
+
+    return amortizationTable.reduce((total, payment) => {
+      return total + (payment.amountPaid || 0);
+    }, 0);
   }
 }

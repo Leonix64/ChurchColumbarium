@@ -4,46 +4,66 @@ import { Niche } from "./niche.model";
 export interface Sale {
     _id: string;
     folio: string;
-    niche: string | Niche; // Puede venir populated
+    niche: string | Niche;
     customer: string | Customer;
-    user?: string; // Usuario que registro la venta
+    user?: string;
     totalAmount: number;
     downPayment: number;
     balance: number;
+    totalPaid: number; // Total pagado hasta ahora
     monthsToPay: number;
     interestRate: number;
     status: SaleStatus;
     amortizationTable: AmortizationEntry[];
+    cancellationInfo?: CancellationInfo; // Info de cancelacion
     createdAt: Date;
     updatedAt: Date;
 }
 
-// Estado de las ventas
-export type SaleStatus = 'active' | 'paid' | 'cancelled';
+export type SaleStatus = 'active' | 'paid' | 'cancelled' | 'overdue'; // AGREGADO 'overdue'
 
-// Tabla de pago mensual programado
+// Ahora incluye array de pagos aplicados
 export interface AmortizationEntry {
-    number: number;        // Número de cuota (1-18)
-    dueDate: Date;        // Fecha de vencimiento
-    amount: number;       // Monto a pagar
+    number: number;
+    dueDate: Date;
+    amount: number;
+    amountPaid: number; // Cuanto se ha pagado de este pago
+    amountRemaining: number; // Cuanto falta por pagar
     status: PaymentStatus;
-    paymentReference?: string; // ID del Payment cuando se paga
+    payments: PaymentApplication[]; // Detalle de cada pago aplicado
+    paymentReference?: string; // LEGACY
 }
 
-// Estado de los pagos
-export type PaymentStatus = 'pending' | 'paid' | 'overdue';
+// Detalle de pago aplicado a una cuota
+export interface PaymentApplication {
+    paymentId: string;
+    appliedAmount: number;
+    paidOn: Date;
+}
 
-// Estadisticas de ventas
+export type PaymentStatus = 'pending' | 'partial' | 'paid' | 'overdue';
+
+// Info de cancelacion
+export interface CancellationInfo {
+    cancelledBy: string;
+    cancelledAt: Date;
+    reason: string;
+    refundAmount: number;
+    refundMethod: 'cash' | 'card' | 'transfer';
+    refundNotes?: string;
+}
+
 export interface SalesStats {
     total: number;
     byStatus: {
         active: number;
         paid: number;
         cancelled: number;
+        overdue: number;
     };
     revenue: {
         totalRevenue: number;
-        totalDownPayments: number;
+        totalPaid: number;
         totalBalance: number;
     };
 }

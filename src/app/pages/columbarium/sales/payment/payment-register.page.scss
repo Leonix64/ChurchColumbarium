@@ -28,63 +28,41 @@
         font-size: 14px;
         font-weight: 600;
         color: var(--ion-color-dark);
+
+        &.highlight {
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--ion-color-warning);
+        }
       }
     }
   }
 }
 
-// Payment Info Card
-.payment-info-card {
-  margin: 16px;
-  background: linear-gradient(
-    135deg,
-    var(--ion-color-primary) 0%,
-    var(--ion-color-primary-shade) 100%
-  );
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+// Radio Group
+ion-radio-group {
+  ion-list-header {
+    padding: 16px 16px 8px;
 
-  h3 {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 18px;
-    font-weight: 700;
-    margin: 0 0 16px 0;
-
-    ion-icon {
-      font-size: 24px;
+    ion-label {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--ion-color-medium);
     }
   }
 
-  .payment-details {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-
-    .detail-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: rgba(255, 255, 255, 0.15);
-      padding: 12px;
-      border-radius: 8px;
-
-      ion-icon {
-        font-size: 28px;
-        opacity: 0.9;
+  ion-item {
+    ion-label {
+      h3 {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 4px;
       }
 
-      .detail-label {
-        font-size: 12px;
-        margin: 0 0 4px 0;
-        opacity: 0.8;
-      }
-
-      .detail-value {
-        font-size: 16px;
-        font-weight: 700;
-        margin: 0;
+      p {
+        font-size: 13px;
+        color: var(--ion-color-medium);
       }
     }
   }
@@ -92,7 +70,7 @@
 
 // Form
 ion-list {
-  padding: 16px;
+  padding: 0;
   background: transparent;
 }
 
@@ -102,7 +80,6 @@ ion-item {
   --inner-padding-end: 0;
   margin-bottom: 12px;
   border-radius: 8px;
-  background: var(--ion-card-background);
 
   ion-icon {
     font-size: 24px;
@@ -134,6 +111,43 @@ ion-note {
   color: var(--ion-color-medium);
   padding: 8px 16px;
   display: block;
+}
+
+// Info Alert
+.info-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  margin: 16px;
+  background: rgba(var(--ion-color-warning-rgb), 0.1);
+  border-left: 4px solid var(--ion-color-warning);
+  border-radius: 8px;
+
+  ion-icon {
+    font-size: 24px;
+    color: var(--ion-color-warning);
+    flex-shrink: 0;
+  }
+
+  strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--ion-color-dark);
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--ion-color-dark);
+    margin: 0;
+
+    &.success {
+      color: var(--ion-color-success);
+      font-weight: 600;
+    }
+  }
 }
 
 // Action Section

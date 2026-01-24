@@ -1,6 +1,5 @@
 import { PaymentMethod } from "./payment.model";
 
-// REQUEST: Crear venta individual
 export interface CreateSaleRequest {
     nicheId: string;
     customerId: string;
@@ -8,7 +7,6 @@ export interface CreateSaleRequest {
     downPayment: number;
 }
 
-// REQUEST: Crear venta multiple
 export interface CreateBulkSaleRequest {
     nicheIds: string[];
     customerId: string;
@@ -16,15 +14,23 @@ export interface CreateBulkSaleRequest {
     downPayment: number;
 }
 
-// REQUEST: Registrar pago mensual
+// Soporta pagos flexibles
 export interface RegisterPaymentRequest {
     amount: number;
     method: PaymentMethod;
-    paymentNumber: number; // Numero de cuota (1-18)
+    paymentMode?: 'free' | 'specific'; // Modo de distribucion
+    specificPaymentNumber?: number; // Numero especifico si paymentMode='specific'
     notes?: string;
 }
 
-// REQUEST: Registrar pago de mantenimiento
+// Request para cancelar venta
+export interface CancelSaleRequest {
+    reason: string;
+    refundAmount?: number;
+    refundMethod?: PaymentMethod;
+    refundNotes?: string;
+}
+
 export interface RegisterMaintenanceRequest {
     customerId: string;
     amount: number;
@@ -33,16 +39,14 @@ export interface RegisterMaintenanceRequest {
     notes?: string;
 }
 
-// Respuesta de creacion de venta
 export interface CreateSaleResponse {
-    sale: any;      // Sale creada
-    payment: any;   // Pago inicial registrado
-    niche: any;     // Nicho actualizado
+    sale: any;
+    payment: any;
+    niche: any;
 }
 
-// Respuesta de venta multiple
 export interface CreateBulkSaleResponse {
     sale: any;
     payment: any;
-    niches: any[];  // Array de nichos actualizados
+    niches: any[];
 }

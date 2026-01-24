@@ -190,7 +190,7 @@
   }
 }
 
-// Amortization Card
+// Amortization Card con expandibles
 .amortization-card {
   margin-bottom: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -213,82 +213,178 @@
     background: transparent;
     padding: 0;
 
-    ion-item {
-      --padding-start: 16px;
-      --padding-end: 16px;
-      --inner-padding-end: 0;
-      margin-bottom: 8px;
-      border-radius: 8px;
-      border: 2px solid transparent;
+    .payment-wrapper {
+      margin-bottom: 12px;
 
-      &.paid {
-        background: rgba(var(--ion-color-success-rgb), 0.05);
-      }
+      ion-item {
+        --padding-start: 16px;
+        --padding-end: 16px;
+        --inner-padding-end: 0;
+        border-radius: 8px;
+        border: 2px solid transparent;
+        transition: all 0.2s ease;
 
-      &.overdue {
-        background: rgba(var(--ion-color-danger-rgb), 0.05);
-        border-color: var(--ion-color-danger);
-      }
-
-      &.next-payment {
-        background: rgba(var(--ion-color-primary-rgb), 0.1);
-        border-color: var(--ion-color-primary);
-        animation: pulse 2s ease-in-out infinite;
-      }
-
-      .payment-number {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        min-width: 60px;
-
-        ion-icon {
-          font-size: 28px;
+        &.paid {
+          background: rgba(var(--ion-color-success-rgb), 0.05);
         }
 
-        span {
-          font-size: 12px;
-          font-weight: 700;
-          color: var(--ion-color-dark);
-        }
-      }
-
-      ion-label {
-        h3 {
-          font-size: 15px;
-          font-weight: 600;
-          margin-bottom: 4px;
+        &.partial {
+          background: rgba(var(--ion-color-warning-rgb), 0.05);
+          border-color: var(--ion-color-warning);
         }
 
-        p {
+        &.overdue {
+          background: rgba(var(--ion-color-danger-rgb), 0.05);
+          border-color: var(--ion-color-danger);
+        }
+
+        &.next-payment {
+          background: rgba(var(--ion-color-primary-rgb), 0.1);
+          border-color: var(--ion-color-primary);
+          animation: pulse 2s ease-in-out infinite;
+        }
+
+        .payment-number {
           display: flex;
+          flex-direction: column;
           align-items: center;
-          gap: 6px;
-          font-size: 13px;
-          color: var(--ion-color-medium);
+          gap: 4px;
+          min-width: 60px;
 
           ion-icon {
-            font-size: 14px;
+            font-size: 28px;
+          }
+
+          span {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ion-color-dark);
+          }
+        }
+
+        ion-label {
+          h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+          }
+
+          p {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--ion-color-medium);
+
+            ion-icon {
+              font-size: 14px;
+            }
+
+            &.partial-info {
+              color: var(--ion-color-warning);
+              font-weight: 600;
+              font-size: 12px;
+            }
+          }
+        }
+
+        .payment-amount {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 6px;
+          position: relative;
+
+          .amount {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ion-color-dark);
+          }
+
+          .status-badge {
+            font-size: 10px;
+            padding: 4px 8px;
+          }
+
+          .expand-icon {
+            font-size: 20px;
+            color: var(--ion-color-primary);
+            margin-top: 4px;
           }
         }
       }
 
-      .payment-amount {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 6px;
+      // Sección expandible de detalles de pago
+      .payment-details {
+        background: var(--ion-color-light);
+        border-radius: 0 0 8px 8px;
+        padding: 16px;
+        margin-top: -8px;
+        animation: slideDown 0.3s ease;
 
-        .amount {
-          font-size: 16px;
-          font-weight: 700;
+        .details-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          font-weight: 600;
           color: var(--ion-color-dark);
+          margin-bottom: 12px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid var(--ion-color-medium-shade);
+
+          ion-icon {
+            font-size: 18px;
+            color: var(--ion-color-primary);
+          }
         }
 
-        .status-badge {
-          font-size: 10px;
-          padding: 4px 8px;
+        .payment-application {
+          background: white;
+          border-radius: 8px;
+          padding: 12px;
+          margin-bottom: 8px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          .app-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--ion-color-light-shade);
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            .app-label {
+              font-size: 13px;
+              color: var(--ion-color-medium);
+              font-weight: 500;
+            }
+
+            .app-value {
+              font-size: 13px;
+              color: gray;
+              font-weight: 600;
+
+              &.amount {
+                color: var(--ion-color-success);
+                font-size: 15px;
+              }
+
+              &.code {
+                font-family: monospace;
+                font-size: 11px;
+                background: var(--ion-color-light);
+                padding: 2px 6px;
+                border-radius: 4px;
+              }
+            }
+          }
         }
       }
     }
@@ -375,7 +471,41 @@
   }
 }
 
-// Animation
+// Cancelled Section
+.cancelled-section {
+  margin-top: 24px;
+
+  .cancelled-card {
+    background: rgba(var(--ion-color-danger-rgb), 0.1);
+    border: 2px solid var(--ion-color-danger);
+    text-align: center;
+
+    ion-icon {
+      font-size: 64px;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 12px 0;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--ion-color-dark);
+      margin: 4px 0;
+      text-align: left;
+
+      strong {
+        color: var(--ion-color-danger);
+      }
+    }
+  }
+}
+
+// Animations
 @keyframes pulse {
   0%,
   100% {
@@ -383,6 +513,17 @@
   }
   50% {
     box-shadow: 0 0 0 10px rgba(var(--ion-color-primary-rgb), 0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
   }
 }
 

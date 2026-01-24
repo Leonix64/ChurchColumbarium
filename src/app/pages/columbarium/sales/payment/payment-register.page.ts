@@ -1,18 +1,11 @@
-// src/app/pages/columbarium/sales/payment/payment-register.page.ts
-
 import { Component, OnInit, Input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import {
-  IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
-  IonContent, IonList, IonItem, IonLabel, IonInput, IonSelect,
-  IonSelectOption, IonTextarea, IonIcon, IonNote, IonCard,
-  IonCardContent, IonSpinner, ModalController
-} from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonList, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonTextarea, IonIcon, IonNote, IonCard, IonCardContent, IonSpinner, IonRadioGroup, IonRadio, ModalController, IonListHeader } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   close, cashOutline, cardOutline, receiptOutline,
-  checkmarkCircle, calendarOutline
+  checkmarkCircle, calendarOutline, informationCircleOutline
 } from 'ionicons/icons';
 
 import { SaleService } from '../../services/sale.service';
@@ -32,22 +25,23 @@ import { CurrencyMxPipe } from 'src/app/shared/pipes/currency-mx.pipe';
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
     IonContent, IonList, IonItem, IonLabel, IonInput, IonSelect,
     IonSelectOption, IonTextarea, IonIcon, IonNote, IonCard,
-    IonCardContent, IonSpinner,
-    CurrencyMxPipe
+    IonCardContent, IonSpinner, IonRadioGroup, IonRadio,
+    CurrencyMxPipe,
+    IonListHeader
   ]
 })
 export class PaymentRegisterPage implements OnInit {
   @Input() sale!: Sale;
-  @Input() paymentNumber!: number;
+  @Input() paymentNumber?: number;
 
   paymentForm: FormGroup;
   loading = signal(false);
 
-  // 💳 MÉTODOS DE PAGO
+  // Métodos de pago
   paymentMethods: { value: PaymentMethod; label: string; icon: string }[] = [
-    { value: 'cash', label: 'Efectivo', icon: 'cash-outline' },
-    { value: 'card', label: 'Tarjeta', icon: 'card-outline' },
-    { value: 'transfer', label: 'Transferencia', icon: 'swap-horizontal-outline' }
+    { value: 'cash', label: 'Efectivo', icon: '💵' },
+    { value: 'card', label: 'Tarjeta', icon: '💳' },
+    { value: 'transfer', label: 'Transferencia', icon: '🔄' }
   ];
 
   constructor(
@@ -58,28 +52,60 @@ export class PaymentRegisterPage implements OnInit {
   ) {
     addIcons({
       close, cashOutline, cardOutline, receiptOutline,
-      checkmarkCircle, calendarOutline
+      checkmarkCircle, calendarOutline, informationCircleOutline
     });
 
-    // Inicializar formulario
+    // Modo de pago agregado
     this.paymentForm = this.fb.group({
       amount: ['', [Validators.required, Validators.min(1)]],
       method: ['cash', [Validators.required]],
+      paymentMode: ['free'],
+      specificPaymentNumber: [null],
       notes: ['']
     });
   }
 
   ngOnInit() {
-    // Auto-llenar el monto del pago correspondiente
-    const payment = this.sale.amortizationTable.find(p => p.number === this.paymentNumber);
-    if (payment) {
-      this.paymentForm.patchValue({
-        amount: payment.amount
-      });
+    // Si viene paymentNumber, pre-seleccionar modo específico
+    if (this.paymentNumber) {
+      const payment = this.sale.amortizationTable.find(p => p.number === this.paymentNumber);
+      if (payment) {
+        this.paymentForm.patchValue({
+          amount: payment.amountRemaining,
+          paymentMode: 'specific',
+          specificPaymentNumber: this.paymentNumber
+        });
+      }
+    } else {
+      // Modo libre: calcular próximo pago pendiente
+      const nextPending = this.sale.amortizationTable.find(p => p.status === 'pending' || p.status === 'partial');
+      if (nextPending) {
+        this.paymentForm.patchValue({
+          amount: nextPending.amountRemaining
+        });
+      }
     }
+
+    // Cambiar entre modo libre/específico
+    this.paymentForm.get('paymentMode')?.valueChanges.subscribe(mode => {
+      if (mode === 'specific') {
+        this.paymentForm.get('specificPaymentNumber')?.setValidators([Validators.required]);
+      } else {
+        this.paymentForm.get('specificPaymentNumber')?.clearValidators();
+        this.paymentForm.patchValue({ specificPaymentNumber: null });
+      }
+      this.paymentForm.get('specificPaymentNumber')?.updateValueAndValidity();
+    });
   }
 
-  // 💾 REGISTRAR PAGO
+  // Obtener pagos pendientes
+  getPendingPayments() {
+    return this.sale.amortizationTable.filter(p =>
+      p.status === 'pending' || p.status === 'partial' || p.status === 'overdue'
+    );
+  }
+
+  // Registrar pago
   async onSubmit() {
     if (this.paymentForm.invalid) {
       this.paymentForm.markAllAsTouched();
@@ -87,34 +113,50 @@ export class PaymentRegisterPage implements OnInit {
       return;
     }
 
+    const formValue = this.paymentForm.value;
+
+    // Validar monto
+    if (formValue.amount <= 0) {
+      this.notificationService.error('El monto debe ser mayor a 0');
+      return;
+    }
+
+    if (formValue.amount > this.sale.balance) {
+      const confirmed = await this.notificationService.confirm(
+        'Monto mayor al saldo',
+        `El monto ($${formValue.amount}) es mayor al saldo ($${this.sale.balance}). ¿Continuar?`
+      );
+      if (!confirmed) return;
+    }
+
     // Confirmar
     const confirmed = await this.notificationService.confirm(
       'Confirmar Pago',
-      `¿Registrar pago #${this.paymentNumber} de ${this.paymentForm.value.amount}?`
+      `¿Registrar pago de $${formValue.amount}?`
     );
-
     if (!confirmed) return;
 
     this.loading.set(true);
 
-    // Preparar request
+    // PREPARAR REQUEST CON MODO DE PAGO
     const paymentData: RegisterPaymentRequest = {
-      amount: this.paymentForm.value.amount,
-      method: this.paymentForm.value.method,
-      paymentNumber: this.paymentNumber,
-      notes: this.paymentForm.value.notes?.trim() || undefined
+      amount: Number(formValue.amount),
+      method: formValue.method,
+      paymentMode: formValue.paymentMode,
+      specificPaymentNumber: formValue.specificPaymentNumber || undefined,
+      notes: formValue.notes?.trim() || undefined
     };
 
-    // Enviar
+    console.log('Enviando pago:', paymentData);
+
     this.saleService.registerPayment(this.sale._id, paymentData).subscribe({
       next: (response) => {
         if (response.success) {
           this.notificationService.success('Pago registrado exitosamente');
-
-          // Cerrar modal con éxito
           this.modalCtrl.dismiss({
             success: true,
-            payment: response.data?.payment
+            payment: response.data?.payment,
+            sale: response.data?.sale
           });
         }
         this.loading.set(false);
@@ -125,18 +167,19 @@ export class PaymentRegisterPage implements OnInit {
     });
   }
 
-  // ❌ CANCELAR
   dismiss() {
     this.modalCtrl.dismiss();
   }
 
-  // 🎨 HELPERS
+  // HELPERS
   get amount() { return this.paymentForm.get('amount'); }
   get method() { return this.paymentForm.get('method'); }
+  get paymentMode() { return this.paymentForm.get('paymentMode'); }
+  get specificPaymentNumber() { return this.paymentForm.get('specificPaymentNumber'); }
   get notes() { return this.paymentForm.get('notes'); }
 
-  getPaymentInfo() {
-    return this.sale.amortizationTable.find(p => p.number === this.paymentNumber);
+  getPaymentInfo(paymentNumber: number) {
+    return this.sale.amortizationTable.find(p => p.number === paymentNumber);
   }
 
   getErrorMessage(field: string): string {

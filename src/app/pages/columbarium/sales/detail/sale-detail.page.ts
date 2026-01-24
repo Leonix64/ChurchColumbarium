@@ -5,17 +5,19 @@ import {
   IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton,
   IonTitle, IonButton, IonIcon, IonCard, IonCardHeader, IonCardContent,
   IonCardTitle, IonBadge, IonProgressBar, IonSpinner, IonList,
-  IonItem, IonLabel, IonNote, ModalController, ActionSheetController
+  IonItem, IonLabel, ModalController, ActionSheetController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   ellipsisVertical, personOutline, businessOutline, cashOutline,
   calendarOutline, checkmarkCircle, alertCircle, timeOutline,
-  receiptOutline, documentTextOutline, shareOutline, trashOutline
+  receiptOutline, documentTextOutline, shareOutline, trashOutline,
+  informationCircleOutline
 } from 'ionicons/icons';
 
 import { SaleService } from '../../services/sale.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { EmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state.component';
 import { Sale, AmortizationEntry } from '../../models/sale.model';
 import { Customer } from '../../models/customer.model';
@@ -42,21 +44,30 @@ export class SaleDetailPage implements OnInit {
   sale = signal<Sale | null>(null);
   saleId: string | null = null;
 
-  // Calculos
+  // USUARIO ACTUAL
+  currentUser = this.authService.currentUser;
+
+  // Cálculos
   progress = computed(() => {
     const s = this.sale();
     if (!s) return 0;
     return this.saleService.calculateProgress(s.amortizationTable);
   });
 
+  // Usar totalPaid del backend
+  totalPaidAmount = computed(() => {
+    return this.sale()?.totalPaid || 0;
+  });
+
   // Siguiente pago pendiente
   nextPendingPayment = computed(() => {
     const s = this.sale();
     if (!s) return null;
-    return s.amortizationTable.find(p => p.status === 'pending');
+    return s.amortizationTable.find(p =>
+      p.status === 'pending' || p.status === 'partial' || p.status === 'overdue'
+    );
   });
 
-  // Modelos computados (Helpers para template)
   customer = computed(() => {
     const s = this.sale();
     return (s?.customer && typeof s.customer === 'object') ? s.customer as Customer : null;
@@ -67,7 +78,6 @@ export class SaleDetailPage implements OnInit {
     return (s?.niche && typeof s.niche === 'object') ? s.niche as Niche : null;
   });
 
-  // Estadisticas
   paidPayments = computed(() => {
     const s = this.sale();
     if (!s) return 0;
@@ -83,6 +93,7 @@ export class SaleDetailPage implements OnInit {
   constructor(
     private saleService: SaleService,
     private notificationService: NotificationService,
+    private authService: AuthService,
     private modalCtrl: ModalController,
     private actionSheetCtrl: ActionSheetController,
     private router: Router,
@@ -91,7 +102,8 @@ export class SaleDetailPage implements OnInit {
     addIcons({
       ellipsisVertical, personOutline, businessOutline, cashOutline,
       calendarOutline, checkmarkCircle, alertCircle, timeOutline,
-      receiptOutline, documentTextOutline, shareOutline, trashOutline
+      receiptOutline, documentTextOutline, shareOutline, trashOutline,
+      informationCircleOutline
     });
   }
 
@@ -104,12 +116,12 @@ export class SaleDetailPage implements OnInit {
     }
   }
 
-  // Cargar venta
   loadSale(id: string) {
     this.loading.set(true);
     this.saleService.getById(id).subscribe({
       next: (response) => {
         if (response.success && response.data) {
+          console.log('Venta cargada:', response.data);
           this.sale.set(response.data);
         }
         this.loading.set(false);
@@ -121,19 +133,13 @@ export class SaleDetailPage implements OnInit {
     });
   }
 
-  // Abrir modal de pago
+  // MODAL DE PAGO SIN NÚMERO FIJO
   async openPaymentModal() {
-    const nextPayment = this.nextPendingPayment();
-    if (!nextPayment) {
-      this.notificationService.error('No hay pagos pendientes');
-      return;
-    }
-
     const modal = await this.modalCtrl.create({
       component: PaymentRegisterPage,
       componentProps: {
-        sale: this.sale(),
-        paymentNumber: nextPayment.number
+        sale: this.sale()
+        // NO enviamos paymentNumber, dejamos que el usuario elija
       }
     });
 
@@ -141,48 +147,99 @@ export class SaleDetailPage implements OnInit {
 
     const { data } = await modal.onWillDismiss();
     if (data?.success && this.saleId) {
-      // Recargar venta para ver cambios
+      // Recargar venta
       this.loadSale(this.saleId);
     }
   }
 
-  // Menu de acciones
-  async presentActionSheet() {
-    const actionSheet = await this.actionSheetCtrl.create({
-      header: 'Acciones',
+  // Cancelar venta
+  async cancelSale() {
+    const s = this.sale();
+    if (!s) return;
+
+    // Validar rol
+    if (this.currentUser()?.role !== 'admin') {
+      this.notificationService.error('Solo administradores pueden cancelar ventas');
+      return;
+    }
+
+    // Pedir confirmación con motivo
+    const alert = await this.actionSheetCtrl.create({
+      header: '¿Cancelar esta venta?',
+      subHeader: 'Esta acción liberará el nicho y puede incluir un reembolso',
       buttons: [
         {
-          text: 'Ver Cliente',
-          icon: 'person-outline',
-          handler: () => this.goToCustomer()
+          text: 'Cancelar Venta',
+          role: 'destructive',
+          handler: () => this.confirmCancellation()
         },
         {
-          text: 'Ver Nicho',
-          icon: 'business-outline',
-          handler: () => this.goToNiche()
-        },
-        {
-          text: 'Imprimir Contrato',
-          icon: 'document-text-outline',
-          handler: () => this.printContract()
-        },
-        {
-          text: 'Compartir',
-          icon: 'share-outline',
-          handler: () => this.shareSale()
-        },
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          icon: 'close-circle-outline'
+          text: 'Volver',
+          role: 'cancel'
         }
       ]
+    });
+
+    await alert.present();
+  }
+
+  async confirmCancellation() {
+    // Crear modal para capturar motivo y monto de reembolso
+    this.notificationService.error('Función en desarrollo');
+  }
+
+  async presentActionSheet() {
+    const s = this.sale();
+    const isAdmin = this.currentUser()?.role === 'admin';
+    const canCancel = s?.status === 'active' && isAdmin;
+
+    const buttons: any[] = [
+      {
+        text: 'Ver Cliente',
+        icon: 'person-outline',
+        handler: () => this.goToCustomer()
+      },
+      {
+        text: 'Ver Nicho',
+        icon: 'business-outline',
+        handler: () => this.goToNiche()
+      },
+      {
+        text: 'Imprimir Contrato',
+        icon: 'document-text-outline',
+        handler: () => this.printContract()
+      },
+      {
+        text: 'Compartir',
+        icon: 'share-outline',
+        handler: () => this.shareSale()
+      }
+    ];
+
+    // Opción de cancelar solo para admin
+    if (canCancel) {
+      buttons.push({
+        text: 'Cancelar Venta',
+        icon: 'trash-outline',
+        role: 'destructive',
+        handler: () => this.cancelSale()
+      });
+    }
+
+    buttons.push({
+      text: 'Cerrar',
+      role: 'cancel',
+      icon: 'close-circle-outline'
+    });
+
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Acciones',
+      buttons
     });
 
     await actionSheet.present();
   }
 
-  // Navegacion
   goToCustomer() {
     const customer = this.sale()?.customer as Customer;
     if (customer?._id) {
@@ -207,13 +264,10 @@ export class SaleDetailPage implements OnInit {
     this.router.navigate(['/columbarium/sales']);
   }
 
-  // Imprimir contrato (placeholder)
   printContract() {
     this.notificationService.error('Funcionalidad en desarrollo');
-    // TODO: Generar PDF
   }
 
-  // Compartir
   shareSale() {
     const s = this.sale();
     if (!s) return;
@@ -226,6 +280,7 @@ Venta: ${s.folio}
 Cliente: ${customer.firstName} ${customer.lastName}
 Nicho: ${niche.code}
 Total: $${s.totalAmount.toLocaleString()}
+Pagado: $${s.totalPaid.toLocaleString()}
 Balance: $${s.balance.toLocaleString()}
 Progreso: ${this.progress()}%
     `.trim();
@@ -259,8 +314,23 @@ Progreso: ${this.progress()}%
     return this.saleService.getPaymentStatusLabel(status);
   }
 
-  // CHECK: ¿Es el siguiente pago?
   isNextPayment(payment: AmortizationEntry): boolean {
     return payment.number === this.nextPendingPayment()?.number;
+  }
+
+  // Expandir detalles de pago
+  expandedPayment = signal<number | null>(null);
+
+  togglePaymentDetails(paymentNumber: number) {
+    if (this.expandedPayment() === paymentNumber) {
+      this.expandedPayment.set(null);
+    } else {
+      this.expandedPayment.set(paymentNumber);
+    }
+  }
+
+  // ¿Tiene pagos aplicados?
+  hasPayments(payment: AmortizationEntry): boolean {
+    return payment.payments && payment.payments.length > 0;
   }
 }

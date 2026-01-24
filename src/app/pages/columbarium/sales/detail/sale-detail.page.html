@@ -43,13 +43,14 @@
             <span class="label">Enganche</span>
             <span class="value success">{{ sale()?.downPayment | currencyMx }}</span>
           </div>
+          <!-- Mostrar totalPaid del backend -->
+          <div class="financial-item">
+            <span class="label">Pagado</span>
+            <span class="value success">{{ totalPaidAmount() | currencyMx }}</span>
+          </div>
           <div class="financial-item highlight">
             <span class="label">Saldo</span>
             <span class="value">{{ sale()?.balance | currencyMx }}</span>
-          </div>
-          <div class="financial-item">
-            <span class="label">Mensualidad</span>
-            <span class="value">{{ (sale()!.balance / sale()!.monthsToPay) | currencyMx }}</span>
           </div>
         </div>
 
@@ -109,13 +110,10 @@
           <ion-icon name="location-outline"></ion-icon>
           Módulo {{ niche()?.module }}, Sección {{ niche()?.section }}
         </p>
-        <p>
-          Fila {{ niche()?.row }}, #{{ niche()?.displayNumber }}
-        </p>
       </ion-card-content>
     </ion-card>
 
-    <!-- Tabla de amortización -->
+    <!-- Tabla de amortización con pagos expandibles -->
     <ion-card class="amortization-card">
       <ion-card-header>
         <ion-card-title>
@@ -125,38 +123,74 @@
       </ion-card-header>
       <ion-card-content>
         <ion-list class="amortization-list">
-          <ion-item *ngFor="let payment of sale()?.amortizationTable" [class.next-payment]="isNextPayment(payment)"
-            [class.paid]="payment.status === 'paid'" [class.overdue]="payment.status === 'overdue'" lines="none">
+          <div *ngFor="let payment of sale()?.amortizationTable" class="payment-wrapper">
 
-            <div class="payment-number" slot="start">
-              <ion-icon
-                [name]="payment.status === 'paid' ? 'checkmark-circle' : payment.status === 'overdue' ? 'alert-circle' : 'time-outline'"
-                [color]="getPaymentStatusColor(payment.status)">
-              </ion-icon>
-              <span>#{{ payment.number }}</span>
+            <!-- Fila principal del pago -->
+            <ion-item [class.next-payment]="isNextPayment(payment)" [class.paid]="payment.status === 'paid'"
+              [class.partial]="payment.status === 'partial'" [class.overdue]="payment.status === 'overdue'" lines="none"
+              button (click)="togglePaymentDetails(payment.number)">
+
+              <div class="payment-number" slot="start">
+                <ion-icon
+                  [name]="payment.status === 'paid' ? 'checkmark-circle' : payment.status === 'overdue' ? 'alert-circle' : 'time-outline'"
+                  [color]="getPaymentStatusColor(payment.status)">
+                </ion-icon>
+                <span>#{{ payment.number }}</span>
+              </div>
+
+              <ion-label>
+                <h3>Pago {{ payment.number }}</h3>
+                <p>
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  {{ payment.dueDate | date:'dd/MM/yyyy' }}
+                </p>
+                <!-- Mostrar amountPaid/amountRemaining -->
+                <p *ngIf="payment.status === 'partial'" class="partial-info">
+                  Pagado: {{ payment.amountPaid | currencyMx }} /
+                  Falta: {{ payment.amountRemaining | currencyMx }}
+                </p>
+              </ion-label>
+
+              <div class="payment-amount" slot="end">
+                <span class="amount">{{ payment.amount | currencyMx }}</span>
+                <ion-badge [color]="getPaymentStatusColor(payment.status)" class="status-badge">
+                  {{ getPaymentStatusLabel(payment.status) }}
+                </ion-badge>
+                <!-- Icono para expandir si tiene pagos -->
+                <ion-icon *ngIf="hasPayments(payment)"
+                  [name]="expandedPayment() === payment.number ? 'chevron-up' : 'chevron-down'" class="expand-icon">
+                </ion-icon>
+              </div>
+            </ion-item>
+
+            <!-- Detalle de pagos aplicados (expandible) -->
+            <div class="payment-details" *ngIf="expandedPayment() === payment.number && hasPayments(payment)">
+              <div class="details-header">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <span>Pagos aplicados</span>
+              </div>
+              <div class="payment-application" *ngFor="let app of payment.payments">
+                <div class="app-row">
+                  <span class="app-label">Fecha:</span>
+                  <span class="app-value">{{ app.paidOn | date:'dd/MM/yyyy hh:mm:ss' }}</span>
+                </div>
+                <div class="app-row">
+                  <span class="app-label">Monto:</span>
+                  <span class="app-value amount">{{ app.appliedAmount | currencyMx }}</span>
+                </div>
+                <div class="app-row">
+                  <span class="app-label">Recibo:</span>
+                  <span class="app-value code">{{ app.paymentId }}</span>
+                </div>
+              </div>
             </div>
-
-            <ion-label>
-              <h3>Pago {{ payment.number }}</h3>
-              <p>
-                <ion-icon name="calendar-outline"></ion-icon>
-                {{ payment.dueDate | date:'dd/MM/yyyy' }}
-              </p>
-            </ion-label>
-
-            <div class="payment-amount" slot="end">
-              <span class="amount">{{ payment.amount | currencyMx }}</span>
-              <ion-badge [color]="getPaymentStatusColor(payment.status)" class="status-badge">
-                {{ getPaymentStatusLabel(payment.status) }}
-              </ion-badge>
-            </div>
-          </ion-item>
+          </div>
         </ion-list>
       </ion-card-content>
     </ion-card>
 
     <!-- Botón de acción -->
-    <div class="action-section" *ngIf="nextPendingPayment()">
+    <div class="action-section" *ngIf="nextPendingPayment() && sale()?.status === 'active'">
       <ion-card class="next-payment-card">
         <ion-card-content>
           <h3>Siguiente Pago</h3>
@@ -166,7 +200,7 @@
               <p class="date">Vence: {{ nextPendingPayment()?.dueDate | date:'dd/MM/yyyy' }}</p>
             </div>
             <div class="amount-big">
-              {{ nextPendingPayment()?.amount | currencyMx }}
+              {{ nextPendingPayment()?.amountRemaining | currencyMx }}
             </div>
           </div>
         </ion-card-content>
@@ -179,12 +213,31 @@
     </div>
 
     <!-- Venta completada -->
-    <div class="completed-section" *ngIf="!nextPendingPayment() && sale()?.status === 'paid'">
+    <div class="completed-section" *ngIf="sale()?.status === 'paid'">
       <ion-card class="completed-card">
         <ion-card-content>
           <ion-icon name="checkmark-circle" color="success"></ion-icon>
           <h3>Venta Completada</h3>
           <p>Todos los pagos han sido registrados exitosamente</p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Venta cancelada -->
+    <div class="cancelled-section" *ngIf="sale()?.status === 'cancelled'">
+      <ion-card class="cancelled-card">
+        <ion-card-content>
+          <ion-icon name="close-circle" color="danger"></ion-icon>
+          <h3>Venta Cancelada</h3>
+          <p *ngIf="sale()?.cancellationInfo?.reason">
+            <strong>Motivo:</strong> {{ sale()?.cancellationInfo?.reason }}
+          </p>
+          <p *ngIf="sale()?.cancellationInfo?.refundAmount">
+            <strong>Reembolso:</strong> {{ sale()?.cancellationInfo?.refundAmount | currencyMx }}
+          </p>
+          <p *ngIf="sale()?.cancellationInfo?.cancelledAt">
+            <strong>Fecha:</strong> {{ sale()?.cancellationInfo?.cancelledAt | date:'dd/MM/yyyy HH:mm' }}
+          </p>
         </ion-card-content>
       </ion-card>
     </div>
