@@ -36,7 +36,14 @@ export interface AmortizationEntry {
 
 // Detalle de pago aplicado a una cuota
 export interface PaymentApplication {
-    paymentId: string;
+    paymentId: {
+        _id: string;
+        amount: number;
+        receiptNumber: string;
+        method: 'cash' | 'card' | 'transfer';
+        paymentDate: Date;
+        notes?: string;
+    };
     appliedAmount: number;
     paidOn: Date;
 }

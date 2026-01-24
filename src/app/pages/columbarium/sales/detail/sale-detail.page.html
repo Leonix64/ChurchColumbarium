@@ -180,7 +180,15 @@
                 </div>
                 <div class="app-row">
                   <span class="app-label">Recibo:</span>
-                  <span class="app-value code">{{ app.paymentId }}</span>
+                  <span class="app-value code">{{ app.paymentId.receiptNumber }}</span>
+                </div>
+                <div class="app-row">
+                  <span class="app-label">Metodo de pago:</span>
+                  <span class="app-value code">{{ app.paymentId.method }}</span>
+                </div>
+                <div class="app-row">
+                  <span class="app-label">Notas:</span>
+                  <span class="app-value">{{ app.paymentId.notes || 'No hay notas' }}</span>
                 </div>
               </div>
             </div>
