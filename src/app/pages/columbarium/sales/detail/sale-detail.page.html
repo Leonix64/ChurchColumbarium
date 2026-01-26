@@ -184,7 +184,8 @@
                 </div>
                 <div class="app-row">
                   <span class="app-label">Metodo de pago:</span>
-                  <span class="app-value code">{{ app.paymentId.method }}</span>
+                  <!-- <span class="app-value code">{{ app.paymentId.method }}</span> -->
+                  <span class="app-value code">{{ getPaymentMethodLabel(app.paymentId.method) }}</span>
                 </div>
                 <div class="app-row">
                   <span class="app-label">Notas:</span>

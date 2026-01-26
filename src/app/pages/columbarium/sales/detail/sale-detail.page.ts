@@ -314,6 +314,15 @@ Progreso: ${this.progress()}%
     return this.saleService.getPaymentStatusLabel(status);
   }
 
+  getPaymentMethodLabel(method: string): string {
+    const methods: { [key: string]: string } = {
+      'cash': 'Efectivo',
+      'card': 'Tarjeta',
+      'transfer': 'Transferencia'
+    };
+    return methods[method] || method;
+  }
+
   isNextPayment(payment: AmortizationEntry): boolean {
     return payment.number === this.nextPendingPayment()?.number;
   }
