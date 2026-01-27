@@ -179,9 +179,6 @@ export class SaleCreatePage implements OnInit {
   async openCustomerSearch() {
     const modal = await this.modalCtrl.create({
       component: CustomerSearchModalComponent,
-      componentProps: {
-        customers: this.customers()
-      }
     });
 
     await modal.present();
@@ -197,9 +194,6 @@ export class SaleCreatePage implements OnInit {
   async openNicheSearch() {
     const modal = await this.modalCtrl.create({
       component: NicheSearchModalComponent,
-      componentProps: {
-        niches: this.availableNiches()
-      }
     });
 
     await modal.present();

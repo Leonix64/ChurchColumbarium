@@ -9,7 +9,7 @@
   </ion-toolbar>
   <ion-toolbar>
     <ion-searchbar [value]="searchTerm()" (ionInput)="onSearch($event)" placeholder="Buscar por código, módulo o número"
-      debounce="300" animated>
+      debounce="0" animated>
     </ion-searchbar>
   </ion-toolbar>
   <ion-toolbar>
@@ -28,8 +28,15 @@
 </ion-header>
 
 <ion-content>
-  <ion-list>
-    <ion-item *ngFor="let niche of filteredNiches()" button (click)="selectNiche(niche)" detail>
+
+  <!-- Loading inicial -->
+  <div class="loading-container" *ngIf="loading() && niches().length === 0">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Buscando nichos...</p>
+  </div>
+
+  <ion-list *ngIf="niches().length > 0">
+    <ion-item *ngFor="let niche of niches()" button (click)="selectNiche(niche)" detail>
 
       <div class="niche-icon" slot="start">
         {{ niche.type === 'marble' ? '💎' : '🪵' }}
@@ -56,8 +63,14 @@
     </ion-item>
   </ion-list>
 
+  <!-- Infinite scroll -->
+  <ion-infinite-scroll *ngIf="hasMore() && niches().length > 0" (ionInfinite)="loadMore($event)">
+    <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Cargando más nichos...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
   <!-- Empty state -->
-  <div class="empty-state" *ngIf="filteredNiches().length === 0">
+  <div class="empty-state" *ngIf="!loading() && niches().length === 0">
     <ion-icon name="business-outline"></ion-icon>
     <h3>No se encontraron nichos</h3>
     <p>Intenta con otro termino de busqueda o filtro</p>

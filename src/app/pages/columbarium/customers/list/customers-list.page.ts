@@ -95,6 +95,10 @@ export class CustomersListPage implements OnInit {
     this.searchTerm.set(term);
   }
 
+  trackByFn(index: number, customer: Customer): string {
+    return customer._id;
+  }
+
   goToDetail(id: string) {
     this.router.navigate(['/columbarium/customers', id]);
   }

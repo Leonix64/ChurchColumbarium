@@ -121,7 +121,7 @@ export class SaleDetailPage implements OnInit {
     this.saleService.getById(id).subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          console.log('Venta cargada:', response.data);
+          //console.log('Venta cargada:', response.data);
           this.sale.set(response.data);
         }
         this.loading.set(false);

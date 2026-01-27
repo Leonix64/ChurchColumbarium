@@ -76,6 +76,14 @@ export class NicheService {
     );
   }
 
+  searchNiches(search?: string, type?: string, limit: number = 20, page: number = 1): Observable<ApiResponse<Niche[]>> {
+    const params: any = { limit, page };
+    if (search) params.search = search;
+    if (type) params.type = type;
+
+    return this.http.get<ApiResponse<Niche[]>>(`${this.endpoint}/search`, { params });
+  }
+
   // === Agrupacion ===
 
   private groupByModules(niches: Niche[]): ModuleGroup[] {

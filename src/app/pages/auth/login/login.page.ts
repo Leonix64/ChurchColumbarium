@@ -78,7 +78,7 @@ export class LoginPage {
       next: async (response) => {
         await loading.dismiss();
         this.isLoading = false;
-        console.log('Data:', response);
+        //console.log('Data:', response);
 
         // Mostrar toast de exito
         const toast = await this.toastCtrl.create({

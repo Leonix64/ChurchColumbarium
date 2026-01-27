@@ -27,7 +27,7 @@
 
     <!-- Lista de clientes -->
     <ion-list *ngIf="!loading() && filteredCustomers().length > 0">
-        <ion-item *ngFor="let customer of filteredCustomers()" [button]="true" [detail]="true"
+        <ion-item *ngFor="let customer of filteredCustomers(); trackBy: trackByFn" [button]="true" [detail]="true"
             (click)="goToDetail(customer._id)">
 
             <ion-avatar slot="start">

@@ -73,4 +73,22 @@ ion-item {
     color: var(--ion-color-medium);
     margin: 0;
   }
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    gap: 16px;
+
+    ion-spinner {
+      --color: var(--ion-color-primary);
+    }
+
+    p {
+      color: var(--ion-color-medium);
+      margin: 0;
+    }
+  }
 }

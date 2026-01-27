@@ -67,7 +67,9 @@ export class CustomersFormPage implements OnInit {
 
     if (this.customerId) {
       this.isEditMode = true;
+      console.log('Modo edicion detectado para la ID: ', this.customerId);
       this.loadCustomer(this.customerId);
+      console.log('Modo creacion');
     }
   }
 
@@ -82,7 +84,7 @@ export class CustomersFormPage implements OnInit {
         }
         this.loading.set(false);
       },
-      error: (error) => {
+      error: () => {
         this.notificationService.error('Error al cargar el cliente');
         this.loading.set(false);
         this.router.navigate(['/columbarium/customers']);
@@ -165,11 +167,17 @@ export class CustomersFormPage implements OnInit {
           this.notificationService.success(
             this.isEditMode ? 'Cliente actualizado correctamente' : 'Cliente creado correctamente'
           );
-          this.router.navigate(['/columbarium/customers']);
+
+          const clientId = this.isEditMode ? this.customerId : response.data?._id;
+          if (clientId) {
+            this.router.navigate(['/columbarium/customers', clientId]);
+          } else {
+            this.router.navigate(['/columbarium/customers']);
+          }
         }
         this.loading.set(false);
       },
-      error: (error) => {
+      error: () => {
         this.loading.set(false);
       }
     });
@@ -202,7 +210,11 @@ export class CustomersFormPage implements OnInit {
       if (!confirmed) return;
     }
 
-    this.router.navigate(['/columbarium/customers']);
+    if (this.isEditMode && this.customerId) {
+      this.router.navigate(['/columbarium/customers', this.customerId]);
+    } else {
+      this.router.navigate(['/columbarium/customers']);
+    }
   }
 
   // Getters para acceso fácil

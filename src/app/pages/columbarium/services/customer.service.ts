@@ -50,4 +50,11 @@ export class CustomerService {
     return this.http.patch<ApiResponse<Customer>>(`${this.endpoint}/${id}/activate`, {})
       .pipe(tap(() => this.getAll().subscribe()));
   }
+
+  searchCustomers(search?: string, limit: number = 20, page: number = 1): Observable<ApiResponse<Customer[]>> {
+    const params: any = { limit, page };
+    if (search) params.search = search;
+
+    return this.http.get<ApiResponse<Customer[]>>(`${this.endpoint}/search`, { params });
+  }
 }

@@ -3,5 +3,8 @@ export interface ApiResponse<T = any> {
     message?: string;
     data?: T;
     count?: number;
+    page?: number;
+    pages?: number;
+    limit?: number;
     details?: any;
 }
