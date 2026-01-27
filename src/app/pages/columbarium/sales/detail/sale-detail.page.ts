@@ -164,29 +164,28 @@ export class SaleDetailPage implements OnInit {
       return;
     }
 
-    // Pedir confirmación con motivo
-    const alert = await this.actionSheetCtrl.create({
-      header: '¿Cancelar esta venta?',
-      subHeader: 'Esta acción liberará el nicho y puede incluir un reembolso',
-      buttons: [
-        {
-          text: 'Cancelar Venta',
-          role: 'destructive',
-          handler: () => this.confirmCancellation()
-        },
-        {
-          text: 'Volver',
-          role: 'cancel'
-        }
-      ]
+    // Validar estado
+    if (s.status !== 'active' && s.status !== 'overdue') {
+      this.notificationService.error('Solo se puede cancelar una venta activa o vencida');
+      return;
+    }
+
+    // Abrir modal de cancelacion
+    const modal = await this.modalCtrl.create({
+      component: SaleCancelComponent,
+      componentProps: {
+        sale: s
+      }
     });
 
-    await alert.present();
-  }
+    await modal.present();
 
-  async confirmCancellation() {
-    // Crear modal para capturar motivo y monto de reembolso
-    this.notificationService.error('Función en desarrollo');
+    const { data } = await modal.onWillDismiss();
+    if (data?.success && this.saleId) {
+      // Recargar venta o volver a la lista
+      this.notificationService.success('Venta cancelada exitosamente');
+      this.router.navigate(['/columbarium/sales']);
+    }
   }
 
   async presentActionSheet() {

@@ -1,0 +1,135 @@
+ion-content {
+  --background: var(--ion-background-color);
+}
+
+.filters-section {
+  padding: 16px;
+  background: var(--ion-card-background);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  ion-segment {
+    background: var(--ion-color-light);
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 12px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  gap: 16px;
+
+  ion-spinner {
+    --color: var(--ion-color-primary);
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// Audit Items
+.audit-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --inner-padding-end: 0;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border-left: 4px solid transparent;
+
+  &:hover {
+    background: var(--ion-color-light);
+  }
+
+  .action-icon {
+    font-size: 32px;
+    margin-right: 16px;
+  }
+
+  ion-label {
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+
+      .action-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 10px;
+      }
+
+      .entity-label {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+      }
+    }
+
+    p {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--ion-color-medium);
+      margin: 4px 0;
+
+      ion-icon {
+        font-size: 14px;
+      }
+
+      &.user-info {
+        font-weight: 500;
+      }
+
+      &.timestamp {
+        font-size: 12px;
+      }
+
+      &.details-text {
+        font-size: 12px;
+        color: var(--ion-color-dark);
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid var(--ion-color-light);
+
+        strong {
+          color: var(--ion-color-medium);
+        }
+      }
+    }
+  }
+}
+
+// Color borders según acción
+ion-item {
+  &:has(.action-icon[color="success"]) {
+    border-left-color: var(--ion-color-success);
+  }
+
+  &:has(.action-icon[color="danger"]) {
+    border-left-color: var(--ion-color-danger);
+  }
+
+  &:has(.action-icon[color="warning"]) {
+    border-left-color: var(--ion-color-warning);
+  }
+
+  &:has(.action-icon[color="primary"]) {
+    border-left-color: var(--ion-color-primary);
+  }
+}
+
+app-empty-state {
+  display: block;
+  padding: 60px 16px;
+}

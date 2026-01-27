@@ -17,7 +17,6 @@ import {
 import { SaleService } from '../../services/sale.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { Sale } from '../../models/sale.model';
-import { CancelSaleRequest } from '../../models/sale.requests';
 import { CurrencyMxPipe } from 'src/app/shared/pipes/currency-mx.pipe';
 
 @Component({
@@ -66,6 +65,7 @@ export class SaleCancelComponent implements OnInit {
       Validators.min(0),
       Validators.max(this.sale.totalPaid)
     ]);
+    this.cancelForm.get('refundAmount')?.updateValueAndValidity();
 
     // Si hay refund amount, hacer refundMethod requerido
     this.cancelForm.get('refundAmount')?.valueChanges.subscribe(amount => {
@@ -80,8 +80,27 @@ export class SaleCancelComponent implements OnInit {
   }
 
   async onSubmit() {
+    // Marcar todos los campos como touched para mostrar errores
+    this.cancelForm.markAllAsTouched();
+
+    console.log('📋 Estado del formulario:', {
+      valid: this.cancelForm.valid,
+      errors: this.cancelForm.errors,
+      values: this.cancelForm.value,
+      reasonErrors: this.cancelForm.get('reason')?.errors,
+      confirmationValue: this.cancelForm.get('confirmation')?.value
+    });
+
     if (this.cancelForm.invalid) {
-      this.cancelForm.markAllAsTouched();
+      // Mostrar errores específicos
+      if (this.cancelForm.get('reason')?.errors) {
+        this.notificationService.error('El motivo debe tener al menos 10 caracteres');
+        return;
+      }
+      if (this.cancelForm.get('confirmation')?.errors) {
+        this.notificationService.error('Debes confirmar la cancelación');
+        return;
+      }
       this.notificationService.error('Complete todos los campos requeridos');
       return;
     }
@@ -91,7 +110,7 @@ export class SaleCancelComponent implements OnInit {
     // Validar monto de reembolso
     if (formValue.refundAmount > this.sale.totalPaid) {
       this.notificationService.error(
-        `El reembolso no puede exceder ${this.sale.totalPaid.toLocaleString('es-MX')}`
+        `El reembolso no puede exceder $${this.sale.totalPaid.toLocaleString('es-MX')}`
       );
       return;
     }
@@ -99,26 +118,34 @@ export class SaleCancelComponent implements OnInit {
     // Confirmación final
     const confirmed = await this.notificationService.confirm(
       '¿Confirmar cancelación?',
-      `Esta acción es irreversible. El nicho será liberado${formValue.refundAmount > 0 ? ` y se reembolsará ${formValue.refundAmount.toLocaleString('es-MX')}` : ''}.`
+      `Esta acción es irreversible. El nicho será liberado${formValue.refundAmount > 0 ? ` y se reembolsará $${formValue.refundAmount.toLocaleString('es-MX')}` : ''}.`
     );
 
     if (!confirmed) return;
 
     this.loading.set(true);
 
-    // Preparar datos
-    const cancelData: CancelSaleRequest = {
-      reason: formValue.reason.trim(),
-      refundAmount: formValue.refundAmount || undefined,
-      refundMethod: (formValue.refundAmount > 0 ? formValue.refundMethod : undefined),
-      refundNotes: formValue.refundNotes?.trim() || undefined
+    // Preparar datos - SOLO enviar lo necesario
+    const cancelData: any = {
+      reason: formValue.reason.trim()
     };
 
-    console.log('Cancelando venta:', cancelData);
+    // Solo agregar campos de reembolso si hay monto mayor a 0
+    if (formValue.refundAmount && Number(formValue.refundAmount) > 0) {
+      cancelData.refundAmount = Number(formValue.refundAmount);
+      cancelData.refundMethod = formValue.refundMethod || 'cash';
+
+      if (formValue.refundNotes && formValue.refundNotes.trim()) {
+        cancelData.refundNotes = formValue.refundNotes.trim();
+      }
+    }
+
+    console.log('📤 Enviando datos de cancelación:', cancelData);
 
     // Cancelar venta
     this.saleService.cancelSale(this.sale._id, cancelData).subscribe({
       next: (response) => {
+        console.log('✅ Respuesta del backend:', response);
         if (response.success) {
           this.notificationService.success('Venta cancelada exitosamente');
           this.modalCtrl.dismiss({
@@ -128,8 +155,16 @@ export class SaleCancelComponent implements OnInit {
         }
         this.loading.set(false);
       },
-      error: () => {
+      error: (error) => {
+        console.error('❌ Error completo:', error);
+        console.error('❌ Error status:', error.status);
+        console.error('❌ Error body:', error.error);
         this.loading.set(false);
+
+        // Mostrar error específico del backend
+        if (error.error?.message) {
+          this.notificationService.error(error.error.message);
+        }
       }
     });
   }
@@ -150,8 +185,9 @@ export class SaleCancelComponent implements OnInit {
 
     if (control.errors['required']) return 'Campo requerido';
     if (control.errors['min']) return `Mínimo: ${control.errors['min'].min}`;
-    if (control.errors['max']) return `Máximo: ${control.errors['max'].max}`;
+    if (control.errors['max']) return `Máximo: $${control.errors['max'].max.toLocaleString('es-MX')}`;
     if (control.errors['minlength']) return `Mínimo ${control.errors['minlength'].requiredLength} caracteres`;
+    if (control.errors['maxlength']) return `Máximo ${control.errors['maxlength'].requiredLength} caracteres`;
 
     return 'Campo inválido';
   }

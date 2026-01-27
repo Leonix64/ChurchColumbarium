@@ -11,8 +11,9 @@ import {
   homeOutline, businessOutline, peopleOutline, gridOutline,
   cashOutline, statsChartOutline, arrowBackOutline,
   personOutline, settingsOutline, logOutOutline,
-  boatOutline,
-  personCircleOutline
+  boatOutline, documentTextOutline,
+  personCircleOutline,
+  documentOutline
 } from 'ionicons/icons';
 
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -51,7 +52,8 @@ export class SidebarComponent {
     { title: 'Clientes', url: '/columbarium/customers', icon: 'people-outline' },
     { title: 'Nichos', url: '/columbarium/niches', icon: 'grid-outline' },
     { title: 'Ventas', url: '/columbarium/sales', icon: 'cash-outline' },
-    { title: 'Estadísticas', url: '/columbarium/stats', icon: 'stats-chart-outline' }
+    { title: 'Estadísticas', url: '/columbarium/stats', icon: 'stats-chart-outline' },
+    { title: 'Auditoría (Beta)', url: '/columbarium/audit', icon: 'document-text-outline' }
   ];
 
   pilgrimagesMenu: MenuItem[] = [
@@ -68,7 +70,7 @@ export class SidebarComponent {
       homeOutline, businessOutline, peopleOutline, gridOutline,
       cashOutline, statsChartOutline, arrowBackOutline,
       personOutline, settingsOutline, logOutOutline,
-      boatOutline, personCircleOutline
+      boatOutline, personCircleOutline, documentTextOutline
     });
   }
 

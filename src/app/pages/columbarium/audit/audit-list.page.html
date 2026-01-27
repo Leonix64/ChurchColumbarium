@@ -1,0 +1,67 @@
+<app-header title="Registro de Auditoría" [showSearch]="false" [showAdd]="false"></app-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Filtros -->
+  <div class="filters-section">
+    <ion-segment [value]="actionFilter()" (ionChange)="onActionFilterChange($event)" scrollable>
+      <ion-segment-button *ngFor="let filter of actionFilters" [value]="filter.value">
+        <ion-label>{{ filter.label }}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <ion-segment [value]="entityFilter()" (ionChange)="onEntityFilterChange($event)" scrollable>
+      <ion-segment-button *ngFor="let filter of entityFilters" [value]="filter.value">
+        <ion-label>{{ filter.label }}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading() && logs().length === 0">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando registros...</p>
+  </div>
+
+  <!-- Lista de logs -->
+  <ion-list *ngIf="!loading() || logs().length > 0">
+    <ion-item *ngFor="let log of logs()" class="audit-item">
+      <ion-icon [name]="getActionIcon(log.action)" [color]="getActionColor(log.action)" slot="start"
+        class="action-icon">
+      </ion-icon>
+
+      <ion-label>
+        <h2>
+          <ion-badge [color]="getActionColor(log.action)" class="action-badge">
+            {{ getActionLabel(log.action) }}
+          </ion-badge>
+          <span class="entity-label">{{ getEntityLabel(log.entity) }}</span>
+        </h2>
+
+        <p class="user-info">
+          <ion-icon name="person-outline"></ion-icon>
+          {{ log.userName || 'Usuario desconocido' }}
+        </p>
+
+        <p class="timestamp">
+          <ion-icon name="time-outline"></ion-icon>
+          {{ formatTimestamp(log.timestamp) }}
+        </p>
+
+        <p *ngIf="log.details?.reason" class="details-text">
+          <strong>Motivo:</strong> {{ log.details.reason }}
+        </p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <!-- Infinite Scroll -->
+  <ion-infinite-scroll *ngIf="hasMore() && logs().length > 0" (ionInfinite)="loadMore($event)">
+    <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Cargando más registros...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+  <!-- Empty State -->
+  <app-empty-state *ngIf="!loading() && logs().length === 0" icon="document-text-outline"
+    title="No hay registros de auditoría" message="Aún no se han generado logs en el sistema">
+  </app-empty-state>
+</ion-content>
