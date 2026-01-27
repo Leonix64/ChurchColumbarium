@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, throwError } from 'rxjs';
+import { Observable, tap, catchError, throwError, BehaviorSubject, filter, take, switchMap } from 'rxjs';
 
 import { environment } from 'src/environments/environment.prod';
 import { StorageService } from './storage.service';
@@ -18,6 +18,10 @@ export class AuthService {
   // Estado reactivo con Signals
   private currentUserSignal = signal<User | null>(null);
   private tokenSignal = signal<string | null>(null);
+
+  // Control de refresh para evitar llamadas múltiples
+  private refreshTokenInProgress = false;
+  private refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
   // Propiedades publicas
   currentUser = this.currentUserSignal.asReadonly();
@@ -44,6 +48,7 @@ export class AuthService {
     if (token && user) {
       this.tokenSignal.set(token);
       this.currentUserSignal.set(user);
+      //console.log('Sesión restaurada:', user.username);
     }
   }
 
@@ -52,22 +57,13 @@ export class AuthService {
     return this.http.post<ApiResponse<LoginResponse>>(`${environment.apiUrl}/auth/login`, credentials).pipe(
       tap(response => {
         if (response.success && response.data) {
-          // Guardar token y usuario
           const { user, tokens } = response.data;
-
-          this.storageService.set('accessToken', tokens.accessToken);
-          this.storageService.set('refreshToken', tokens.refreshToken);
-          this.storageService.set('user', user);
-
-          // Actualizar signals
-          this.tokenSignal.set(tokens.accessToken);
-          this.currentUserSignal.set(user);
-
-          console.log('Login exitoso:', user.username);
+          this.saveAuthData(tokens.accessToken, tokens.refreshToken, user);
+          //console.log('Login exitoso:', user.username);
         }
       }),
       catchError(error => {
-        console.error('Error en login:', error);
+        //console.error('Error en login:', error);
         return throwError(() => error);
       })
     );
@@ -85,11 +81,18 @@ export class AuthService {
       });
     }
 
-    // Limpiar storage y estado local
     this.clearAuthData();
-
-    // Redirigir al login
     this.router.navigate(['/auth/login']);
+  }
+
+  // Guardar datos de autenticación
+  private saveAuthData(accessToken: string, refreshToken: string, user: User): void {
+    this.storageService.set('accessToken', accessToken);
+    this.storageService.set('refreshToken', refreshToken);
+    this.storageService.set('user', user);
+
+    this.tokenSignal.set(accessToken);
+    this.currentUserSignal.set(user);
   }
 
   // Limpiar datos de autenticacion
@@ -101,27 +104,58 @@ export class AuthService {
     this.tokenSignal.set(null);
     this.currentUserSignal.set(null);
 
-    console.log('Datos de sesion limpiados');
+    //console.log('Datos de sesión limpiados');
   }
 
-  // Renovar token (Refresh Token)
+  // Renovar token (con protección contra llamadas múltiples)
   refreshToken(): Observable<any> {
+    // Si ya está en progreso, esperar a que termine
+    if (this.refreshTokenInProgress) {
+      //console.log('Refresh ya en progreso, esperando...');
+      return this.refreshTokenSubject.pipe(
+        filter(token => token !== null),
+        take(1),
+        switchMap((token) => {
+          return new Observable(observer => {
+            observer.next(token);
+            observer.complete();
+          });
+        })
+      );
+    }
+
     const refreshToken = this.storageService.get<string>('refreshToken');
 
     if (!refreshToken) {
+      console.error('No hay refresh token disponible');
+      this.clearAuthData();
+      this.router.navigate(['/auth/login']);
       return throwError(() => new Error('No hay refresh token'));
     }
+
+    this.refreshTokenInProgress = true;
+    //console.log('Renovando token...');
 
     return this.http.post<ApiResponse<any>>(`${environment.apiUrl}/auth/refresh-token`, { refreshToken }).pipe(
       tap(response => {
         if (response.success && response.data) {
-          this.storageService.set('accessToken', response.data.accessToken);
-          this.storageService.set('refreshToken', response.data.refreshToken);
-          this.tokenSignal.set(response.data.accessToken);
+          const { accessToken, refreshToken: newRefreshToken } = response.data;
+
+          // Actualizar solo los tokens, mantener usuario
+          this.storageService.set('accessToken', accessToken);
+          this.storageService.set('refreshToken', newRefreshToken);
+          this.tokenSignal.set(accessToken);
+
+          this.refreshTokenInProgress = false;
+          this.refreshTokenSubject.next(accessToken);
+
+          //console.log('Token renovado exitosamente');
         }
       }),
       catchError(error => {
-        console.error('Error al renovar token:', error);
+        //console.error('Error al renovar token:', error);
+        this.refreshTokenInProgress = false;
+        this.refreshTokenSubject.next(null);
         this.clearAuthData();
         this.router.navigate(['/auth/login']);
         return throwError(() => error);
@@ -136,7 +170,12 @@ export class AuthService {
         if (response.success && response.data) {
           this.storageService.set('user', response.data);
           this.currentUserSignal.set(response.data);
+          //console.log('Perfil actualizado:', response.data.username);
         }
+      }),
+      catchError(error => {
+        //console.error('Error al obtener perfil:', error);
+        return throwError(() => error);
       })
     );
   }

@@ -24,6 +24,7 @@ import { Customer } from '../../models/customer.model';
 import { Niche } from '../../models/niche.model';
 import { CurrencyMxPipe } from 'src/app/shared/pipes/currency-mx.pipe';
 import { PaymentRegisterPage } from '../payment/payment-register.page';
+import { SaleCancelComponent } from '../../components/sale-cancel/sale-cancel.component';
 
 @Component({
   selector: 'app-sale-detail',

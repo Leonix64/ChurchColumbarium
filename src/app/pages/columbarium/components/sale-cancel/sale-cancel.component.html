@@ -1,0 +1,134 @@
+<ion-header>
+  <ion-toolbar color="danger">
+    <ion-title>Cancelar Venta</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="cancel-content">
+
+  <!-- Advertencia -->
+  <div class="warning-banner">
+    <ion-icon name="warning" color="danger"></ion-icon>
+    <div>
+      <h3>¡Atención!</h3>
+      <p>Esta acción liberará el nicho y puede incluir un reembolso al cliente.</p>
+    </div>
+  </div>
+
+  <!-- Info de la venta -->
+  <ion-card class="info-card">
+    <ion-card-content>
+      <div class="info-row">
+        <span class="label">Venta:</span>
+        <span class="value">{{ sale.folio }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Cliente:</span>
+        <span class="value">{{ $any(sale.customer)?.firstName }} {{ $any(sale.customer)?.lastName }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Nicho:</span>
+        <span class="value">{{ $any(sale.niche)?.code }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Total pagado:</span>
+        <span class="value highlight">{{ sale.totalPaid | currencyMx }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Saldo pendiente:</span>
+        <span class="value">{{ sale.balance | currencyMx }}</span>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Formulario -->
+  <form [formGroup]="cancelForm" (ngSubmit)="onSubmit()">
+
+    <ion-list>
+      <ion-list-header>
+        <ion-label>Información de Cancelación</ion-label>
+      </ion-list-header>
+
+      <!-- Motivo -->
+      <ion-item>
+        <ion-icon name="document-text-outline" slot="start"></ion-icon>
+        <ion-label position="floating">Motivo de cancelación *</ion-label>
+        <ion-textarea formControlName="reason" rows="3" placeholder="Describe el motivo de la cancelación"
+          [maxlength]="500"></ion-textarea>
+      </ion-item>
+      <ion-note class="ion-padding-horizontal">
+        {{ cancelForm.get('reason')?.value?.length || 0 }} / 500 caracteres
+      </ion-note>
+      <div class="error-message" *ngIf="reason?.invalid && reason?.touched">
+        <ion-note color="danger">
+          <small>El motivo es requerido (mínimo 10 caracteres)</small>
+        </ion-note>
+      </div>
+
+      <!-- Monto de reembolso -->
+      <ion-item>
+        <ion-icon name="cash-outline" slot="start"></ion-icon>
+        <ion-label position="floating">Monto a reembolsar</ion-label>
+        <ion-input formControlName="refundAmount" type="number" placeholder="0.00" [min]="0" [max]="sale.totalPaid"
+          [clearInput]="true"></ion-input>
+      </ion-item>
+      <ion-note class="ion-padding-horizontal">
+        Máximo: {{ sale.totalPaid | currencyMx }}
+      </ion-note>
+      <div class="error-message" *ngIf="refundAmount?.invalid && refundAmount?.touched">
+        <ion-note color="danger">
+          <small>{{ getErrorMessage('refundAmount') }}</small>
+        </ion-note>
+      </div>
+
+      <!-- Método de reembolso (solo si hay monto) -->
+      <ion-item *ngIf="refundAmount?.value && refundAmount?.value > 0">
+        <ion-icon name="card-outline" slot="start"></ion-icon>
+        <ion-label position="floating">Método de reembolso *</ion-label>
+        <ion-select formControlName="refundMethod">
+          <ion-select-option value="cash">💵 Efectivo</ion-select-option>
+          <ion-select-option value="card">💳 Tarjeta</ion-select-option>
+          <ion-select-option value="transfer">🔄 Transferencia</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Notas de reembolso -->
+      <ion-item *ngIf="refundAmount?.value && refundAmount?.value > 0">
+        <ion-label position="floating">Notas de reembolso (opcional)</ion-label>
+        <ion-textarea formControlName="refundNotes" rows="2"
+          placeholder="Detalles adicionales del reembolso"></ion-textarea>
+      </ion-item>
+    </ion-list>
+
+    <!-- Confirmación -->
+    <div class="confirmation-section">
+      <ion-item lines="none">
+        <ion-checkbox formControlName="confirmation" slot="start"></ion-checkbox>
+        <ion-label class="ion-text-wrap">
+          Confirmo que deseo cancelar esta venta. Entiendo que esta acción es irreversible y el nicho será liberado.
+        </ion-label>
+      </ion-item>
+    </div>
+
+    <!-- Botones -->
+    <div class="action-section">
+      <ion-button expand="block" color="danger" type="submit" [disabled]="cancelForm.invalid || loading()">
+        <ion-spinner name="crescent" *ngIf="loading()"></ion-spinner>
+        <span *ngIf="!loading()">
+          <ion-icon name="close-circle" slot="start"></ion-icon>
+          Cancelar Venta
+        </span>
+      </ion-button>
+
+      <ion-button expand="block" fill="clear" (click)="dismiss()" [disabled]="loading()">
+        Volver
+      </ion-button>
+    </div>
+  </form>
+
+</ion-content>
