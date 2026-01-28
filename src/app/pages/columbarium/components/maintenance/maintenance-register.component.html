@@ -1,0 +1,74 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Pago de Mantenimiento</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card class="info-card">
+    <ion-card-content>
+      <div class="info-row">
+        <span class="label">Cliente:</span>
+        <span class="value">{{ customer.firstName }} {{ customer.lastName }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Teléfono:</span>
+        <span class="value">{{ customer.phone }}</span>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <form [formGroup]="maintenanceForm" (ngSubmit)="onSubmit()">
+    <ion-list>
+      <ion-item>
+        <ion-icon name="calendar-outline" slot="start"></ion-icon>
+        <ion-label position="floating">Año *</ion-label>
+        <ion-select formControlName="year">
+          <ion-select-option *ngFor="let y of availableYears" [value]="y">
+            {{ y }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-icon name="cash-outline" slot="start"></ion-icon>
+        <ion-label position="floating">Monto *</ion-label>
+        <ion-input formControlName="amount" type="number" placeholder="1000.00"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-icon name="card-outline" slot="start"></ion-icon>
+        <ion-label position="floating">Método de pago *</ion-label>
+        <ion-select formControlName="method">
+          <ion-select-option *ngFor="let m of paymentMethods" [value]="m.value">
+            {{ m.icon }} {{ m.label }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Notas (opcional)</ion-label>
+        <ion-textarea formControlName="notes" rows="2"></ion-textarea>
+      </ion-item>
+    </ion-list>
+
+    <div class="action-section">
+      <ion-button expand="block" type="submit" [disabled]="maintenanceForm.invalid || loading()">
+        <ion-spinner name="crescent" *ngIf="loading()"></ion-spinner>
+        <span *ngIf="!loading()">
+          <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+          Registrar Pago
+        </span>
+      </ion-button>
+
+      <ion-button expand="block" fill="clear" (click)="dismiss()" [disabled]="loading()">
+        Cancelar
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

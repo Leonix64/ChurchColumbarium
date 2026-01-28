@@ -16,6 +16,7 @@ import { NotificationService } from 'src/app/core/services/notification.service'
 import { EmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state.component';
 import { NicheDetailModalComponent } from '../../components/niche-detail-modal/niche-detail-modal.component';
 import { Niche, SectionGroup, ModuleGroup } from '../../models/niche.model';
+import { Customer } from '../../models/customer.model';
 
 @Component({
   selector: 'app-niches-detail',
@@ -140,6 +141,15 @@ export class NichesDetailPage implements OnInit {
       // Quitar highlight después de 10 segundos
       setTimeout(() => this.highlightedNiche.set(null), 10000);
     }
+  }
+
+  // Obtener nombre del propietario del nicho
+  getOwnerName(niche: Niche): string {
+    if (niche.currentOwner && typeof niche.currentOwner === 'object') {
+      const owner = niche.currentOwner as Customer;
+      return `${owner.firstName} ${owner.lastName}`;
+    }
+    return 'Propietario';
   }
 
   // Calcular columnas del grid basado en número de nichos por fila

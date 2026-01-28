@@ -4,6 +4,7 @@ import { Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
 import { Customer } from '../models/customer.model';
 import { ApiResponse } from 'src/app/core/models/api-response.model';
+import { Sale } from '../models/sale.model';
 
 @Injectable({
   providedIn: 'root',
@@ -56,5 +57,22 @@ export class CustomerService {
     if (search) params.search = search;
 
     return this.http.get<ApiResponse<Customer[]>>(`${this.endpoint}/search`, { params });
+  }
+
+  getCustomerSales(customerId: string): Observable<ApiResponse<Sale[]>> {
+    return this.http.get<ApiResponse<Sale[]>>(`${this.endpoint}/${customerId}/sales`);
+  }
+
+  registerMaintenance(customerId: string, data: {
+    amount: number;
+    method: 'cash' | 'card' | 'transfer';
+    year: number;
+    notes?: string;
+  }): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.endpoint}/${customerId}/maintenance`, data);
+  }
+
+  getMaintenancePayments(customerId: string): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.endpoint}/${customerId}/maintenance`);
   }
 }

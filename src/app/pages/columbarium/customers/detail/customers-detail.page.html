@@ -134,10 +134,83 @@
         </div>
       </div>
 
+      <!-- Historial de Compras -->
+      <div class="purchases-section" *ngIf="!loading() && customerSales().length > 0">
+        <div class="section-header">
+          <h2>
+            <ion-icon name="cart-outline"></ion-icon>
+            Historial de Compras
+          </h2>
+        </div>
+
+        <div class="stats-mini-grid">
+          <div class="stat-mini">
+            <div class="stat-mini-value">{{ salesStats()?.totalSales || 0 }}</div>
+            <div class="stat-mini-label">Ventas</div>
+          </div>
+          <div class="stat-mini success">
+            <div class="stat-mini-value">{{ salesStats()?.totalPaid | currencyMx }}</div>
+            <div class="stat-mini-label">Pagado</div>
+          </div>
+          <div class="stat-mini warning">
+            <div class="stat-mini-value">{{ salesStats()?.totalPending | currencyMx }}</div>
+            <div class="stat-mini-label">Pendiente</div>
+          </div>
+        </div>
+
+        <ion-card *ngFor="let sale of customerSales()" class="sale-summary-card" (click)="goToSale(sale._id)">
+          <ion-card-content>
+            <div class="sale-header">
+              <div class="sale-folio">
+                <ion-icon name="document-text-outline"></ion-icon>
+                <span>{{ sale.folio }}</span>
+              </div>
+              <ion-badge [color]="getSaleStatusColor(sale.status)">
+                {{ getSaleStatusLabel(sale.status) }}
+              </ion-badge>
+            </div>
+
+            <div class="sale-details">
+              <p>
+                <ion-icon name="business-outline"></ion-icon>
+                <strong>Nicho:</strong> {{ $any(sale.niche)?.code }}
+              </p>
+              <p>
+                <ion-icon name="cash-outline"></ion-icon>
+                <strong>Total:</strong> {{ sale.totalAmount | currencyMx }}
+              </p>
+              <p>
+                <ion-icon name="checkmark-circle-outline"
+                  [color]="sale.balance === 0 ? 'success' : 'warning'"></ion-icon>
+                <strong>Saldo:</strong> {{ sale.balance | currencyMx }}
+              </p>
+            </div>
+
+            <ion-progress-bar [value]="getSaleProgress(sale) / 100"
+              [color]="getSaleProgress(sale) === 100 ? 'success' : 'warning'">
+            </ion-progress-bar>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <div class="info-card" *ngIf="!loading() && customerSales().length === 0">
+        <ion-card-content>
+          <div class="empty-purchases">
+            <ion-icon name="cart-outline"></ion-icon>
+            <p>Este cliente aún no tiene compras registradas</p>
+          </div>
+        </ion-card-content>
+      </div>
+
     </div>
 
     <!-- Action Buttons -->
     <div class="action-buttons">
+      <ion-button expand="block" fill="outline" (click)="openMaintenanceModal()">
+        <ion-icon slot="start" name="build-outline"></ion-icon>
+        Registrar Mantenimiento
+      </ion-button>
+
       <ion-button expand="block" (click)="goToEdit()" [disabled]="!customer()?.active">
         <ion-icon slot="start" name="create-outline"></ion-icon>
         Editar Cliente

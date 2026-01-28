@@ -1,11 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import {
-  IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
-  IonButton, IonIcon, IonContent, IonBadge, IonSpinner,
-  ActionSheetController
-} from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonButton, IonIcon, IonContent, IonBadge, IonSpinner, ActionSheetController, ModalController, IonProgressBar, IonCardContent, IonCard } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   ellipsisVertical, personCircle, call, location, medkit,
@@ -18,6 +14,10 @@ import { CustomerService } from '../../services/customer.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { EmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state.component';
 import { Customer } from '../../models/customer.model';
+import { SaleService } from '../../services/sale.service';
+import { Sale } from '../../models/sale.model';
+import { CurrencyMxPipe } from "../../../../shared/pipes/currency-mx.pipe";
+import { MaintenanceRegisterComponent } from '../../components/maintenance/maintenance-register.component';
 
 @Component({
   selector: 'app-customers-detail',
@@ -28,10 +28,17 @@ import { Customer } from '../../models/customer.model';
     CommonModule,
     IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
     IonButton, IonIcon, IonContent, IonBadge, IonSpinner,
-    EmptyStateComponent
+    EmptyStateComponent,
+    CurrencyMxPipe,
+    IonProgressBar,
+    IonCardContent,
+    IonCard
   ]
 })
 export class CustomersDetailPage implements OnInit {
+  customerSales = signal<Sale[]>([]);
+  salesStats = signal<any>(null);
+
   customer = signal<Customer | null>(null);
   loading = signal(true);
   customerId: string | null = null;
@@ -40,8 +47,10 @@ export class CustomersDetailPage implements OnInit {
     private customerService: CustomerService,
     private notificationService: NotificationService,
     private actionSheetCtrl: ActionSheetController,
+    private saleService: SaleService,
+    private modalCtrl: ModalController,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {
     addIcons({
       ellipsisVertical, personCircle, call, location, medkit,
@@ -56,6 +65,7 @@ export class CustomersDetailPage implements OnInit {
 
     if (this.customerId) {
       this.loadCustomer(this.customerId);
+      this.loadCustomerSales(this.customerId);
       //console.log(this.customerId);
     } else {
       this.loading.set(false);
@@ -78,6 +88,40 @@ export class CustomersDetailPage implements OnInit {
         this.notificationService.error('Error al cargar cliente');
       }
     });
+  }
+
+  loadCustomerSales(customerId: string) {
+    this.customerService.getCustomerSales(customerId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.customerSales.set(response.data || []);
+          this.salesStats.set(response.stats || null);
+        }
+        //console.log(response.data);
+        //console.log(response.stats);
+      },
+      error: () => {
+        // Silencioso, no es crítico
+      }
+    });
+  }
+
+  async openMaintenanceModal() {
+    const modal = await this.modalCtrl.create({
+      component: MaintenanceRegisterComponent,
+      componentProps: {
+        customer: this.customer(),
+        defaultAmount: 1000
+      }
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    if (data?.success) {
+      // Recargar info del cliente si es necesario
+      this.notificationService.success('Pago registrado');
+    }
   }
 
   async presentActionSheet() {
@@ -176,5 +220,21 @@ export class CustomersDetailPage implements OnInit {
 
   goBack() {
     this.router.navigate(['/columbarium/customers']);
+  }
+
+  getSaleProgress(sale: Sale): number {
+    return this.saleService.calculateProgress(sale.amortizationTable);
+  }
+
+  getSaleStatusColor(status: string): string {
+    return this.saleService.getStatusColor(status);
+  }
+
+  getSaleStatusLabel(status: string): string {
+    return this.saleService.getStatusLabel(status);
+  }
+
+  goToSale(saleId: string) {
+    this.router.navigate(['/columbarium/sales', saleId]);
   }
 }

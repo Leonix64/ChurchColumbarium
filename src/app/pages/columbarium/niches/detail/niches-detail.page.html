@@ -113,6 +113,12 @@
           <div class="niche-tooltip">
             <div class="tooltip-code">{{ niche.code }}</div>
             <div class="tooltip-price">${{ niche.price.toLocaleString() }}</div>
+
+            <!-- Mostrar propietario si está vendido -->
+            <div class="tooltip-owner" *ngIf="niche.status === 'sold' && niche.currentOwner">
+              <ion-icon name="person-outline"></ion-icon>
+              <span>{{ getOwnerName(niche) }}</span>
+            </div>
           </div>
         </div>
       </div>

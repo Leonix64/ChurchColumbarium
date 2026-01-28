@@ -6,5 +6,6 @@ export interface ApiResponse<T = any> {
     page?: number;
     pages?: number;
     limit?: number;
+    stats?: any;
     details?: any;
 }
