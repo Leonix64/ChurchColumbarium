@@ -5,7 +5,7 @@ import { NichesGridPage } from "./niches/grid/niches-grid.page";
 import { SalesListPage } from "./sales/list/sales-list.page";
 import { SaleCreatePage } from "./sales/create/sale-create.page";
 import { StatsPage } from "./stats/stats.page";
-import { AuditListPage } from "./audit-list/audit-list.page";
+import { AuditListPage } from "./audit/audit-list.page";
 
 export const columbariumRoutes: Routes = [
     {
@@ -55,7 +55,7 @@ export const columbariumRoutes: Routes = [
     },
     {
         path: 'audit',
-        loadComponent: () => import('./audit-list/audit-list.page').then(m => m.AuditListPage)
+        loadComponent: () => import('./audit/audit-list.page').then(m => m.AuditListPage)
     },
     {
         path: '',

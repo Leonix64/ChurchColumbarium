@@ -62,17 +62,4 @@ export class CustomerService {
   getCustomerSales(customerId: string): Observable<ApiResponse<Sale[]>> {
     return this.http.get<ApiResponse<Sale[]>>(`${this.endpoint}/${customerId}/sales`);
   }
-
-  registerMaintenance(customerId: string, data: {
-    amount: number;
-    method: 'cash' | 'card' | 'transfer';
-    year: number;
-    notes?: string;
-  }): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.endpoint}/${customerId}/maintenance`, data);
-  }
-
-  getMaintenancePayments(customerId: string): Observable<ApiResponse<any[]>> {
-    return this.http.get<ApiResponse<any[]>>(`${this.endpoint}/${customerId}/maintenance`);
-  }
 }

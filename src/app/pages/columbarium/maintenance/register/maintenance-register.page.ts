@@ -12,7 +12,7 @@ import {
   close, cashOutline, cardOutline, calendarOutline, checkmarkCircle
 } from 'ionicons/icons';
 
-import { CustomerService } from '../../services/customer.service';
+import { MaintenanceService } from '../../services/maintenance.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { Customer } from '../../models/customer.model';
 import { CurrencyMxPipe } from 'src/app/shared/pipes/currency-mx.pipe';
@@ -20,19 +20,18 @@ import { Sale } from '../../models/sale.model';
 
 @Component({
   selector: 'app-maintenance-register',
+  templateUrl: './maintenance-register.page.html',
+  styleUrls: ['./maintenance-register.page.scss'],
   standalone: true,
-  templateUrl: './maintenance-register.component.html',
-  styleUrls: ['./maintenance-register.component.scss'],
   imports: [
     CommonModule, ReactiveFormsModule,
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
     IonContent, IonList, IonItem, IonLabel, IonInput, IonSelect,
-    IonSelectOption, IonTextarea, IonIcon, IonNote, IonCard,
+    IonSelectOption, IonTextarea, IonIcon, IonCard,
     IonCardContent, IonSpinner,
-    CurrencyMxPipe
   ]
 })
-export class MaintenanceRegisterComponent implements OnInit {
+export class MaintenanceRegisterPage implements OnInit {
   @Input() customer!: Customer;
   @Input() defaultAmount: number = 1000; // Monto sugerido de mantenimiento
 
@@ -49,7 +48,7 @@ export class MaintenanceRegisterComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private customerService: CustomerService,
+    private maintenanceService: MaintenanceService,
     private notificationService: NotificationService,
     private modalCtrl: ModalController
   ) {
@@ -92,7 +91,7 @@ export class MaintenanceRegisterComponent implements OnInit {
 
     this.loading.set(true);
 
-    this.customerService.registerMaintenance(this.customer._id, {
+    this.maintenanceService.registerMaintenance(this.customer._id, {
       amount: Number(formValue.amount),
       method: formValue.method,
       year: Number(formValue.year),
@@ -115,7 +114,6 @@ export class MaintenanceRegisterComponent implements OnInit {
       }
     });
   }
-
   dismiss() {
     this.modalCtrl.dismiss();
   }

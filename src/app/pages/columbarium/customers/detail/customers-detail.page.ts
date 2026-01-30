@@ -17,7 +17,7 @@ import { Customer } from '../../models/customer.model';
 import { SaleService } from '../../services/sale.service';
 import { Sale } from '../../models/sale.model';
 import { CurrencyMxPipe } from "../../../../shared/pipes/currency-mx.pipe";
-import { MaintenanceRegisterComponent } from '../../components/maintenance/maintenance-register.component';
+import { MaintenanceRegisterPage } from '../../maintenance/register/maintenance-register.page';
 
 @Component({
   selector: 'app-customers-detail',
@@ -108,7 +108,7 @@ export class CustomersDetailPage implements OnInit {
 
   async openMaintenanceModal() {
     const modal = await this.modalCtrl.create({
-      component: MaintenanceRegisterComponent,
+      component: MaintenanceRegisterPage,
       componentProps: {
         customer: this.customer(),
         defaultAmount: 1000
