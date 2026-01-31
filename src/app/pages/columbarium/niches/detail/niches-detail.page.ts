@@ -183,23 +183,33 @@ export class NichesDetailPage implements OnInit {
       return;
     }
 
-    const modal = await this.modalCtrl.create({
-      component: NicheDetailModalComponent,
-      componentProps: { niche },
-      breakpoints: [0, 0.5, 0.8, 1],
-      initialBreakpoint: 0.8,
-      cssClass: 'niche-detail-modal'
-    });
+    this.nicheService.getById(niche._id).subscribe({
+      next: async (response) => {
+        if (response.success && response.data) {
+          const modal = await this.modalCtrl.create({
+            component: NicheDetailModalComponent,
+            componentProps: {
+              niche: response.data
+            },
+            breakpoints: [0, 0.5, 0.8, 1],
+            initialBreakpoint: 0.8,
+            cssClass: 'niche-detail-modal'
+          });
 
-    await modal.present();
+          await modal.present();
 
-    const { data } = await modal.onWillDismiss();
+          const { data } = await modal.onWillDismiss();
 
-    if (data) {
-      if (data.action === 'sell') {
-        this.goToSale(data.niche);
+          if (data) {
+            if (data.action === 'sell') {
+              this.goToSale(data.niche);
+            } else if (data.action === 'viewInGrid') {
+
+            }
+          }
+        }
       }
-    }
+    });
   }
 
   // Ir a crear venta

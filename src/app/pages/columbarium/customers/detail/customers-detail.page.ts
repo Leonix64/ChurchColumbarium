@@ -16,6 +16,7 @@ import { EmptyStateComponent } from 'src/app/shared/components/empty-state/empty
 import { Customer } from '../../models/customer.model';
 import { SaleService } from '../../services/sale.service';
 import { Sale } from '../../models/sale.model';
+import { Niche } from '../../models/niche.model';
 import { CurrencyMxPipe } from "../../../../shared/pipes/currency-mx.pipe";
 import { MaintenanceRegisterPage } from '../../maintenance/register/maintenance-register.page';
 
@@ -236,5 +237,13 @@ export class CustomersDetailPage implements OnInit {
 
   goToSale(saleId: string) {
     this.router.navigate(['/columbarium/sales', saleId]);
+  }
+
+  // Agregar método para ver nichos
+  goToCustomerNiches() {
+    // Mostrar lista de nichos del cliente y permitir ver detalles
+    const nicheIds = this.customerSales().map(s => (s.niche as Niche)._id);
+    console.log(nicheIds);
+    // Navegar a una vista filtrada o mostrar modal selector
   }
 }

@@ -206,9 +206,9 @@
 
     <!-- Action Buttons -->
     <div class="action-buttons">
-      <ion-button expand="block" fill="outline" (click)="openMaintenanceModal()">
-        <ion-icon slot="start" name="build-outline"></ion-icon>
-        Registrar Mantenimiento
+      <ion-button expand="block" fill="outline" *ngIf="customerSales().length > 0" (click)="goToCustomerNiches()">
+        <ion-icon slot="start" name="cube-outline"></ion-icon>
+        Ver Nichos del Cliente ({{ customerSales().length }}) (Beta)
       </ion-button>
 
       <ion-button expand="block" (click)="goToEdit()" [disabled]="!customer()?.active">

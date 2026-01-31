@@ -19,16 +19,20 @@ export class MaintenanceService {
 
   constructor(private http: HttpClient) { }
 
-  registerMaintenance(customerId: string, data: {
+  registerMaintenance(nicheId: string, data: {
     amount: number;
     method: 'cash' | 'card' | 'transfer';
     year: number;
     notes?: string;
   }): Observable<ApiResponse<MaintenancePayment>> {
-    return this.http.post<ApiResponse<MaintenancePayment>>(`${this.endpoint}/${customerId}/maintenance`, data);
+    return this.http.post<ApiResponse<MaintenancePayment>>(`${this.endpoint}/niche/${nicheId}`, data);
   }
 
-  getMaintenancePayments(customerId: string): Observable<ApiResponse<MaintenancePayment[]>> {
-    return this.http.get<ApiResponse<MaintenancePayment[]>>(`${this.endpoint}/${customerId}/maintenance`);
+  getMaintenancePayments(nicheId: string): Observable<ApiResponse<MaintenancePayment[]>> {
+    return this.http.get<ApiResponse<MaintenancePayment[]>>(`${this.endpoint}/niche/${nicheId}`);
+  }
+
+  getCustomerMaintenanceHistory(customerId: string): Observable<ApiResponse<MaintenancePayment[]>> {
+    return this.http.get<ApiResponse<MaintenancePayment[]>>(`${this.endpoint}/customer/${customerId}/history`);
   }
 }

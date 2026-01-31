@@ -13,12 +13,20 @@
   <ion-card class="info-card">
     <ion-card-content>
       <div class="info-row">
-        <span class="label">Cliente:</span>
-        <span class="value">{{ customer.firstName }} {{ customer.lastName }}</span>
+        <span class="label">Nicho:</span>
+        <span class="value">{{ niche.code }} (#{{ niche.displayNumber }})</span>
       </div>
       <div class="info-row">
+        <span class="label">Módulo:</span>
+        <span class="value">{{ niche.module }} - Sección {{ niche.section }}</span>
+      </div>
+      <div class="info-row" *ngIf="niche.currentOwner">
+        <span class="label">Propietario:</span>
+        <span class="value">{{ $any(niche.currentOwner).firstName }} {{ $any(niche.currentOwner).lastName }}</span>
+      </div>
+      <div class="info-row" *ngIf="niche.currentOwner">
         <span class="label">Teléfono:</span>
-        <span class="value">{{ customer.phone }}</span>
+        <span class="value">{{ $any(niche.currentOwner).phone }}</span>
       </div>
     </ion-card-content>
   </ion-card>

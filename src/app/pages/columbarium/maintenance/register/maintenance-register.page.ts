@@ -17,6 +17,7 @@ import { NotificationService } from 'src/app/core/services/notification.service'
 import { Customer } from '../../models/customer.model';
 import { CurrencyMxPipe } from 'src/app/shared/pipes/currency-mx.pipe';
 import { Sale } from '../../models/sale.model';
+import { Niche } from '../../models/niche.model';
 
 @Component({
   selector: 'app-maintenance-register',
@@ -32,7 +33,7 @@ import { Sale } from '../../models/sale.model';
   ]
 })
 export class MaintenanceRegisterPage implements OnInit {
-  @Input() customer!: Customer;
+  @Input() niche!: Niche;
   @Input() defaultAmount: number = 1000; // Monto sugerido de mantenimiento
 
   maintenanceForm: FormGroup;
@@ -81,17 +82,18 @@ export class MaintenanceRegisterPage implements OnInit {
     }
 
     const formValue = this.maintenanceForm.value;
+    const owner = this.niche.currentOwner as Customer;
 
     const confirmed = await this.notificationService.confirm(
       'Confirmar Pago de Mantenimiento',
-      `¿Registrar pago de $${formValue.amount} para el año ${formValue.year}?`
+      `¿Registrar pago de $${formValue.amount} para el nicho ${this.niche.code}?\n\nPropietario: ${owner.firstName} ${owner.lastName}`
     );
 
     if (!confirmed) return;
 
     this.loading.set(true);
 
-    this.maintenanceService.registerMaintenance(this.customer._id, {
+    this.maintenanceService.registerMaintenance(this.niche._id, {
       amount: Number(formValue.amount),
       method: formValue.method,
       year: Number(formValue.year),
