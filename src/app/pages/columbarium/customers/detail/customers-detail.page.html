@@ -110,7 +110,12 @@
           <div class="beneficiaries-list">
             <div class="beneficiary-item" *ngFor="let beneficiary of customer()?.beneficiaries">
               <ion-icon name="person" class="beneficiary-icon"></ion-icon>
-              <span>{{ beneficiary }}</span>
+              <div class="beneficiary-info">
+                <span class="beneficiary-name">{{ beneficiary.name }}</span>
+                <ion-badge color="light" class="beneficiary-relationship" *ngIf="beneficiary.relationship">
+                  {{ beneficiary.relationship }}
+                </ion-badge>
+              </div>
             </div>
           </div>
         </div>

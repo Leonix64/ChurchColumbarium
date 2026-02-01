@@ -14,6 +14,7 @@ import { checkmarkOutline } from 'ionicons/icons';
 import { CustomerService } from '../../services/customer.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { Customer } from '../../models/customer.model';
+import { Beneficiary } from '../../models/beneficiary.model';
 
 @Component({
   selector: 'app-customers-form',
@@ -106,7 +107,7 @@ export class CustomersFormPage implements OnInit {
         phone: customer.emergencyContact?.phone || '',
         relationship: customer.emergencyContact?.relationship || ''
       },
-      beneficiariesText: customer.beneficiaries?.join(', ') || ''
+      beneficiariesText: customer.beneficiaries?.map(b => typeof b === 'string' ? b : b.name).join(', ') || ''
     });
   }
 
@@ -190,13 +191,19 @@ export class CustomersFormPage implements OnInit {
   }
 
   // Parsear beneficiarios desde texto
-  parseBeneficiaries(text: string): string[] | undefined {
+  parseBeneficiaries(text: string): Beneficiary[] | undefined {
     if (!text || !text.trim()) return undefined;
 
     return text
       .split(',')
       .map(b => b.trim())
-      .filter(b => b.length > 0);
+      .filter(b => b.length > 0)
+      .map((name, index) => ({
+        name,
+        relationship: 'otro',
+        order: index + 1,
+        isDeceased: false
+      }));
   }
 
   // Cancelar y volver

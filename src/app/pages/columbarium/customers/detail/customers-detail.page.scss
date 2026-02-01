@@ -150,6 +150,25 @@
           font-size: 20px;
           color: var(--ion-color-primary);
         }
+
+        .beneficiary-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          .beneficiary-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ion-color-dark);
+          }
+
+          .beneficiary-relationship {
+            font-size: 10px;
+            padding: 2px 6px;
+            width: fit-content;
+            text-transform: capitalize;
+          }
+        }
       }
     }
   }

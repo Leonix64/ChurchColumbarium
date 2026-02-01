@@ -1,3 +1,5 @@
+import { Beneficiary } from "./beneficiary.model";
+
 export interface Customer {
     _id: string;
     firstName: string;
@@ -8,7 +10,7 @@ export interface Customer {
     rfc?: string;
     address?: string;
     emergencyContact?: EmergencyContact;
-    beneficiaries?: string[];
+    beneficiaries?: Beneficiary[];
     active: boolean;
     createdAt: Date;
     updatedAt: Date;

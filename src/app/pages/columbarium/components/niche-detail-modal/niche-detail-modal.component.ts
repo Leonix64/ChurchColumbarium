@@ -24,6 +24,9 @@ import { MaintenanceRegisterPage } from '../../maintenance/register/maintenance-
 import { MaintenancePayment } from '../../models/maintenance.model';
 import { StatusBadgeComponent } from 'src/app/shared/components/status-badge/status-badge.component';
 
+import { SuccessionModalComponent } from '../succession-modal/succession-modal.component';
+import { OwnershipHistoryModalComponent } from '../ownership-history-modal/ownership-history-modal.component';
+
 @Component({
   selector: 'app-niche-detail-modal',
   standalone: true,
@@ -84,6 +87,22 @@ export class NicheDetailModalComponent implements OnInit {
   async presentActions() {
     const buttons: any[] = [];
 
+    // Acción: Ver historial de titularidad
+    buttons.push({
+      text: 'Historial de Titularidad',
+      icon: 'time-outline',
+      handler: () => this.openOwnershipHistory()
+    });
+
+    // Acción: Registrar sucesión (solo si está vendido)
+    if (this.niche.status === 'sold') {
+      buttons.push({
+        text: 'Registrar Sucesión',
+        icon: 'swap-horizontal-outline',
+        handler: () => this.openSuccessionModal()
+      });
+    }
+
     // Acción: Registrar mantenimiento (solo si está vendido)
     if (this.niche.status === 'sold') {
       buttons.push({
@@ -121,6 +140,44 @@ export class NicheDetailModalComponent implements OnInit {
     });
 
     await actionSheet.present();
+  }
+
+  async openSuccessionModal() {
+    // Primero necesitamos el customer completo
+    const owner = this.niche.currentOwner;
+    if (!owner || typeof owner === 'string') {
+      this.notificationService.error('No se pudo cargar información del propietario');
+      return;
+    }
+
+    const modal = await this.modalCtrl.create({
+      component: SuccessionModalComponent,
+      componentProps: {
+        niche: this.niche,
+        customer: owner
+      }
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    if (data?.success) {
+      // Recargar nicho
+      this.loadMaintenanceHistory();
+      this.notificationService.success('Sucesión registrada. El nicho tiene un nuevo titular.');
+    }
+  }
+
+  async openOwnershipHistory() {
+    const modal = await this.modalCtrl.create({
+      component: OwnershipHistoryModalComponent,
+      componentProps: {
+        niche: this.niche
+      },
+      cssClass: 'large-modal'
+    });
+
+    await modal.present();
   }
 
   async openMaintenanceModal() {

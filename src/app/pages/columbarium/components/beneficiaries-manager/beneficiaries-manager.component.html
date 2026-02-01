@@ -1,0 +1,94 @@
+<div class="beneficiaries-manager">
+  <div class="manager-header">
+    <h3>👥 Beneficiarios</h3>
+    <ion-note>Mínimo 3 beneficiarios requeridos. Arrastra para reordenar.</ion-note>
+  </div>
+
+  <form [formGroup]="beneficiariesForm">
+    <ion-reorder-group [disabled]="false" (ionItemReorder)="handleReorder($event)">
+      <div formArrayName="beneficiaries" class="beneficiaries-list">
+        <div *ngFor="let beneficiary of beneficiariesArray.controls; let i = index" [formGroupName]="i"
+          class="beneficiary-card">
+
+          <div class="beneficiary-header">
+            <div class="order-badge">
+              <ion-icon name="reorder-two"></ion-icon>
+              <span>{{ i + 1 }}º</span>
+            </div>
+            <ion-reorder></ion-reorder>
+            <ion-button *ngIf="beneficiariesArray.length > 3" fill="clear" size="small" color="danger"
+              (click)="removeBeneficiary(i)">
+              <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-button>
+          </div>
+
+          <ion-list lines="none">
+            <!-- Nombre -->
+            <ion-item [class.error]="beneficiary.get('name')?.invalid && beneficiary.get('name')?.touched">
+              <ion-label position="floating">Nombre completo *</ion-label>
+              <ion-input formControlName="name" type="text" placeholder="Juan Pérez García" [clearInput]="true">
+              </ion-input>
+            </ion-item>
+            <div class="error-message" *ngIf="beneficiary.get('name')?.invalid && beneficiary.get('name')?.touched">
+              <ion-text color="danger">
+                <small>Nombre requerido (mínimo 3 caracteres)</small>
+              </ion-text>
+            </div>
+
+            <!-- Relación -->
+            <ion-item
+              [class.error]="beneficiary.get('relationship')?.invalid && beneficiary.get('relationship')?.touched">
+              <ion-label position="floating">Relación *</ion-label>
+              <ion-select formControlName="relationship" placeholder="Seleccionar">
+                <ion-select-option *ngFor="let rel of relationships" [value]="rel.value">
+                  {{ rel.label }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <!-- Teléfono -->
+            <ion-item [class.error]="beneficiary.get('phone')?.invalid && beneficiary.get('phone')?.touched">
+              <ion-label position="floating">Teléfono</ion-label>
+              <ion-input formControlName="phone" type="tel" placeholder="1234567890" maxlength="10" [clearInput]="true">
+              </ion-input>
+            </ion-item>
+            <div class="error-message" *ngIf="beneficiary.get('phone')?.invalid && beneficiary.get('phone')?.touched">
+              <ion-text color="danger">
+                <small>Teléfono inválido (10 dígitos)</small>
+              </ion-text>
+            </div>
+
+            <!-- Email -->
+            <ion-item [class.error]="beneficiary.get('email')?.invalid && beneficiary.get('email')?.touched">
+              <ion-label position="floating">Email</ion-label>
+              <ion-input formControlName="email" type="email" placeholder="correo@ejemplo.com" [clearInput]="true">
+              </ion-input>
+            </ion-item>
+
+            <!-- Fallecido -->
+            <ion-item lines="full">
+              <ion-checkbox formControlName="isDeceased" slot="start"></ion-checkbox>
+              <ion-label>Fallecido</ion-label>
+            </ion-item>
+          </ion-list>
+        </div>
+      </div>
+    </ion-reorder-group>
+  </form>
+
+  <div class="add-beneficiary">
+    <ion-button expand="block" fill="outline" (click)="addBeneficiary()">
+      <ion-icon slot="start" name="add"></ion-icon>
+      Agregar Beneficiario
+    </ion-button>
+  </div>
+
+  <div class="validation-summary" *ngIf="!isValid()">
+    <ion-text color="danger">
+      <small>
+        <ion-icon name="alert-circle"></ion-icon>
+        Se requieren al menos 3 beneficiarios con datos válidos
+      </small>
+    </ion-text>
+  </div>
+</div>

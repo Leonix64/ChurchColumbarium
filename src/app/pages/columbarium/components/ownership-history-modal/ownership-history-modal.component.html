@@ -1,0 +1,137 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Historial de Titularidad</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Info del Nicho -->
+  <ion-card>
+    <ion-card-content>
+      <div class="niche-info">
+        <div class="niche-header">
+          <ion-icon name="cube-outline" color="primary"></ion-icon>
+          <div>
+            <h2>{{ niche.code }}</h2>
+            <p>Nicho #{{ niche.displayNumber }}</p>
+          </div>
+        </div>
+        <div class="niche-location">
+          <span>Módulo {{ niche.module }} • Sección {{ niche.section }}</span>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Titular Actual -->
+  <ion-card *ngIf="currentOwner() && !loading()">
+    <ion-card-content>
+      <div class="current-owner">
+        <div class="owner-header">
+          <ion-icon name="person-outline" color="success"></ion-icon>
+          <h3>Titular Actual</h3>
+          <ion-badge color="success">Activo</ion-badge>
+        </div>
+        <div class="owner-info">
+          <p class="owner-name">{{ currentOwner().firstName }} {{ currentOwner().lastName }}</p>
+          <p class="owner-contact">{{ currentOwner().phone }}</p>
+          <p class="owner-email" *ngIf="currentOwner().email">{{ currentOwner().email }}</p>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando historial...</p>
+  </div>
+
+  <!-- Historial -->
+  <div *ngIf="!loading()">
+    <div class="section-header">
+      <ion-icon name="time-outline"></ion-icon>
+      <h3>Historial Completo</h3>
+      <ion-badge color="medium">{{ history().length }} registro(s)</ion-badge>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline" *ngIf="history().length > 0">
+      <div *ngFor="let record of history(); let i = index; let last = last" class="timeline-item"
+        [class.current]="i === 0">
+
+        <div class="timeline-marker">
+          <div class="marker-dot" [class.active]="i === 0"></div>
+          <div class="marker-line" *ngIf="!last"></div>
+        </div>
+
+        <ion-card class="timeline-card">
+          <ion-card-content>
+            <div class="record-header">
+              <ion-badge [color]="getReasonColor(record.reason)">
+                <ion-icon [name]="getReasonIcon(record.reason)"></ion-icon>
+                {{ getReasonLabel(record.reason) }}
+              </ion-badge>
+              <span class="record-date">
+                {{ record.startDate | date:'dd/MM/yyyy' }}
+              </span>
+            </div>
+
+            <div class="record-owner">
+              <ion-icon name="person-outline"></ion-icon>
+              <div class="owner-details">
+                <p class="owner-name">{{ record.owner.firstName }} {{ record.owner.lastName }}</p>
+                <p class="owner-contact">{{ record.owner.phone }}</p>
+              </div>
+            </div>
+
+            <div class="record-period">
+              <div class="period-item">
+                <ion-icon name="calendar-outline" color="medium"></ion-icon>
+                <div>
+                  <span class="period-label">Inicio:</span>
+                  <span class="period-value">{{ record.startDate | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+              <div class="period-item" *ngIf="record.endDate">
+                <ion-icon name="calendar-outline" color="medium"></ion-icon>
+                <div>
+                  <span class="period-label">Fin:</span>
+                  <span class="period-value">{{ record.endDate | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+              <ion-badge *ngIf="!record.endDate" color="success">
+                Titular Actual
+              </ion-badge>
+            </div>
+
+            <div class="record-notes" *ngIf="record.notes">
+              <ion-note>
+                <ion-icon name="document-text-outline"></ion-icon>
+                {{ record.notes }}
+              </ion-note>
+            </div>
+
+            <div class="record-footer" *ngIf="record.registeredBy">
+              <span class="registered-by">
+                Registrado por: {{ record.registeredBy.fullName }}
+              </span>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="history().length === 0" class="empty-state">
+      <ion-icon name="time-outline"></ion-icon>
+      <h3>Sin historial</h3>
+      <p>No hay registros de titularidad para este nicho.</p>
+    </div>
+  </div>
+</ion-content>
