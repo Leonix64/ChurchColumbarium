@@ -1,0 +1,172 @@
+.niche-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  ion-icon {
+    font-size: 32px;
+  }
+
+  .info-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    strong {
+      font-size: 18px;
+      color: var(--ion-color-dark);
+    }
+
+    .niche-type {
+      font-size: 14px;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+.price-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+
+  ion-label {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .price-value {
+    font-size: 32px;
+    font-weight: 700;
+
+    &.current {
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+.price-change {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 8px;
+
+  &.increase {
+    background-color: rgba(var(--ion-color-success-rgb), 0.1);
+    color: var(--ion-color-success);
+  }
+
+  &.decrease {
+    background-color: rgba(var(--ion-color-danger-rgb), 0.1);
+    color: var(--ion-color-danger);
+  }
+
+  ion-icon {
+    font-size: 24px;
+  }
+
+  span {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  small {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-left: 4px;
+  }
+}
+
+.preview-change {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  ion-icon {
+    font-size: 40px;
+  }
+
+  .preview-text {
+    flex: 1;
+
+    strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .new-price {
+      font-size: 24px;
+      font-weight: 700;
+    }
+  }
+}
+
+.warning-message {
+  display: flex;
+  gap: 12px;
+
+  ion-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 0 16px 16px 16px;
+}
+
+.required {
+  color: var(--ion-color-danger);
+}
+
+// Ajustes para inputs
+ion-item {
+  --padding-start: 0;
+
+  ion-input,
+  ion-textarea {
+    --padding-start: 12px;
+  }
+}
+
+ion-note {
+  font-size: 12px;
+
+  &[slot="helper"] {
+    margin-top: 4px;
+  }
+}
+
+// Responsive
+@media (max-width: 576px) {
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .price-value {
+    font-size: 28px !important;
+  }
+
+  .price-change span {
+    font-size: 18px;
+  }
+}

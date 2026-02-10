@@ -1,13 +1,133 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>niches-manage</ion-title>
-  </ion-toolbar>
-</ion-header>
+<app-header title="Administrar Nichos" [showSearch]="false" [showAdd]="false"></app-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">niches-manage</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="manage-content">
+
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading()">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando nichos...</p>
+  </div>
+
+  <div class="manage-wrapper" *ngIf="!loading()">
+
+    <!-- Stats rápidos -->
+    <div class="stats-bar">
+      <div class="stat-chip available">
+        <span class="stat-number">{{ stats().available }}</span>
+        <span class="stat-text">Disponibles</span>
+      </div>
+      <div class="stat-chip sold">
+        <span class="stat-number">{{ stats().sold }}</span>
+        <span class="stat-text">Vendidos</span>
+      </div>
+      <div class="stat-chip reserved">
+        <span class="stat-number">{{ stats().reserved }}</span>
+        <span class="stat-text">Reservados</span>
+      </div>
+      <div class="stat-chip disabled">
+        <span class="stat-number">{{ stats().disabled }}</span>
+        <span class="stat-text">Deshabilitados</span>
+      </div>
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <ion-searchbar [value]="searchTerm()" (ionInput)="onSearch($event)" placeholder="Buscar por código o módulo..."
+      debounce="300">
+    </ion-searchbar>
+
+    <!-- Filtros -->
+    <div class="filters-section">
+      <div class="filter-row">
+        <ion-select label="Estado" [value]="statusFilter()" (ionChange)="onStatusFilter($event)" interface="popover"
+          placeholder="Todos">
+          <ion-select-option value="all">Todos</ion-select-option>
+          <ion-select-option value="available">Disponibles</ion-select-option>
+          <ion-select-option value="sold">Vendidos</ion-select-option>
+          <ion-select-option value="reserved">Reservados</ion-select-option>
+          <ion-select-option value="disabled">Deshabilitados</ion-select-option>
+        </ion-select>
+
+        <ion-select label="Material" [value]="typeFilter()" (ionChange)="onTypeFilter($event)" interface="popover"
+          placeholder="Todos">
+          <ion-select-option value="all">Todos</ion-select-option>
+          <ion-select-option value="wood">Madera</ion-select-option>
+          <ion-select-option value="marble">Mármol</ion-select-option>
+        </ion-select>
+
+        <ion-select label="Módulo" [value]="moduleFilter()" (ionChange)="onModuleFilter($event)" interface="popover"
+          placeholder="Todos">
+          <ion-select-option value="all">Todos</ion-select-option>
+          <ion-select-option *ngFor="let mod of availableModules()" [value]="mod">
+            {{ mod }} - {{ nicheService.getModuleName(mod) }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <ion-button *ngIf="hasActiveFilters" fill="clear" size="small" (click)="clearFilters()">
+        Limpiar filtros
+      </ion-button>
+    </div>
+
+    <!-- Contador de resultados -->
+    <div class="results-count">
+      <ion-note>{{ filteredNiches().length }} nichos encontrados</ion-note>
+    </div>
+
+    <!-- Lista de nichos -->
+    <ion-list class="niche-list">
+      <ion-item *ngFor="let niche of filteredNiches()" class="niche-item" (click)="openDetail(niche)" button
+        detail="false">
+
+        <div class="niche-row">
+          <div class="niche-code">{{ niche.code }}</div>
+          <div class="niche-meta">
+            <ion-badge [color]="getTypeColor(niche.type)">{{ getTypeLabel(niche.type) }}</ion-badge>
+            <app-status-badge [status]="niche.status"></app-status-badge>
+          </div>
+          <div class="niche-info-text">
+            <span class="niche-location">
+              {{ nicheService.getModuleName(niche.module) }} - Fila {{ niche.row }}, Pos {{ niche.number }}
+            </span>
+            <span class="niche-price">{{ niche.price | currencyMx }}</span>
+          </div>
+        </div>
+
+        <!-- Acciones rápidas -->
+        <div class="quick-actions" slot="end"
+          *ngIf="niche.status === 'available' || niche.status === 'reserved' || niche.status === 'disabled'">
+
+          <ion-button fill="clear" size="small" (click)="openPriceModal(niche); $event.stopPropagation()"
+            *ngIf="niche.status !== 'disabled'">
+            <ion-icon name="cash-outline" slot="icon-only" color="primary"></ion-icon>
+          </ion-button>
+
+          <ion-button fill="clear" size="small" (click)="openMaterialModal(niche); $event.stopPropagation()"
+            *ngIf="niche.status !== 'disabled'">
+            <ion-icon name="cube-outline" slot="icon-only" color="tertiary"></ion-icon>
+          </ion-button>
+
+          <ion-button fill="clear" size="small" (click)="disableNiche(niche); $event.stopPropagation()"
+            *ngIf="niche.status === 'available' || niche.status === 'disabled'">
+            <ion-icon name="ban-outline" slot="icon-only" color="danger"></ion-icon>
+          </ion-button>
+
+          <ion-button fill="clear" size="small" (click)="enableNiche(niche); $event.stopPropagation()"
+            *ngIf="niche.status === 'disabled'">
+            <ion-icon name="checkmark-circle-outline" slot="icon-only" color="success"></ion-icon>
+          </ion-button>
+        </div>
+
+      </ion-item>
+    </ion-list>
+
+    <!-- Empty State -->
+    <app-empty-state *ngIf="filteredNiches().length === 0" icon="cube-outline" title="No se encontraron nichos"
+      [message]="hasActiveFilters ? 'Intenta con otros filtros' : 'No hay nichos registrados'">
+    </app-empty-state>
+
+  </div>
 </ion-content>

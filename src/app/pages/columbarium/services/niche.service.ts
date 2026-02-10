@@ -76,6 +76,73 @@ export class NicheService {
     );
   }
 
+  // Cambiar precio de un nicho individual
+  changePrice(id: string, price: number, reason?: string): Observable<ApiResponse<Niche>> {
+    return this.http.patch<ApiResponse<Niche>>(`${this.endpoint}/${id}/price`, { price, reason }).pipe(
+      tap(() => {
+        // Recargar el nicho específico
+        this.getById(id).subscribe(response => {
+          if (response.success && response.data) {
+            // Actualizar en el signal
+            const currentNiches = this.nichesSignal();
+            const index = currentNiches.findIndex(n => n._id === id);
+            if (index !== -1) {
+              const updatedNiches = [...currentNiches];
+              updatedNiches[index] = response.data;
+              this.nichesSignal.set(updatedNiches);
+            }
+          }
+        });
+      })
+    );
+  }
+
+  // Cambiar material de un nicho individual
+  changeMaterial(
+    id: string,
+    type: 'wood' | 'marble' | 'special',
+    price: number
+  ): Observable<ApiResponse<any>> {
+    return this.http.patch<ApiResponse<any>>(
+      `${this.endpoint}/${id}/material`,
+      { type, price }
+    ).pipe(
+      tap(() => {
+        this.getById(id).subscribe(response => {
+          if (response.success && response.data) {
+            const currentNiches = this.nichesSignal();
+            const index = currentNiches.findIndex(n => n._id === id);
+            if (index !== -1) {
+              const updatedNiches = [...currentNiches];
+              updatedNiches[index] = response.data;
+              this.nichesSignal.set(updatedNiches);
+            }
+          }
+        });
+      })
+    );
+  }
+
+  // Deshabilitar nichos
+  disableNiche(id: string, reason: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(
+      `${this.endpoint}/${id}/disable`,
+      { nicheIds: [id], reason }
+    ).pipe(
+      tap(() => this.getAll().subscribe())
+    );
+  }
+
+  // Habilitar nichos
+  enableNiche(id: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(
+      `${this.endpoint}/enable`,
+      { nicheIds: [id] }
+    ).pipe(
+      tap(() => this.getAll().subscribe())
+    );
+  }
+
   searchNiches(search?: string, type?: string, limit: number = 20, page: number = 1): Observable<ApiResponse<Niche[]>> {
     const params: any = { limit, page };
     if (search) params.search = search;

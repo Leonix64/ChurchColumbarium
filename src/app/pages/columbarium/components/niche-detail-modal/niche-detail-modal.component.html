@@ -76,6 +76,11 @@
           <div class="info-label">Precio</div>
           <div class="info-value price">${{ niche.price.toLocaleString('es-MX') }} MXN</div>
         </div>
+
+        <ion-button fill="clear" size="small" (click)="openPriceModal()">
+          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+        </ion-button>
+
       </div>
 
       <!-- Historial de Mantenimiento -->

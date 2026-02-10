@@ -60,4 +60,15 @@ export class NotificationService {
     await loading.present();
     return loading;
   }
+
+  async warning(message: string, duration = 3000) {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration,
+      position: 'top',
+      color: 'warning',
+      icon: 'warning-outline'
+    });
+    await toast.present();
+  }
 }

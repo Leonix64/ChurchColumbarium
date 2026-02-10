@@ -26,6 +26,9 @@ import { StatusBadgeComponent } from 'src/app/shared/components/status-badge/sta
 
 import { SuccessionModalComponent } from '../succession-modal/succession-modal.component';
 import { OwnershipHistoryModalComponent } from '../ownership-history-modal/ownership-history-modal.component';
+import { NichePriceModalComponent } from '../niche-price-modal/niche-price-modal.component';
+import { NicheMaterialModalComponent } from '../niche-material-modal/niche-material-modal.component';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-niche-detail-modal',
@@ -53,7 +56,8 @@ export class NicheDetailModalComponent implements OnInit {
     private actionSheetCtrl: ActionSheetController,
     public nicheService: NicheService,
     private maintenanceService: MaintenanceService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    public authService: AuthService
   ) {
     addIcons({
       close, cubeOutline, cashOutline, personOutline,
@@ -93,6 +97,20 @@ export class NicheDetailModalComponent implements OnInit {
       icon: 'time-outline',
       handler: () => this.openOwnershipHistory()
     });
+
+    const isAdmin = this.authService.currentUser()?.role === 'admin';
+    if (isAdmin && (this.niche.status === 'available' || this.niche.status === 'reserved')) {
+      buttons.push({
+        text: 'Cambiar Precio',
+        icon: 'cash-outline',
+        handler: () => this.openPriceModal()
+      });
+      buttons.push({
+        text: 'Cambiar Material',
+        icon: 'cube-outline',
+        handler: () => this.openMaterialModal()
+      });
+    }
 
     // Acción: Registrar sucesión (solo si está vendido)
     if (this.niche.status === 'sold') {
@@ -178,6 +196,52 @@ export class NicheDetailModalComponent implements OnInit {
     });
 
     await modal.present();
+  }
+
+  async openPriceModal() {
+    const modal = await this.modalCtrl.create({
+      component: NichePriceModalComponent,
+      componentProps: { niche: this.niche },
+      cssClass: 'price-modal'
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    if (data?.updated) {
+      this.notificationService.success(`Precio actualizado a ${data.newPrice.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}`);
+
+      // Recargar nicho para ver el nuevo precio
+      this.nicheService.getById(this.niche._id).subscribe({
+        next: (response) => {
+          if (response.success && response.data) {
+            this.niche = response.data;
+          }
+        }
+      });
+    }
+  }
+
+  async openMaterialModal() {
+    const modal = await this.modalCtrl.create({
+      component: NicheMaterialModalComponent,
+      componentProps: { niche: this.niche },
+      cssClass: 'price-modal'
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    if (data?.updated) {
+      this.notificationService.success('Material actualizado correctamente');
+      this.nicheService.getById(this.niche._id).subscribe({
+        next: (response) => {
+          if (response.success && response.data) {
+            this.niche = response.data;
+          }
+        }
+      });
+    }
   }
 
   async openMaintenanceModal() {

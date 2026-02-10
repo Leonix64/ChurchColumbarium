@@ -1,0 +1,131 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Cambiar Precio</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onCancel()" [disabled]="loading()">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="priceForm" (ngSubmit)="onSubmit()">
+
+    <!-- Información del nicho -->
+    <ion-card>
+      <ion-card-content>
+        <div class="niche-info">
+          <ion-icon name="cube-outline" color="primary"></ion-icon>
+          <div class="info-text">
+            <strong>{{ niche.code }}</strong>
+            <span class="niche-type">{{ niche.type === 'wood' ? 'Madera' : 'Mármol' }}</span>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Precio actual -->
+    <ion-card>
+      <ion-card-content>
+        <div class="price-display">
+          <ion-label color="medium">Precio actual</ion-label>
+          <div class="price-value current">
+            {{ niche.price | currencyMx }}
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Formulario -->
+    <ion-list>
+
+      <!-- Nuevo precio -->
+      <ion-item [class.ion-invalid]="newPrice?.invalid && newPrice?.touched">
+        <ion-label position="stacked">
+          Nuevo precio <span class="required">*</span>
+        </ion-label>
+        <ion-input type="number" formControlName="newPrice" placeholder="15000" [disabled]="loading()" min="1000"
+          step="100"></ion-input>
+        <ion-note slot="error" *ngIf="newPrice?.invalid && newPrice?.touched">
+          {{ getErrorMessage('newPrice') }}
+        </ion-note>
+      </ion-item>
+
+      <!-- Indicador de cambio -->
+      <ion-item lines="none" *ngIf="!noChange">
+        <ion-label>
+          <div class="price-change" [class.increase]="isIncrease" [class.decrease]="isDecrease">
+            <ion-icon [name]="isIncrease ? 'arrow-up-outline' : 'arrow-down-outline'"
+              [color]="isIncrease ? 'success' : 'danger'">
+            </ion-icon>
+            <span>
+              {{ priceChange() > 0 ? '+' : '' }}{{ priceChange() | currencyMx }}
+            </span>
+            <small>
+              ({{ isIncrease ? 'Aumento' : 'Descuento' }} de
+              {{ ((Math.abs(priceChange()) / niche.price) * 100).toFixed(1) }}%)
+            </small>
+          </div>
+        </ion-label>
+      </ion-item>
+
+      <!-- Razón del cambio -->
+      <ion-item [class.ion-invalid]="reason?.invalid && reason?.touched">
+        <ion-label position="stacked">
+          Razón del cambio <span class="required">*</span>
+        </ion-label>
+        <ion-textarea formControlName="reason"
+          placeholder="Ej: Ajuste por costo de materiales, promoción especial, etc." [disabled]="loading()" rows="3"
+          counter="true" maxlength="200"></ion-textarea>
+        <ion-note slot="helper">
+          Mínimo 10 caracteres. Describe brevemente el motivo del cambio.
+        </ion-note>
+        <ion-note slot="error" *ngIf="reason?.invalid && reason?.touched">
+          {{ getErrorMessage('reason') }}
+        </ion-note>
+      </ion-item>
+
+    </ion-list>
+
+    <!-- Vista previa del cambio -->
+    <ion-card *ngIf="!noChange" [color]="isIncrease ? 'success' : 'warning'">
+      <ion-card-content>
+        <div class="preview-change">
+          <ion-icon [name]="isIncrease ? 'trending-up-outline' : 'trending-down-outline'">
+          </ion-icon>
+          <div class="preview-text">
+            <strong>Nuevo precio final:</strong>
+            <div class="new-price">{{ newPrice?.value | currencyMx }}</div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Advertencia si el precio es muy bajo -->
+    <ion-card color="warning" *ngIf="newPrice?.value && newPrice?.value < 10000">
+      <ion-card-content>
+        <div class="warning-message">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <div>
+            <strong>Precio inusualmente bajo</strong>
+            <p>Verifica que el precio sea correcto. El mínimo recomendado es $10,000 MXN.</p>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Botones de acción -->
+    <div class="action-buttons">
+      <ion-button expand="block" (click)="onCancel()" fill="outline" [disabled]="loading()">
+        Cancelar
+      </ion-button>
+      <ion-button expand="block" type="submit" [disabled]="priceForm.invalid || loading() || noChange">
+        <ion-icon name="checkmark-circle-outline" slot="start" *ngIf="!loading()"></ion-icon>
+        <ion-spinner *ngIf="loading()" slot="start"></ion-spinner>
+        {{ loading() ? 'Actualizando...' : 'Actualizar Precio' }}
+      </ion-button>
+    </div>
+
+  </form>
+</ion-content>

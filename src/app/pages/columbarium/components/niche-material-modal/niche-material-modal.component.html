@@ -1,0 +1,93 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Cambiar Material</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onCancel()" [disabled]="loading()">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Información del nicho -->
+  <ion-card>
+    <ion-card-content>
+      <div class="niche-info">
+        <ion-icon name="cube-outline" color="primary"></ion-icon>
+        <div class="info-text">
+          <strong>{{ niche.code }}</strong>
+          <span class="niche-type">Material actual: {{ getMaterialLabel(niche.type) }} | Precio actual: {{ niche.price | currencyMx }}</span>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <form [formGroup]="materialForm" (ngSubmit)="onSubmit()">
+
+    <!-- Selector de material -->
+    <ion-list>
+      <ion-radio-group formControlName="type">
+        <ion-item>
+          <ion-radio value="wood" labelPlacement="end" justify="start" [disabled]="loading()">
+            Madera
+          </ion-radio>
+        </ion-item>
+        <ion-item>
+          <ion-radio value="marble" labelPlacement="end" justify="start" [disabled]="loading()">
+            Mármol
+          </ion-radio>
+        </ion-item>
+        <ion-item>
+          <ion-radio value="special" labelPlacement="end" justify="start" [disabled]="loading()">
+            Especial
+          </ion-radio>
+        </ion-item>
+      </ion-radio-group>
+    </ion-list>
+
+    <!-- Nuevo precio -->
+    <ion-item [class.ion-invalid]="price?.invalid && price?.touched">
+      <ion-label position="stacked">
+        Nuevo precio <span class="required">*</span>
+      </ion-label>
+      <ion-input type="number" formControlName="price" placeholder="35000"
+        [disabled]="loading()" min="1000" step="1000"></ion-input>
+      <ion-note slot="error" *ngIf="price?.invalid && price?.touched">
+        {{ getErrorMessage('price') }}
+      </ion-note>
+      <ion-note slot="helper">
+        El precio se sugiere automáticamente al cambiar de material.
+      </ion-note>
+    </ion-item>
+
+    <!-- Advertencia si es el mismo material -->
+    <ion-card color="warning" *ngIf="isSameMaterial && selectedType">
+      <ion-card-content>
+        <div class="warning-message">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <div>
+            <strong>Mismo material</strong>
+            <p>El nicho ya tiene el material seleccionado.</p>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Botones de acción -->
+    <div class="action-buttons">
+      <ion-button expand="block" (click)="onCancel()" fill="outline" [disabled]="loading()">
+        Cancelar
+      </ion-button>
+      <ion-button expand="block" type="submit"
+        [disabled]="materialForm.invalid || loading() || isSameMaterial">
+        <ion-icon name="checkmark-circle-outline" slot="start" *ngIf="!loading()"></ion-icon>
+        <ion-spinner *ngIf="loading()" slot="start"></ion-spinner>
+        {{ loading() ? 'Actualizando...' : 'Actualizar Material' }}
+      </ion-button>
+    </div>
+
+  </form>
+
+</ion-content>
