@@ -1,135 +1,547 @@
-ion-content {
-  --background: var(--ion-background-color);
-}
-
-.filters-section {
+.audit-wrapper {
   padding: 16px;
-  background: var(--ion-card-background);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-  ion-segment {
-    background: var(--ion-color-light);
-    border-radius: 8px;
-    padding: 4px;
-    margin-bottom: 12px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
+  max-width: 960px;
+  margin: 0 auto;
 }
 
+// ═══════ TABS ═══════
+.main-tabs {
+  margin-bottom: 16px;
+  --background: var(--ion-color-light);
+  border-radius: 10px;
+}
+
+// ═══════ LOADING ═══════
 .loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 300px;
+  height: 200px;
   gap: 16px;
+  color: var(--ion-color-medium);
+}
 
-  ion-spinner {
-    --color: var(--ion-color-primary);
+// ═══════ KPI GRID ═══════
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--ion-card-background, #fff);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+
+  .kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--ion-color-light);
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 22px;
+    }
   }
 
-  p {
-    color: var(--ion-color-medium);
-    margin: 0;
+  .kpi-data {
+    display: flex;
+    flex-direction: column;
+
+    .kpi-number {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      margin-top: 2px;
+    }
   }
 }
 
-// Audit Items
-.audit-item {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --inner-padding-end: 0;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  border-left: 4px solid transparent;
+// ═══════ SECTION CARDS ═══════
+.section-card {
+  margin: 0 0 16px 0;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 
-  &:hover {
-    background: var(--ion-color-light);
+  ion-card-header {
+    padding: 12px 16px 4px;
   }
 
-  .action-icon {
-    font-size: 32px;
-    margin-right: 16px;
+  ion-card-content {
+    padding: 8px 16px 16px;
   }
+}
 
-  ion-label {
-    h2 {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 
-      .action-badge {
-        font-size: 11px;
-        font-weight: 700;
-        padding: 4px 10px;
-      }
+  ion-icon {
+    font-size: 18px;
+  }
+}
 
-      .entity-label {
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--ion-color-dark);
-      }
-    }
+// ═══════ MODULE BAR CHART ═══════
+.module-bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 
-    p {
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .bar-label {
       display: flex;
       align-items: center;
       gap: 6px;
+      width: 120px;
+      flex-shrink: 0;
       font-size: 13px;
-      color: var(--ion-color-medium);
-      margin: 4px 0;
+      font-weight: 500;
 
       ion-icon {
-        font-size: 14px;
+        font-size: 18px;
+      }
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 24px;
+      background: var(--ion-color-light);
+      border-radius: 6px;
+      overflow: hidden;
+
+      .bar-fill {
+        height: 100%;
+        border-radius: 6px;
+        transition: width 0.6s ease;
+        min-width: 4px;
+      }
+    }
+
+    .bar-value {
+      width: 80px;
+      text-align: right;
+      flex-shrink: 0;
+      font-size: 13px;
+
+      strong {
+        margin-right: 4px;
       }
 
-      &.user-info {
+      .bar-percent {
+        color: var(--ion-color-medium);
+        font-size: 11px;
+      }
+    }
+  }
+}
+
+// ═══════ DAY CHART ═══════
+.day-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 160px;
+  gap: 8px;
+  padding: 8px 0;
+
+  .day-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    height: 100%;
+    justify-content: flex-end;
+    gap: 4px;
+
+    .day-count {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+
+    .day-bar-fill {
+      width: 100%;
+      max-width: 40px;
+      background: var(--ion-color-primary);
+      border-radius: 6px 6px 0 0;
+      transition: height 0.6s ease;
+      min-height: 4px;
+    }
+
+    .day-label {
+      font-size: 11px;
+      color: var(--ion-color-medium);
+      text-align: center;
+      white-space: nowrap;
+    }
+  }
+}
+
+// ═══════ TWO COL GRID ═══════
+.two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+// ═══════ TOP USERS ═══════
+.top-user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .top-user-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--ion-color-light);
+
+    .user-rank {
+      font-size: 18px;
+      width: 32px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+
+      .user-name {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .user-role {
+        font-size: 11px;
+        color: var(--ion-color-medium);
+        text-transform: capitalize;
+      }
+    }
+
+    .user-count {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ion-color-primary);
+    }
+  }
+}
+
+// ═══════ ACTION CHIPS ═══════
+.action-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .action-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--ion-color-light);
+
+    ion-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .action-name {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    ion-badge {
+      font-size: 12px;
+      min-width: 36px;
+      text-align: center;
+    }
+  }
+}
+
+// ═══════ ERRORS ═══════
+.error-card {
+  border-left: 4px solid var(--ion-color-danger);
+}
+
+.error-title {
+  color: var(--ion-color-danger);
+}
+
+.error-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .error-item {
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(var(--ion-color-danger-rgb), 0.04);
+    border: 1px solid rgba(var(--ion-color-danger-rgb), 0.12);
+
+    .error-main {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+
+      .error-module {
+        font-size: 13px;
         font-weight: 500;
       }
+    }
 
-      &.timestamp {
-        font-size: 12px;
-      }
+    .error-detail {
+      font-size: 12px;
+      color: var(--ion-color-dark);
+      margin: 6px 0;
+      padding: 6px 8px;
+      background: rgba(0, 0, 0, 0.03);
+      border-radius: 4px;
+      word-break: break-word;
+      max-height: 60px;
+      overflow: hidden;
+    }
 
-      &.details-text {
-        font-size: 12px;
-        color: var(--ion-color-dark);
-        margin-top: 8px;
-        padding-top: 8px;
-        border-top: 1px solid var(--ion-color-light);
+    .error-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--ion-color-medium);
 
-        strong {
-          color: var(--ion-color-medium);
+      span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        ion-icon {
+          font-size: 14px;
         }
       }
     }
   }
 }
 
-// Color borders según acción
-ion-item {
-  &:has(.action-icon[color="success"]) {
-    border-left-color: var(--ion-color-success);
-  }
+// ═══════ FILTER ROW ═══════
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 
-  &:has(.action-icon[color="danger"]) {
-    border-left-color: var(--ion-color-danger);
-  }
-
-  &:has(.action-icon[color="warning"]) {
-    border-left-color: var(--ion-color-warning);
-  }
-
-  &:has(.action-icon[color="primary"]) {
-    border-left-color: var(--ion-color-primary);
+  ion-select {
+    font-size: 14px;
   }
 }
 
-app-empty-state {
-  display: block;
-  padding: 60px 16px;
+// ═══════ RESULTS HEADER ═══════
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 0 4px;
+
+  .results-count {
+    font-size: 13px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// ═══════ LOG CARDS ═══════
+.logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.log-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--ion-card-background, #fff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-left: 3px solid transparent;
+
+  &.error-log {
+    border-left-color: var(--ion-color-danger);
+    background: rgba(var(--ion-color-danger-rgb), 0.02);
+  }
+
+  &.warning-log {
+    border-left-color: var(--ion-color-warning);
+    background: rgba(var(--ion-color-warning-rgb), 0.02);
+  }
+
+  .log-left {
+    flex-shrink: 0;
+
+    .log-icon-wrap {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .log-body {
+    flex: 1;
+    min-width: 0;
+
+    .log-top-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+
+      .action-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+      }
+
+      .module-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+        --background: transparent;
+        border: 1px solid;
+      }
+
+      .status-badge {
+        font-size: 10px;
+        padding: 2px 6px;
+      }
+    }
+
+    .log-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--ion-color-medium);
+
+      span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        ion-icon {
+          font-size: 14px;
+        }
+
+        small {
+          opacity: 0.7;
+        }
+      }
+
+      .log-user {
+        font-weight: 500;
+        color: var(--ion-color-dark);
+      }
+    }
+
+    .log-details {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--ion-color-medium-shade);
+
+      strong {
+        color: var(--ion-color-dark);
+      }
+
+      .log-resource {
+        font-family: monospace;
+        font-size: 11px;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+// ═══════ PAGINATION ═══════
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 0;
+
+  .page-info {
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+// ═══════ RESPONSIVE ═══════
+@media (max-width: 768px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .two-col-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .module-bar-chart .bar-row .bar-label {
+    width: 90px;
+  }
+
+  .module-bar-chart .bar-row .bar-value {
+    width: 60px;
+  }
+}
+
+@media (max-width: 576px) {
+  .filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi-card {
+    padding: 12px;
+
+    .kpi-data .kpi-number {
+      font-size: 18px;
+    }
+  }
+
+  .log-card {
+    .log-left {
+      display: none;
+    }
+  }
+
+  .day-chart {
+    height: 120px;
+  }
 }

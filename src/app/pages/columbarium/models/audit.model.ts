@@ -1,47 +1,65 @@
+// Modelo que coincide con el backend Audit schema
+
 export interface AuditLog {
     _id: string;
-    action: AuditAction;
-    entity: AuditEntity;
-    entityId: string;
-    userId: string | any; // En caso de populated
-    userName?: string;
-    details: AuditDetails;
-    ipAddress?: string;
+    user: string | AuditUser;
+    username: string;
+    userRole: string;
+    action: string;
+    module: string;
+    resourceType?: string;
+    resourceId?: string;
+    details?: any;
+    status: 'success' | 'error' | 'warning';
+    ip?: string;
     userAgent?: string;
+    errorMessage?: string;
     timestamp: Date;
 }
 
-export type AuditAction =
-    | 'create'
-    | 'update'
-    | 'delete'
-    | 'login'
-    | 'logout'
-    | 'payment'
-    | 'cancel'
-    | 'disable'
-    | 'enable';
-
-export type AuditEntity =
-    | 'customer'
-    | 'niche'
-    | 'sale'
-    | 'payment'
-    | 'user';
-
-export interface AuditDetails {
-    before?: any;
-    after?: any;
-    reason?: string;
-    metadata?: { [key: string]: any };
+export interface AuditUser {
+    _id: string;
+    username: string;
+    fullName: string;
+    role: string;
+    email?: string;
 }
 
-// Para filtros
+// Para filtros del endpoint GET /api/audit
 export interface AuditFilters {
-    action?: AuditAction;
-    entity?: AuditEntity;
-    entityId?: string;
-    userId?: string;
-    startDate?: Date;
-    endDate?: Date;
+    module?: string;
+    action?: string;
+    user?: string;
+    status?: string;
+    startDate?: string;
+    endDate?: string;
+}
+
+// Respuesta de GET /api/audit/stats
+export interface AuditStats {
+    total: number;
+    byModule: AuditGroupCount[];
+    byAction: AuditGroupCount[];
+    byStatus: AuditGroupCount[];
+    topUsers: AuditTopUser[];
+    activityByDay: AuditDayActivity[];
+    recentErrors: AuditLog[];
+}
+
+export interface AuditGroupCount {
+    _id: string;
+    count: number;
+}
+
+export interface AuditTopUser {
+    _id: string;
+    count: number;
+    username: string;
+    fullName: string;
+    role: string;
+}
+
+export interface AuditDayActivity {
+    _id: string; // fecha YYYY-MM-DD
+    count: number;
 }

@@ -1,67 +1,362 @@
-<app-header title="Registro de Auditoría" [showSearch]="false" [showAdd]="false"></app-header>
+<app-header title="Auditoría del Sistema" [showSearch]="false" [showAdd]="false"></app-header>
 
 <ion-content [fullscreen]="true">
-  <!-- Filtros -->
-  <div class="filters-section">
-    <ion-segment [value]="actionFilter()" (ionChange)="onActionFilterChange($event)" scrollable>
-      <ion-segment-button *ngFor="let filter of actionFilters" [value]="filter.value">
-        <ion-label>{{ filter.label }}</ion-label>
+
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="audit-wrapper">
+
+    <!-- ═══════ TABS ═══════ -->
+    <ion-segment [value]="activeTab()" (ionChange)="onTabChange($event)" class="main-tabs">
+      <ion-segment-button value="stats">
+        <ion-icon name="stats-chart-outline"></ion-icon>
+        <ion-label>Estadísticas</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="logs">
+        <ion-icon name="list-outline"></ion-icon>
+        <ion-label>Historial</ion-label>
       </ion-segment-button>
     </ion-segment>
 
-    <ion-segment [value]="entityFilter()" (ionChange)="onEntityFilterChange($event)" scrollable>
-      <ion-segment-button *ngFor="let filter of entityFilters" [value]="filter.value">
-        <ion-label>{{ filter.label }}</ion-label>
-      </ion-segment-button>
-    </ion-segment>
+    <!-- ╔═══════════════════════════════════════╗ -->
+    <!-- ║        TAB: ESTADÍSTICAS              ║ -->
+    <!-- ╚═══════════════════════════════════════╝ -->
+    <div *ngIf="activeTab() === 'stats'">
+
+      <!-- Loading stats -->
+      <div class="loading-container" *ngIf="loadingStats()">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Cargando estadísticas...</p>
+      </div>
+
+      <div *ngIf="!loadingStats() && auditStats()">
+
+        <!-- KPIs principales -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon">
+              <ion-icon name="shield-checkmark-outline" color="primary"></ion-icon>
+            </div>
+            <div class="kpi-data">
+              <span class="kpi-number">{{ auditStats()!.total | number }}</span>
+              <span class="kpi-label">Total registros</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon">
+              <ion-icon name="calendar-outline" color="success"></ion-icon>
+            </div>
+            <div class="kpi-data">
+              <span class="kpi-number">{{ todayCount }}</span>
+              <span class="kpi-label">Hoy</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon">
+              <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+            </div>
+            <div class="kpi-data">
+              <span class="kpi-number">{{ errorCount }}</span>
+              <span class="kpi-label">Errores</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon">
+              <ion-icon name="alert-circle-outline" color="warning"></ion-icon>
+            </div>
+            <div class="kpi-data">
+              <span class="kpi-number">{{ warningCount }}</span>
+              <span class="kpi-label">Advertencias</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actividad por módulo -->
+        <ion-card class="section-card" *ngIf="auditStats()!.byModule?.length">
+          <ion-card-header>
+            <ion-card-title class="section-title">
+              <ion-icon name="layers-outline"></ion-icon>
+              Actividad por Módulo
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="module-bar-chart">
+              <div class="bar-row" *ngFor="let mod of auditStats()!.byModule">
+                <div class="bar-label">
+                  <ion-icon [name]="auditService.getModuleIcon(mod._id)" [color]="auditService.getModuleColor(mod._id)"></ion-icon>
+                  <span>{{ auditService.getModuleLabel(mod._id) }}</span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width.%]="getBarWidth(mod.count)"
+                    [style.background]="'var(--ion-color-' + auditService.getModuleColor(mod._id) + ')'"></div>
+                </div>
+                <div class="bar-value">
+                  <strong>{{ mod.count }}</strong>
+                  <span class="bar-percent">{{ getModulePercentage(mod) }}%</span>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Actividad últimos 7 días -->
+        <ion-card class="section-card" *ngIf="auditStats()!.activityByDay?.length">
+          <ion-card-header>
+            <ion-card-title class="section-title">
+              <ion-icon name="stats-chart-outline"></ion-icon>
+              Actividad Últimos 7 Días
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="day-chart">
+              <div class="day-bar" *ngFor="let day of auditStats()!.activityByDay">
+                <div class="day-count">{{ day.count }}</div>
+                <div class="day-bar-fill" [style.height.%]="getDayBarHeight(day.count)"></div>
+                <div class="day-label">{{ getDayLabel(day._id) }}</div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Top Usuarios + Acciones en grid -->
+        <div class="two-col-grid">
+
+          <!-- Top Usuarios -->
+          <ion-card class="section-card" *ngIf="auditStats()!.topUsers?.length">
+            <ion-card-header>
+              <ion-card-title class="section-title">
+                <ion-icon name="trophy-outline"></ion-icon>
+                Usuarios Más Activos
+              </ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <div class="top-user-list">
+                <div class="top-user-item" *ngFor="let user of auditStats()!.topUsers; let i = index">
+                  <span class="user-rank">{{ getUserMedal(i) || '#' + (i + 1) }}</span>
+                  <div class="user-info">
+                    <span class="user-name">{{ user.fullName || user.username }}</span>
+                    <span class="user-role">{{ user.role }}</span>
+                  </div>
+                  <span class="user-count">{{ user.count }}</span>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <!-- Acciones realizadas -->
+          <ion-card class="section-card" *ngIf="auditStats()!.byAction?.length">
+            <ion-card-header>
+              <ion-card-title class="section-title">
+                <ion-icon name="document-text-outline"></ion-icon>
+                Por Tipo de Acción
+              </ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <div class="action-chips">
+                <div class="action-chip" *ngFor="let act of auditStats()!.byAction">
+                  <ion-icon [name]="auditService.getActionIcon(act._id)" [color]="auditService.getActionColor(act._id)"></ion-icon>
+                  <span class="action-name">{{ auditService.getActionLabel(act._id) }}</span>
+                  <ion-badge [color]="auditService.getActionColor(act._id)">{{ act.count }}</ion-badge>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+        </div>
+
+        <!-- Errores Recientes -->
+        <ion-card class="section-card error-card" *ngIf="auditStats()!.recentErrors?.length">
+          <ion-card-header>
+            <ion-card-title class="section-title error-title">
+              <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+              Errores Recientes
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="error-list">
+              <div class="error-item" *ngFor="let err of auditStats()!.recentErrors">
+                <div class="error-main">
+                  <ion-badge color="danger">{{ auditService.getActionLabel(err.action) }}</ion-badge>
+                  <span class="error-module">{{ auditService.getModuleLabel(err.module) }}</span>
+                </div>
+                <div class="error-detail" *ngIf="err.details">
+                  {{ err.details?.error || err.details?.message || (err.details | json) }}
+                </div>
+                <div class="error-meta">
+                  <span><ion-icon name="person-outline"></ion-icon> {{ err.username || 'Desconocido' }}</span>
+                  <span><ion-icon name="time-outline"></ion-icon> {{ formatTimestamp(err.timestamp) }}</span>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+      </div>
+    </div>
+
+    <!-- ╔═══════════════════════════════════════╗ -->
+    <!-- ║         TAB: HISTORIAL                ║ -->
+    <!-- ╚═══════════════════════════════════════╝ -->
+    <div *ngIf="activeTab() === 'logs'">
+
+      <!-- Filtros -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title class="section-title">
+            <ion-icon name="search-outline"></ion-icon>
+            Filtrar Registros
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="filter-row">
+            <ion-select label="Módulo" [value]="moduleFilter()" (ionChange)="onModuleFilterChange($event)"
+              interface="popover" placeholder="Todos">
+              <ion-select-option value="all">Todos</ion-select-option>
+              <ion-select-option value="auth">Autenticación</ion-select-option>
+              <ion-select-option value="customer">Clientes</ion-select-option>
+              <ion-select-option value="niche">Nichos</ion-select-option>
+              <ion-select-option value="sale">Ventas</ion-select-option>
+              <ion-select-option value="payment">Pagos</ion-select-option>
+            </ion-select>
+
+            <ion-select label="Acción" [value]="actionFilter()" (ionChange)="onActionFilterChange($event)"
+              interface="popover" placeholder="Todas">
+              <ion-select-option value="all">Todas</ion-select-option>
+              <!-- Auth -->
+              <ion-select-option value="login">Inicio de sesión</ion-select-option>
+              <ion-select-option value="logout">Cierre de sesión</ion-select-option>
+              <ion-select-option value="register">Registro de usuario</ion-select-option>
+              <ion-select-option value="change_password">Cambio de contraseña</ion-select-option>
+              <!-- Clientes -->
+              <ion-select-option value="create_customer">Crear cliente</ion-select-option>
+              <ion-select-option value="update_customer">Actualizar cliente</ion-select-option>
+              <ion-select-option value="delete_customer">Eliminar cliente</ion-select-option>
+              <ion-select-option value="update_beneficiaries">Actualizar beneficiarios</ion-select-option>
+              <ion-select-option value="mark_beneficiary_deceased">Marcar fallecido</ion-select-option>
+              <!-- Nichos -->
+              <ion-select-option value="create_niche">Crear nicho</ion-select-option>
+              <ion-select-option value="update_niche">Actualizar nicho</ion-select-option>
+              <ion-select-option value="change_material">Cambiar material</ion-select-option>
+              <ion-select-option value="bulk_change_material">Cambio masivo material</ion-select-option>
+              <ion-select-option value="change_price">Cambiar precio</ion-select-option>
+              <ion-select-option value="disable_niche">Deshabilitar nicho</ion-select-option>
+              <ion-select-option value="enable_niche">Habilitar nicho</ion-select-option>
+              <!-- Ventas -->
+              <ion-select-option value="create_sale">Crear venta</ion-select-option>
+              <ion-select-option value="create_bulk_sale">Venta masiva</ion-select-option>
+              <ion-select-option value="cancel_sale">Cancelar venta</ion-select-option>
+              <ion-select-option value="register_payment">Registrar pago</ion-select-option>
+              <!-- Otros -->
+              <ion-select-option value="register_maintenance">Mantenimiento</ion-select-option>
+              <ion-select-option value="register_succession">Sucesión</ion-select-option>
+              <ion-select-option value="manual_transfer">Transferencia</ion-select-option>
+            </ion-select>
+
+            <ion-select label="Estado" [value]="statusFilter()" (ionChange)="onStatusFilterChange($event)"
+              interface="popover" placeholder="Todos">
+              <ion-select-option value="all">Todos</ion-select-option>
+              <ion-select-option value="success">Exitoso</ion-select-option>
+              <ion-select-option value="error">Error</ion-select-option>
+              <ion-select-option value="warning">Advertencia</ion-select-option>
+            </ion-select>
+          </div>
+          <ion-button *ngIf="hasActiveFilters" fill="clear" size="small" (click)="clearFilters()">
+            Limpiar filtros
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Resultados header -->
+      <div class="results-header">
+        <span class="results-count">
+          {{ totalLogs() | number }} registros
+          <span *ngIf="totalLogs() > 0"> &middot; {{ pageRangeStart }}-{{ pageRangeEnd }}</span>
+        </span>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-container" *ngIf="loading() && logs().length === 0">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Cargando registros...</p>
+      </div>
+
+      <!-- Lista de logs -->
+      <div class="logs-list" *ngIf="!loading() || logs().length > 0">
+        <div class="log-card" *ngFor="let log of logs()"
+          [class.error-log]="log.status === 'error'"
+          [class.warning-log]="log.status === 'warning'">
+
+          <div class="log-left">
+            <div class="log-icon-wrap" [style.background]="'rgba(var(--ion-color-' + auditService.getActionColor(log.action) + '-rgb), 0.12)'">
+              <ion-icon [name]="auditService.getActionIcon(log.action)" [color]="auditService.getActionColor(log.action)"></ion-icon>
+            </div>
+          </div>
+
+          <div class="log-body">
+            <div class="log-top-line">
+              <ion-badge [color]="auditService.getActionColor(log.action)" class="action-badge">
+                {{ auditService.getActionLabel(log.action) }}
+              </ion-badge>
+              <ion-badge [color]="auditService.getModuleColor(log.module)" fill="outline" class="module-badge">
+                {{ auditService.getModuleLabel(log.module) }}
+              </ion-badge>
+              <ion-badge *ngIf="log.status !== 'success'" [color]="auditService.getStatusColor(log.status)" class="status-badge">
+                {{ auditService.getStatusLabel(log.status) }}
+              </ion-badge>
+            </div>
+
+            <div class="log-meta">
+              <span class="log-user">
+                <ion-icon name="person-outline"></ion-icon>
+                {{ getLogUser(log) }}
+                <small *ngIf="getLogUserRole(log)">({{ getLogUserRole(log) }})</small>
+              </span>
+              <span class="log-time" [title]="formatFullDate(log.timestamp)">
+                <ion-icon name="time-outline"></ion-icon>
+                {{ formatTimestamp(log.timestamp) }}
+              </span>
+            </div>
+
+            <div class="log-details" *ngIf="log.details">
+              <span *ngIf="log.details?.reason">
+                <strong>Motivo:</strong> {{ log.details.reason }}
+              </span>
+              <span *ngIf="log.details?.description">
+                {{ log.details.description }}
+              </span>
+              <span *ngIf="log.resourceId" class="log-resource">
+                ID: {{ log.resourceId }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <app-empty-state *ngIf="!loading() && logs().length === 0" icon="document-text-outline"
+        title="No hay registros"
+        [message]="hasActiveFilters ? 'Intenta con otros filtros' : 'No se han generado logs'">
+      </app-empty-state>
+
+      <!-- Paginación -->
+      <div class="pagination" *ngIf="totalPages() > 1">
+        <ion-button fill="outline" size="small" [disabled]="currentPage() === 1" (click)="prevPage()">
+          <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <div class="page-info">
+          Página {{ currentPage() }} de {{ totalPages() }}
+        </div>
+        <ion-button fill="outline" size="small" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+          <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+
+    </div>
+
   </div>
-
-  <!-- Loading -->
-  <div class="loading-container" *ngIf="loading() && logs().length === 0">
-    <ion-spinner name="crescent"></ion-spinner>
-    <p>Cargando registros...</p>
-  </div>
-
-  <!-- Lista de logs -->
-  <ion-list *ngIf="!loading() || logs().length > 0">
-    <ion-item *ngFor="let log of logs()" class="audit-item">
-      <ion-icon [name]="getActionIcon(log.action)" [color]="getActionColor(log.action)" slot="start"
-        class="action-icon">
-      </ion-icon>
-
-      <ion-label>
-        <h2>
-          <ion-badge [color]="getActionColor(log.action)" class="action-badge">
-            {{ getActionLabel(log.action) }}
-          </ion-badge>
-          <span class="entity-label">{{ getEntityLabel(log.entity) }}</span>
-        </h2>
-
-        <p class="user-info">
-          <ion-icon name="person-outline"></ion-icon>
-          {{ log.userName || 'Usuario desconocido' }}
-        </p>
-
-        <p class="timestamp">
-          <ion-icon name="time-outline"></ion-icon>
-          {{ formatTimestamp(log.timestamp) }}
-        </p>
-
-        <p *ngIf="log.details?.reason" class="details-text">
-          <strong>Motivo:</strong> {{ log.details.reason }}
-        </p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
-
-  <!-- Infinite Scroll -->
-  <ion-infinite-scroll *ngIf="hasMore() && logs().length > 0" (ionInfinite)="loadMore($event)">
-    <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Cargando más registros...">
-    </ion-infinite-scroll-content>
-  </ion-infinite-scroll>
-
-  <!-- Empty State -->
-  <app-empty-state *ngIf="!loading() && logs().length === 0" icon="document-text-outline"
-    title="No hay registros de auditoría" message="Aún no se han generado logs en el sistema">
-  </app-empty-state>
 </ion-content>

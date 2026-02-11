@@ -2,24 +2,27 @@ import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonHeader, IonToolbar, IonTitle, IonButtons,
-  IonButton, IonIcon, IonList, IonItem, IonLabel, IonBadge,
-  IonSearchbar, IonSegment, IonSegmentButton, IonSpinner,
-  IonChip, IonNote, IonCard, IonCardContent, IonCardHeader,
-  IonCardTitle, IonInfiniteScroll, IonInfiniteScrollContent
+  IonContent, IonButton, IonIcon, IonList, IonItem, IonLabel, IonBadge,
+  IonSearchbar, IonSpinner, IonNote, IonCard, IonCardContent, IonCardHeader,
+  IonCardTitle, IonSelect, IonSelectOption,
+  IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   timeOutline, personOutline, documentTextOutline,
-  filterOutline, searchOutline, addCircleOutline,
-  createOutline, trashOutline, logInOutline, logOutOutline,
-  cashOutline, closeCircleOutline, banOutline, checkmarkCircleOutline
+  searchOutline, addCircleOutline, createOutline, trashOutline,
+  logInOutline, logOutOutline, cashOutline, closeCircleOutline,
+  banOutline, checkmarkCircleOutline, statsChartOutline,
+  listOutline, peopleOutline, gridOutline, keyOutline,
+  cartOutline, alertCircleOutline, chevronBackOutline,
+  chevronForwardOutline, trophyOutline, calendarOutline,
+  layersOutline, swapHorizontalOutline, shieldCheckmarkOutline
 } from 'ionicons/icons';
 
 import { AuditLogService } from '../services/audit.service';
 import { HeaderComponent } from 'src/app/shared/components/header/header.component';
 import { EmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state.component';
-import { AuditLog, AuditAction, AuditEntity } from '../models/audit.model';
+import { AuditLog, AuditStats, AuditGroupCount, AuditTopUser, AuditDayActivity } from '../models/audit.model';
 
 @Component({
   selector: 'app-audit-list',
@@ -28,147 +31,274 @@ import { AuditLog, AuditAction, AuditEntity } from '../models/audit.model';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonHeader, IonToolbar, IonTitle, IonButtons,
-    IonButton, IonIcon, IonList, IonItem, IonLabel, IonBadge,
-    IonSearchbar, IonSegment, IonSegmentButton, IonSpinner,
-    IonChip, IonNote, IonCard, IonCardContent, IonCardHeader,
-    IonCardTitle, IonInfiniteScroll, IonInfiniteScrollContent,
+    IonContent, IonButton, IonIcon, IonList, IonItem, IonLabel, IonBadge,
+    IonSearchbar, IonSpinner, IonNote, IonCard, IonCardContent, IonCardHeader,
+    IonCardTitle, IonSelect, IonSelectOption,
+    IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton,
     HeaderComponent, EmptyStateComponent
   ]
 })
 export class AuditListPage implements OnInit {
+  // Estado
   loading = signal(true);
-  searchTerm = signal('');
-  actionFilter = signal<AuditAction | 'all'>('all');
-  entityFilter = signal<AuditEntity | 'all'>('all');
+  loadingStats = signal(true);
+  activeTab = signal<'stats' | 'logs'>('stats');
 
-  // Paginación
+  // Stats
+  auditStats = signal<AuditStats | null>(null);
+
+  // Logs con filtros
+  actionFilter = signal<string>('all');
+  moduleFilter = signal<string>('all');
+  statusFilter = signal<string>('all');
   currentPage = signal(1);
-  hasMore = signal(true);
+  totalPages = signal(1);
+  totalLogs = signal(0);
+  pageSize = 50;
 
   logs = this.auditService.logs;
 
-  // Filtros disponibles
-  actionFilters: { value: AuditAction | 'all'; label: string }[] = [
-    { value: 'all', label: 'Todas' },
-    { value: 'create', label: 'Crear' },
-    { value: 'update', label: 'Actualizar' },
-    { value: 'delete', label: 'Eliminar' },
-    { value: 'payment', label: 'Pago' },
-    { value: 'cancel', label: 'Cancelar' },
-    { value: 'login', label: 'Login' },
-    { value: 'logout', label: 'Logout' }
-  ];
-
-  entityFilters: { value: AuditEntity | 'all'; label: string }[] = [
-    { value: 'all', label: 'Todas' },
-    { value: 'customer', label: 'Clientes' },
-    { value: 'niche', label: 'Nichos' },
-    { value: 'sale', label: 'Ventas' },
-    { value: 'payment', label: 'Pagos' },
-    { value: 'user', label: 'Usuarios' }
-  ];
-
-  constructor(
-    public auditService: AuditLogService
-  ) {
+  constructor(public auditService: AuditLogService) {
     addIcons({
       timeOutline, personOutline, documentTextOutline,
-      filterOutline, searchOutline, addCircleOutline,
-      createOutline, trashOutline, logInOutline, logOutOutline,
-      cashOutline, closeCircleOutline, banOutline, checkmarkCircleOutline
+      searchOutline, addCircleOutline, createOutline, trashOutline,
+      logInOutline, logOutOutline, cashOutline, closeCircleOutline,
+      banOutline, checkmarkCircleOutline, statsChartOutline,
+      listOutline, peopleOutline, gridOutline, keyOutline,
+      cartOutline, alertCircleOutline, chevronBackOutline,
+      chevronForwardOutline, trophyOutline, calendarOutline,
+      layersOutline, swapHorizontalOutline, shieldCheckmarkOutline
     });
   }
 
   ngOnInit() {
+    this.loadStats();
     this.loadLogs();
   }
+
+  doRefresh(event: any) {
+    Promise.all([
+      this.auditService.getStats().toPromise(),
+      this.loadLogsPromise()
+    ]).then(() => event.target.complete())
+      .catch(() => event.target.complete());
+
+    this.loadStats();
+    this.loadLogs();
+    setTimeout(() => event.target.complete(), 3000);
+  }
+
+  onTabChange(event: any) {
+    this.activeTab.set(event.detail.value);
+  }
+
+  // ═══════ STATS ═══════
+
+  loadStats() {
+    this.loadingStats.set(true);
+    this.auditService.getStats().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.auditStats.set(response.data);
+        }
+        this.loadingStats.set(false);
+      },
+      error: () => this.loadingStats.set(false)
+    });
+  }
+
+  // Stats computed helpers
+  get todayCount(): number {
+    const stats = this.auditStats();
+    if (!stats?.activityByDay) return 0;
+    const today = new Date().toISOString().split('T')[0];
+    const todayData = stats.activityByDay.find(d => d._id === today);
+    return todayData?.count || 0;
+  }
+
+  get errorCount(): number {
+    const stats = this.auditStats();
+    if (!stats?.byStatus) return 0;
+    const errorData = stats.byStatus.find(s => s._id === 'error');
+    return errorData?.count || 0;
+  }
+
+  get warningCount(): number {
+    const stats = this.auditStats();
+    if (!stats?.byStatus) return 0;
+    const warnData = stats.byStatus.find(s => s._id === 'warning');
+    return warnData?.count || 0;
+  }
+
+  getModulePercentage(mod: AuditGroupCount): number {
+    const stats = this.auditStats();
+    if (!stats || stats.total === 0) return 0;
+    return Math.round((mod.count / stats.total) * 100);
+  }
+
+  getMaxModuleCount(): number {
+    const stats = this.auditStats();
+    if (!stats?.byModule?.length) return 1;
+    return stats.byModule[0].count;
+  }
+
+  getBarWidth(count: number): number {
+    const max = this.getMaxModuleCount();
+    return max > 0 ? Math.round((count / max) * 100) : 0;
+  }
+
+  getDayLabel(dateStr: string): string {
+    const date = new Date(dateStr + 'T12:00:00');
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (dateStr === today.toISOString().split('T')[0]) return 'Hoy';
+    if (dateStr === yesterday.toISOString().split('T')[0]) return 'Ayer';
+
+    return date.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric' });
+  }
+
+  getMaxDayCount(): number {
+    const stats = this.auditStats();
+    if (!stats?.activityByDay?.length) return 1;
+    return Math.max(...stats.activityByDay.map(d => d.count));
+  }
+
+  getDayBarHeight(count: number): number {
+    const max = this.getMaxDayCount();
+    return max > 0 ? Math.max(Math.round((count / max) * 100), 4) : 4;
+  }
+
+  getUserMedal(index: number): string {
+    if (index === 0) return '👑';
+    if (index === 1) return '🥈';
+    if (index === 2) return '🥉';
+    return '';
+  }
+
+  // ═══════ LOGS ═══════
 
   loadLogs() {
     this.loading.set(true);
 
     const params: any = {
-      limit: 50,
+      limit: this.pageSize,
       page: this.currentPage()
     };
 
-    if (this.actionFilter() !== 'all') {
-      params.action = this.actionFilter();
-    }
-
-    if (this.entityFilter() !== 'all') {
-      params.entity = this.entityFilter();
-    }
+    if (this.actionFilter() !== 'all') params.action = this.actionFilter();
+    if (this.moduleFilter() !== 'all') params.module = this.moduleFilter();
+    if (this.statusFilter() !== 'all') params.status = this.statusFilter();
 
     this.auditService.getAll(params).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         if (response.success) {
-          this.hasMore.set((response.page ?? 0) < (response.pages ?? 0));
+          this.totalPages.set(response.pages || 1);
+          this.totalLogs.set(response.total || 0);
         }
         this.loading.set(false);
       },
-      error: () => {
-        this.loading.set(false);
-      }
+      error: () => this.loading.set(false)
+    });
+  }
+
+  private loadLogsPromise(): Promise<void> {
+    return new Promise((resolve) => {
+      this.loadLogs();
+      resolve();
     });
   }
 
   onActionFilterChange(event: any) {
-    this.actionFilter.set(event.detail.value);
+    this.actionFilter.set(event.detail?.value || 'all');
     this.currentPage.set(1);
     this.loadLogs();
   }
 
-  onEntityFilterChange(event: any) {
-    this.entityFilter.set(event.detail.value);
+  onModuleFilterChange(event: any) {
+    this.moduleFilter.set(event.detail?.value || 'all');
     this.currentPage.set(1);
     this.loadLogs();
   }
 
-  loadMore(event: any) {
-    this.currentPage.set(this.currentPage() + 1);
+  onStatusFilterChange(event: any) {
+    this.statusFilter.set(event.detail?.value || 'all');
+    this.currentPage.set(1);
     this.loadLogs();
-
-    setTimeout(() => {
-      event.target.complete();
-    }, 500);
   }
 
-  // Helpers
-  getActionColor(action: string): string {
-    return this.auditService.getActionColor(action);
+  clearFilters() {
+    this.actionFilter.set('all');
+    this.moduleFilter.set('all');
+    this.statusFilter.set('all');
+    this.currentPage.set(1);
+    this.loadLogs();
   }
 
-  getActionLabel(action: string): string {
-    return this.auditService.getActionLabel(action);
+  get hasActiveFilters(): boolean {
+    return this.actionFilter() !== 'all' || this.moduleFilter() !== 'all' || this.statusFilter() !== 'all';
   }
 
-  getEntityLabel(entity: string): string {
-    return this.auditService.getEntityLabel(entity);
+  // Paginación
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.set(this.currentPage() + 1);
+      this.loadLogs();
+    }
   }
 
-  getActionIcon(action: string): string {
-    return this.auditService.getActionIcon(action);
+  prevPage() {
+    if (this.currentPage() > 1) {
+      this.currentPage.set(this.currentPage() - 1);
+      this.loadLogs();
+    }
+  }
+
+  // Helpers para logs
+  getLogUser(log: AuditLog): string {
+    if (typeof log.user === 'object' && log.user?.fullName) {
+      return log.user.fullName;
+    }
+    return log.username || 'Desconocido';
+  }
+
+  getLogUserRole(log: AuditLog): string {
+    if (typeof log.user === 'object' && log.user?.role) {
+      return log.user.role;
+    }
+    return log.userRole || '';
   }
 
   formatTimestamp(timestamp: Date): string {
     const date = new Date(timestamp);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
+    const diffMin = Math.floor(diffMs / (1000 * 60));
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
 
-    if (diffHours < 1) {
-      const diffMinutes = Math.floor(diffMs / (1000 * 60));
-      return `Hace ${diffMinutes} min`;
-    } else if (diffHours < 24) {
-      return `Hace ${diffHours}h`;
-    } else {
-      return date.toLocaleDateString('es-MX', {
-        day: '2-digit',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    }
+    if (diffMin < 1) return 'Justo ahora';
+    if (diffMin < 60) return `Hace ${diffMin} min`;
+    if (diffHours < 24) return `Hace ${diffHours}h`;
+
+    return date.toLocaleDateString('es-MX', {
+      day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  formatFullDate(timestamp: Date): string {
+    return new Date(timestamp).toLocaleString('es-MX', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+  }
+
+  get pageRangeStart(): number {
+    if (this.totalLogs() === 0) return 0;
+    return (this.currentPage() - 1) * this.pageSize + 1;
+  }
+
+  get pageRangeEnd(): number {
+    return Math.min(this.currentPage() * this.pageSize, this.totalLogs());
   }
 }
