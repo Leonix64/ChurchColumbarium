@@ -133,12 +133,51 @@ export class NicheService {
     );
   }
 
-  // Habilitar nichos
-  enableNiche(id: string): Observable<ApiResponse<any>> {
+  // Habilitar nichos (uno o varios)
+  // Backend: POST /api/niches/enable con { nicheIds: [...] }
+  enableNiches(ids: string | string[]): Observable<ApiResponse<any>> {
+    const nicheIds = Array.isArray(ids) ? ids : [ids];
     return this.http.post<ApiResponse<any>>(
       `${this.endpoint}/enable`,
-      { nicheIds: [id] }
+      { nicheIds }
     ).pipe(
+      tap(() => this.getAll().subscribe())
+    );
+  }
+
+  // Cambiar material masivo
+  // Backend: POST /api/niches/bulk-material con { nicheIds, type, price }
+  bulkChangeMaterial(
+    nicheIds: string[],
+    type: 'wood' | 'marble' | 'special',
+    price: number
+  ): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(
+      `${this.endpoint}/bulk-material`,
+      { nicheIds, type, price }
+    ).pipe(
+      tap(() => this.getAll().subscribe())
+    );
+  }
+
+  // Obtener nichos deshabilitados
+  // Backend: GET /api/niches/disabled (popula disabledBy)
+  getDisabledNiches(): Observable<ApiResponse<Niche[]>> {
+    return this.http.get<ApiResponse<Niche[]>>(`${this.endpoint}/disabled`);
+  }
+
+  // Crear un nicho individual
+  // Backend: POST /api/niches con { module, section, row, displayNumber, type, price }
+  // El backend calcula la posición (number) automáticamente
+  createNiche(data: {
+    module: string;
+    section: string;
+    row: number;
+    displayNumber: number;
+    type: 'wood' | 'marble' | 'special';
+    price: number;
+  }): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(this.endpoint, data).pipe(
       tap(() => this.getAll().subscribe())
     );
   }

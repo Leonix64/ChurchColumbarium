@@ -1,0 +1,112 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Crear Nicho</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onCancel()" [disabled]="loading()">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+
+    <!-- UBICACIÓN -->
+    <div class="section-header">
+      <ion-icon name="cube-outline"></ion-icon>
+      <span>Ubicación</span>
+    </div>
+
+    <ion-list>
+      <ion-item>
+        <ion-select label="Módulo *" formControlName="module" interface="popover"
+          placeholder="Seleccionar" [disabled]="loading()">
+          <ion-select-option *ngFor="let mod of modules" [value]="mod">
+            {{ mod }} - {{ nicheService.getModuleName(mod) }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-select label="Sección *" formControlName="section" interface="popover"
+          placeholder="Seleccionar" [disabled]="loading()">
+          <ion-select-option *ngFor="let sec of sections" [value]="sec">
+            Sección {{ sec }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-input type="number" formControlName="row" label="Fila (piso) *"
+          labelPlacement="stacked" placeholder="Ej: 3"
+          [disabled]="loading()" min="1" max="20"
+          helperText="Piso donde va el nicho (de abajo hacia arriba)"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input type="number" formControlName="displayNumber" label="Número del nicho *"
+          labelPlacement="stacked" placeholder="Ej: 150"
+          [disabled]="loading()" min="1"
+          helperText="El número que se ve pintado en el nicho"></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <!-- MATERIAL -->
+    <div class="section-header">
+      <ion-icon name="pricetag-outline"></ion-icon>
+      <span>Material y Precio</span>
+    </div>
+
+    <div class="material-cards">
+      <div *ngFor="let mat of materialOptions"
+        class="material-card"
+        [class.selected]="createForm.get('type')?.value === mat.value"
+        (click)="onMaterialSelect(mat)">
+        <div class="material-emoji">{{ mat.emoji }}</div>
+        <div class="material-label">{{ mat.label }}</div>
+        <div class="material-price">{{ formatCurrency(mat.price) }}</div>
+      </div>
+    </div>
+
+    <ion-list>
+      <ion-item>
+        <ion-input type="number" formControlName="price" label="Precio *"
+          labelPlacement="stacked" placeholder="30000"
+          [disabled]="loading()" min="0" step="1000"
+          helperText="Puedes ajustar el precio sugerido"></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <!-- RESUMEN -->
+    <ion-card color="tertiary" *ngIf="generatedCode() && createForm.valid">
+      <ion-card-content>
+        <div class="preview-info">
+          <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+          <div>
+            <strong>Nicho #{{ createForm.get('displayNumber')?.value }}</strong>
+            <p class="code-line">Código: {{ generatedCode() }}</p>
+            <p>{{ selectedMaterialLabel }} · {{ formatCurrency(createForm.get('price')?.value) }}</p>
+            <p>Módulo {{ createForm.get('module')?.value }} · Sección {{ createForm.get('section')?.value }} · Fila {{ createForm.get('row')?.value }}</p>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- BOTONES -->
+    <div class="action-buttons">
+      <ion-button expand="block" (click)="onCancel()" fill="outline" [disabled]="loading()">
+        Cancelar
+      </ion-button>
+      <ion-button expand="block" type="submit" color="success"
+        [disabled]="createForm.invalid || loading()">
+        <ion-icon name="add-circle-outline" slot="start" *ngIf="!loading()"></ion-icon>
+        <ion-spinner *ngIf="loading()" slot="start"></ion-spinner>
+        {{ loading() ? 'Creando...' : 'Crear Nicho' }}
+      </ion-button>
+    </div>
+
+  </form>
+
+</ion-content>

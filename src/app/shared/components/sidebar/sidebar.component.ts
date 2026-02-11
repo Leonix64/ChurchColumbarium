@@ -23,6 +23,7 @@ interface MenuItem {
   url: string;
   icon: string;
   color?: string;
+  exact?: boolean;
 }
 
 @Component({
@@ -50,7 +51,7 @@ export class SidebarComponent {
   columbariumMenu: MenuItem[] = [
     { title: 'Volver al Dashboard', url: '/dashboard', icon: 'arrow-back-outline', color: 'medium' },
     { title: 'Clientes', url: '/columbarium/customers', icon: 'people-outline' },
-    { title: 'Nichos', url: '/columbarium/niches', icon: 'grid-outline' },
+    { title: 'Nichos', url: '/columbarium/niches', icon: 'grid-outline', exact: true },
     { title: 'Administrar Nichos', url: '/columbarium/niches/manage', icon: 'settings-outline' },
     { title: 'Ventas', url: '/columbarium/sales', icon: 'cash-outline' },
     { title: 'Estadísticas', url: '/columbarium/stats', icon: 'stats-chart-outline' },

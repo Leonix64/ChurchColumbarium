@@ -34,6 +34,10 @@ export const columbariumRoutes: Routes = [
         loadComponent: () => import('./niches/manage/niches-manage.page').then(m => m.NichesManagePage)
     },
     {
+        path: 'niches/disabled',
+        loadComponent: () => import('./niches/disabled/niches-disabled.page').then(m => m.NichesDisabledPage)
+    },
+    {
         path: 'niches/module/:module/:section',
         loadComponent: () => import('./niches/detail/niches-detail.page').then(m => m.NichesDetailPage)
     },

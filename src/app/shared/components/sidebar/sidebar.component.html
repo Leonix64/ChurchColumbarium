@@ -39,7 +39,7 @@
     <!-- Menu Columbarium -->
     <ion-list *ngIf="isInProject('columbarium')">
       <ion-menu-toggle auto-hide="false" *ngFor="let item of columbariumMenu">
-        <ion-item [routerLink]="item.url" routerLinkActive="active-item" [routerLinkActiveOptions]="{exact: false}"
+        <ion-item [routerLink]="item.url" routerLinkActive="active-item" [routerLinkActiveOptions]="{exact: item.exact || false}"
           lines="none" detail="false">
           <ion-icon [name]="item.icon" slot="start" [color]="item.color || 'primary'">
           </ion-icon>
@@ -51,7 +51,7 @@
     <!-- Menu Peregrinaciones (futuro) -->
     <ion-list *ngIf="isInProject('pilgrimages')">
       <ion-menu-toggle auto-hide="false" *ngFor="let item of pilgrimagesMenu">
-        <ion-item [routerLink]="item.url" routerLinkActive="active-item" [routerLinkActiveOptions]="{exact: false}"
+        <ion-item [routerLink]="item.url" routerLinkActive="active-item" [routerLinkActiveOptions]="{exact: item.exact || false}"
           lines="none" detail="false">
           <ion-icon [name]="item.icon" slot="start" [color]="item.color || 'primary'">
           </ion-icon>
