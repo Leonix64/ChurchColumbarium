@@ -66,6 +66,14 @@ export const columbariumRoutes: Routes = [
         loadComponent: () => import('./audit/audit-list.page').then(m => m.AuditListPage)
     },
     {
+        path: 'audit/reports',
+        loadComponent: () => import('./audit/report/audit-report.page').then(m => m.AuditReportPage)
+    },
+    {
+        path: 'audit/user/:userId',
+        loadComponent: () => import('./audit/user-history/user-history.page').then(m => m.UserHistoryPage)
+    },
+    {
         path: '',
         redirectTo: 'customers',
         pathMatch: 'full'

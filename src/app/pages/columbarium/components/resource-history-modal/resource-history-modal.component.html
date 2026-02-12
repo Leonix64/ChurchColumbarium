@@ -1,0 +1,98 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      Historial{{ resourceTitle ? ' - ' + resourceTitle : '' }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Info del recurso -->
+  <ion-card *ngIf="resourceTitle || resourceType">
+    <ion-card-content>
+      <div class="resource-info">
+        <ion-icon name="document-text-outline" color="primary"></ion-icon>
+        <div>
+          <h3 *ngIf="resourceTitle">{{ resourceTitle }}</h3>
+          <p *ngIf="resourceType">{{ resourceType }}</p>
+        </div>
+        <ion-badge color="medium">{{ history().length }} cambio(s)</ion-badge>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando historial...</p>
+  </div>
+
+  <!-- Timeline -->
+  <div *ngIf="!loading()" class="timeline-wrapper">
+    <div class="timeline" *ngIf="history().length > 0">
+      <div *ngFor="let log of history(); let i = index; let last = last"
+        class="timeline-item" [class.first]="i === 0">
+
+        <div class="timeline-marker">
+          <div class="marker-dot"
+            [style.background]="'var(--ion-color-' + auditService.getActionColor(log.action) + ')'"
+            [style.box-shadow]="'0 0 0 2px var(--ion-color-' + auditService.getActionColor(log.action) + ')'">
+          </div>
+          <div class="marker-line" *ngIf="!last"></div>
+        </div>
+
+        <div class="timeline-content">
+          <div class="timeline-date">
+            {{ formatDate(log.timestamp) }} {{ formatTime(log.timestamp) }}
+          </div>
+          <ion-card class="timeline-card"
+            [class.error-card]="log.status === 'error'">
+            <ion-card-content>
+              <div class="card-header">
+                <div class="card-icon"
+                  [style.background]="'rgba(var(--ion-color-' + auditService.getActionColor(log.action) + '-rgb), 0.12)'">
+                  <ion-icon [name]="auditService.getActionIcon(log.action)"
+                    [color]="auditService.getActionColor(log.action)"></ion-icon>
+                </div>
+                <div class="card-info">
+                  <span class="card-action">{{ auditService.getActionLabel(log.action) }}</span>
+                  <span class="card-user">
+                    <ion-icon name="person-outline"></ion-icon>
+                    {{ getLogUser(log) }}
+                  </span>
+                </div>
+                <ion-badge *ngIf="log.status !== 'success'"
+                  [color]="auditService.getStatusColor(log.status)" class="status-badge">
+                  {{ auditService.getStatusLabel(log.status) }}
+                </ion-badge>
+              </div>
+
+              <div class="card-detail" *ngIf="getDetailText(log)">
+                {{ getDetailText(log) }}
+              </div>
+
+              <div class="card-changes" *ngIf="log.details?.changes">
+                <div class="change-item" *ngFor="let change of log.details.changes | keyvalue">
+                  <span class="change-field">{{ change.key }}:</span>
+                  <span class="change-value">{{ change.value }}</span>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="history().length === 0" class="empty-state">
+      <ion-icon name="time-outline"></ion-icon>
+      <h3>Sin historial</h3>
+      <p>No hay registros de cambios para este recurso.</p>
+    </div>
+  </div>
+</ion-content>

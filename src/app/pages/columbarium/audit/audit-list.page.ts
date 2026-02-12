@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   IonContent, IonButton, IonIcon, IonList, IonItem, IonLabel, IonBadge,
   IonSearchbar, IonSpinner, IonNote, IonCard, IonCardContent, IonCardHeader,
@@ -16,13 +17,16 @@ import {
   listOutline, peopleOutline, gridOutline, keyOutline,
   cartOutline, alertCircleOutline, chevronBackOutline,
   chevronForwardOutline, trophyOutline, calendarOutline,
-  layersOutline, swapHorizontalOutline, shieldCheckmarkOutline
+  layersOutline, swapHorizontalOutline, shieldCheckmarkOutline,
+  analyticsOutline, trashBinOutline
 } from 'ionicons/icons';
 
 import { AuditLogService } from '../services/audit.service';
 import { HeaderComponent } from 'src/app/shared/components/header/header.component';
 import { EmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state.component';
+import { AuditRecentWidgetComponent } from '../components/audit-recent-widget/audit-recent-widget.component';
 import { AuditLog, AuditStats, AuditGroupCount, AuditTopUser, AuditDayActivity } from '../models/audit.model';
+import { NotificationService } from 'src/app/core/services/notification.service';
 
 @Component({
   selector: 'app-audit-list',
@@ -35,7 +39,7 @@ import { AuditLog, AuditStats, AuditGroupCount, AuditTopUser, AuditDayActivity }
     IonSearchbar, IonSpinner, IonNote, IonCard, IonCardContent, IonCardHeader,
     IonCardTitle, IonSelect, IonSelectOption,
     IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton,
-    HeaderComponent, EmptyStateComponent
+    HeaderComponent, EmptyStateComponent, AuditRecentWidgetComponent
   ]
 })
 export class AuditListPage implements OnInit {
@@ -58,7 +62,15 @@ export class AuditListPage implements OnInit {
 
   logs = this.auditService.logs;
 
-  constructor(public auditService: AuditLogService) {
+  // Cleanup
+  cleanupDays = signal(365);
+  cleaningUp = signal(false);
+
+  constructor(
+    public auditService: AuditLogService,
+    private router: Router,
+    private notificationService: NotificationService
+  ) {
     addIcons({
       timeOutline, personOutline, documentTextOutline,
       searchOutline, addCircleOutline, createOutline, trashOutline,
@@ -67,7 +79,18 @@ export class AuditListPage implements OnInit {
       listOutline, peopleOutline, gridOutline, keyOutline,
       cartOutline, alertCircleOutline, chevronBackOutline,
       chevronForwardOutline, trophyOutline, calendarOutline,
-      layersOutline, swapHorizontalOutline, shieldCheckmarkOutline
+      layersOutline, swapHorizontalOutline, shieldCheckmarkOutline,
+      analyticsOutline, trashBinOutline
+    });
+  }
+
+  goToReports() {
+    this.router.navigate(['/columbarium/audit/reports']);
+  }
+
+  goToUserHistory(user: AuditTopUser) {
+    this.router.navigate(['/columbarium/audit/user', user._id], {
+      queryParams: { name: user.fullName || user.username, role: user.role }
     });
   }
 
@@ -300,5 +323,38 @@ export class AuditListPage implements OnInit {
 
   get pageRangeEnd(): number {
     return Math.min(this.currentPage() * this.pageSize, this.totalLogs());
+  }
+
+  // ═══════ CLEANUP ═══════
+
+  onCleanupDaysChange(event: any) {
+    const val = parseInt(event.target.value);
+    if (val >= 90) this.cleanupDays.set(val);
+  }
+
+  async cleanupLogs() {
+    const days = this.cleanupDays();
+    const confirmed = await this.notificationService.confirm(
+      'Limpiar Logs Antiguos',
+      `Se eliminarán todos los logs con más de ${days} días de antigüedad. Esta acción no se puede deshacer. ¿Continuar?`
+    );
+
+    if (!confirmed) return;
+
+    this.cleaningUp.set(true);
+    this.auditService.cleanupOldLogs(days).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.notificationService.success(response.message || 'Logs eliminados exitosamente');
+          this.loadStats();
+          this.loadLogs();
+        }
+        this.cleaningUp.set(false);
+      },
+      error: () => {
+        this.notificationService.error('Error al limpiar logs');
+        this.cleaningUp.set(false);
+      }
+    });
   }
 }

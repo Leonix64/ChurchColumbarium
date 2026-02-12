@@ -8,6 +8,14 @@
 
   <div class="audit-wrapper">
 
+    <!-- ═══════ ACCESO RÁPIDO ═══════ -->
+    <div class="quick-actions">
+      <ion-button fill="outline" size="small" (click)="goToReports()">
+        <ion-icon name="analytics-outline" slot="start"></ion-icon>
+        Reportes
+      </ion-button>
+    </div>
+
     <!-- ═══════ TABS ═══════ -->
     <ion-segment [value]="activeTab()" (ionChange)="onTabChange($event)" class="main-tabs">
       <ion-segment-button value="stats">
@@ -88,7 +96,8 @@
             <div class="module-bar-chart">
               <div class="bar-row" *ngFor="let mod of auditStats()!.byModule">
                 <div class="bar-label">
-                  <ion-icon [name]="auditService.getModuleIcon(mod._id)" [color]="auditService.getModuleColor(mod._id)"></ion-icon>
+                  <ion-icon [name]="auditService.getModuleIcon(mod._id)"
+                    [color]="auditService.getModuleColor(mod._id)"></ion-icon>
                   <span>{{ auditService.getModuleLabel(mod._id) }}</span>
                 </div>
                 <div class="bar-track">
@@ -136,13 +145,15 @@
             </ion-card-header>
             <ion-card-content>
               <div class="top-user-list">
-                <div class="top-user-item" *ngFor="let user of auditStats()!.topUsers; let i = index">
+                <div class="top-user-item clickable" *ngFor="let user of auditStats()!.topUsers; let i = index"
+                  (click)="goToUserHistory(user)">
                   <span class="user-rank">{{ getUserMedal(i) || '#' + (i + 1) }}</span>
                   <div class="user-info">
                     <span class="user-name">{{ user.fullName || user.username }}</span>
                     <span class="user-role">{{ user.role }}</span>
                   </div>
                   <span class="user-count">{{ user.count }}</span>
+                  <ion-icon name="chevron-forward-outline" class="user-arrow"></ion-icon>
                 </div>
               </div>
             </ion-card-content>
@@ -159,7 +170,8 @@
             <ion-card-content>
               <div class="action-chips">
                 <div class="action-chip" *ngFor="let act of auditStats()!.byAction">
-                  <ion-icon [name]="auditService.getActionIcon(act._id)" [color]="auditService.getActionColor(act._id)"></ion-icon>
+                  <ion-icon [name]="auditService.getActionIcon(act._id)"
+                    [color]="auditService.getActionColor(act._id)"></ion-icon>
                   <span class="action-name">{{ auditService.getActionLabel(act._id) }}</span>
                   <ion-badge [color]="auditService.getActionColor(act._id)">{{ act.count }}</ion-badge>
                 </div>
@@ -192,6 +204,38 @@
                   <span><ion-icon name="time-outline"></ion-icon> {{ formatTimestamp(err.timestamp) }}</span>
                 </div>
               </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Widget Actividad Reciente -->
+        <app-audit-recent-widget></app-audit-recent-widget>
+
+        <!-- Limpieza de logs -->
+        <ion-card class="section-card cleanup-card">
+          <ion-card-header>
+            <ion-card-title class="section-title">
+              <ion-icon name="trash-bin-outline"></ion-icon>
+              Limpieza de Logs
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p class="cleanup-desc">Eliminar registros antiguos para mantener la base de datos ligera. Mínimo 90 días.
+            </p>
+            <div class="cleanup-controls">
+              <div class="cleanup-input-group">
+                <label>Eliminar logs con más de</label>
+                <div class="cleanup-input-row">
+                  <input type="number" [value]="cleanupDays()" (change)="onCleanupDaysChange($event)" min="90"
+                    max="3650" class="cleanup-input" />
+                  <span>días</span>
+                </div>
+              </div>
+              <ion-button color="danger" fill="outline" size="small" (click)="cleanupLogs()" [disabled]="cleaningUp()">
+                <ion-spinner name="crescent" *ngIf="cleaningUp()" slot="start"></ion-spinner>
+                <ion-icon name="trash-outline" slot="start" *ngIf="!cleaningUp()"></ion-icon>
+                {{ cleaningUp() ? 'Limpiando...' : 'Limpiar Logs' }}
+              </ion-button>
             </div>
           </ion-card-content>
         </ion-card>
@@ -287,13 +331,14 @@
 
       <!-- Lista de logs -->
       <div class="logs-list" *ngIf="!loading() || logs().length > 0">
-        <div class="log-card" *ngFor="let log of logs()"
-          [class.error-log]="log.status === 'error'"
+        <div class="log-card" *ngFor="let log of logs()" [class.error-log]="log.status === 'error'"
           [class.warning-log]="log.status === 'warning'">
 
           <div class="log-left">
-            <div class="log-icon-wrap" [style.background]="'rgba(var(--ion-color-' + auditService.getActionColor(log.action) + '-rgb), 0.12)'">
-              <ion-icon [name]="auditService.getActionIcon(log.action)" [color]="auditService.getActionColor(log.action)"></ion-icon>
+            <div class="log-icon-wrap"
+              [style.background]="'rgba(var(--ion-color-' + auditService.getActionColor(log.action) + '-rgb), 0.12)'">
+              <ion-icon [name]="auditService.getActionIcon(log.action)"
+                [color]="auditService.getActionColor(log.action)"></ion-icon>
             </div>
           </div>
 
@@ -305,7 +350,8 @@
               <ion-badge [color]="auditService.getModuleColor(log.module)" fill="outline" class="module-badge">
                 {{ auditService.getModuleLabel(log.module) }}
               </ion-badge>
-              <ion-badge *ngIf="log.status !== 'success'" [color]="auditService.getStatusColor(log.status)" class="status-badge">
+              <ion-badge *ngIf="log.status !== 'success'" [color]="auditService.getStatusColor(log.status)"
+                class="status-badge">
                 {{ auditService.getStatusLabel(log.status) }}
               </ion-badge>
             </div>
@@ -338,8 +384,7 @@
       </div>
 
       <!-- Empty State -->
-      <app-empty-state *ngIf="!loading() && logs().length === 0" icon="document-text-outline"
-        title="No hay registros"
+      <app-empty-state *ngIf="!loading() && logs().length === 0" icon="document-text-outline" title="No hay registros"
         [message]="hasActiveFilters ? 'Intenta con otros filtros' : 'No se han generado logs'">
       </app-empty-state>
 

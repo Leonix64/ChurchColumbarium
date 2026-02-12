@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
-import { AuditLog, AuditFilters, AuditStats } from '../models/audit.model';
+import { AuditLog, AuditFilters, AuditStats, AuditReportRawResponse } from '../models/audit.model';
 import { ApiResponse } from 'src/app/core/models/api-response.model';
 
 @Injectable({
@@ -63,9 +63,17 @@ export class AuditLogService {
     return this.http.get<any>(`${this.endpoint}/user/${userId}`, { params: params as any });
   }
 
+  // GET /api/audit/report — reporte de actividad
+  getReport(params: { startDate: string; endDate: string; groupBy: string }): Observable<AuditReportRawResponse> {
+    return this.http.get<AuditReportRawResponse>(`${this.endpoint}/report`, {
+      params: params as any
+    });
+  }
+
   // DELETE /api/audit/cleanup — limpiar logs viejos
   cleanupOldLogs(daysOld: number): Observable<ApiResponse<any>> {
-    return this.http.request<ApiResponse<any>>('DELETE', `${this.endpoint}/cleanup`, {
+    return this.http.delete<ApiResponse<any>>(`${this.endpoint}/cleanup`, {
+      params: { daysOld: daysOld.toString() },
       body: { daysOld }
     });
   }

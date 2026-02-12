@@ -1,0 +1,54 @@
+<ion-card class="recent-widget">
+  <ion-card-header>
+    <ion-card-title class="widget-title">
+      <ion-icon name="pulse-outline"></ion-icon>
+      Actividad Reciente
+    </ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content>
+    <!-- Loading -->
+    <div class="widget-loading" *ngIf="loading()">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+
+    <!-- Lista de actividad -->
+    <div class="activity-list" *ngIf="!loading()">
+      <div class="activity-item" *ngFor="let log of recentLogs()"
+        [class.error-item]="log.status === 'error'">
+
+        <div class="activity-icon"
+          [style.background]="'rgba(var(--ion-color-' + auditService.getActionColor(log.action) + '-rgb), 0.12)'">
+          <ion-icon [name]="auditService.getActionIcon(log.action)"
+            [color]="auditService.getActionColor(log.action)"></ion-icon>
+        </div>
+
+        <div class="activity-body">
+          <div class="activity-main">
+            <span class="activity-user">{{ getLogUser(log) }}</span>
+            <span class="activity-action">{{ auditService.getActionLabel(log.action) }}</span>
+          </div>
+          <div class="activity-detail" *ngIf="getDetailText(log)">
+            {{ getDetailText(log) }}
+          </div>
+          <div class="activity-time">
+            <ion-icon name="time-outline"></ion-icon>
+            {{ formatTimestamp(log.timestamp) }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty -->
+      <div class="widget-empty" *ngIf="recentLogs().length === 0">
+        <ion-icon name="time-outline"></ion-icon>
+        <p>Sin actividad reciente</p>
+      </div>
+    </div>
+
+    <!-- Ver Todo -->
+    <ion-button expand="block" fill="clear" size="small" (click)="goToAudit()" class="view-all-btn">
+      Ver Todo
+      <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+    </ion-button>
+  </ion-card-content>
+</ion-card>

@@ -63,3 +63,32 @@ export interface AuditDayActivity {
     _id: string; // fecha YYYY-MM-DD
     count: number;
 }
+
+// Respuesta cruda de GET /api/audit/report (del backend)
+export interface AuditReportRawItem {
+    _id: {
+        date: string;
+        module: string;
+        action: string;
+    };
+    count: number;
+}
+
+export interface AuditReportRawResponse {
+    success: boolean;
+    dateRange: { start: string; end: string; groupBy: string };
+    data: AuditReportRawItem[];
+}
+
+// Datos procesados para la UI
+export interface AuditReportProcessed {
+    totalActions: number;
+    averagePerGroup: number;
+    mostUsedModule: { module: string; count: number } | null;
+    timeline: AuditReportTimelineItem[];
+}
+
+export interface AuditReportTimelineItem {
+    _id: string;
+    count: number;
+}

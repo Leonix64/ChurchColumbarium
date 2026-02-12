@@ -7,7 +7,7 @@ import {
   ellipsisVertical, personCircle, call, location, medkit,
   people, informationCircle, createOutline, closeCircleOutline,
   checkmarkCircleOutline, alertCircleOutline, person, shareOutline,
-  trashOutline
+  trashOutline, timeOutline
 } from 'ionicons/icons';
 
 import { CustomerService } from '../../services/customer.service';
@@ -19,6 +19,7 @@ import { Sale } from '../../models/sale.model';
 import { Niche } from '../../models/niche.model';
 import { CurrencyMxPipe } from "../../../../shared/pipes/currency-mx.pipe";
 import { MaintenanceRegisterPage } from '../../maintenance/register/maintenance-register.page';
+import { ResourceHistoryModalComponent } from '../../components/resource-history-modal/resource-history-modal.component';
 
 @Component({
   selector: 'app-customers-detail',
@@ -57,7 +58,7 @@ export class CustomersDetailPage implements OnInit {
       ellipsisVertical, personCircle, call, location, medkit,
       people, informationCircle, createOutline, closeCircleOutline,
       checkmarkCircleOutline, alertCircleOutline, person, shareOutline,
-      trashOutline
+      trashOutline, timeOutline
     });
   }
 
@@ -141,6 +142,11 @@ export class CustomersDetailPage implements OnInit {
           handler: () => this.toggleActiveStatus()
         },
         {
+          text: 'Ver Historial',
+          icon: 'time-outline',
+          handler: () => this.openResourceHistory()
+        },
+        {
           text: 'Compartir',
           icon: 'share-outline',
           handler: () => this.shareCustomer()
@@ -154,6 +160,23 @@ export class CustomersDetailPage implements OnInit {
     });
 
     await actionSheet.present();
+  }
+
+  async openResourceHistory() {
+    const c = this.customer();
+    if (!c?._id) return;
+
+    const modal = await this.modalCtrl.create({
+      component: ResourceHistoryModalComponent,
+      componentProps: {
+        resourceId: c._id,
+        resourceTitle: `${c.firstName} ${c.lastName}`,
+        resourceType: 'Cliente'
+      },
+      breakpoints: [0, 0.5, 0.8, 1],
+      initialBreakpoint: 0.8
+    });
+    await modal.present();
   }
 
   goToEdit() {

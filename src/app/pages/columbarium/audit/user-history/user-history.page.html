@@ -1,0 +1,151 @@
+<app-header [title]="'Actividad de ' + userName()" [showSearch]="false" [showAdd]="false"></app-header>
+
+<ion-content [fullscreen]="true">
+
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="history-wrapper">
+
+    <!-- Loading -->
+    <div class="loading-container" *ngIf="loading()">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando actividad...</p>
+    </div>
+
+    <div *ngIf="!loading()">
+
+      <!-- User header card -->
+      <ion-card class="user-header-card">
+        <ion-card-content>
+          <div class="user-header">
+            <div class="user-avatar">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+            <div class="user-header-info">
+              <h2>{{ userName() }}</h2>
+              <ion-badge color="primary" *ngIf="userRole()">{{ getRoleLabel(userRole()) }}</ion-badge>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon">
+            <ion-icon name="shield-checkmark-outline" color="primary"></ion-icon>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-number">{{ totalActions() | number }}</span>
+            <span class="kpi-label">Total acciones</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">
+            <ion-icon name="trending-up-outline" color="success"></ion-icon>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-number">{{ dailyAverage() }}</span>
+            <span class="kpi-label">Promedio diario</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">
+            <ion-icon name="time-outline" color="tertiary"></ion-icon>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-number kpi-text">{{ lastActivity() }}</span>
+            <span class="kpi-label">Ultima actividad</span>
+          </div>
+        </div>
+
+        <div class="kpi-card" *ngIf="favoriteModule()">
+          <div class="kpi-icon">
+            <ion-icon name="layers-outline" color="warning"></ion-icon>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-number kpi-text">{{ favoriteModule() }}</span>
+            <span class="kpi-label">Modulo favorito</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resultados -->
+      <div class="results-header">
+        <span class="results-count">
+          {{ totalLogs() | number }} acciones registradas
+        </span>
+      </div>
+
+      <!-- Lista de acciones -->
+      <div class="logs-list" *ngIf="logs().length > 0">
+        <div class="log-card" *ngFor="let log of logs()"
+          [class.error-log]="log.status === 'error'"
+          [class.warning-log]="log.status === 'warning'">
+
+          <div class="log-left">
+            <div class="log-icon-wrap" [style.background]="'rgba(var(--ion-color-' + auditService.getActionColor(log.action) + '-rgb), 0.12)'">
+              <ion-icon [name]="auditService.getActionIcon(log.action)" [color]="auditService.getActionColor(log.action)"></ion-icon>
+            </div>
+          </div>
+
+          <div class="log-body">
+            <div class="log-top-line">
+              <ion-badge [color]="auditService.getActionColor(log.action)" class="action-badge">
+                {{ auditService.getActionLabel(log.action) }}
+              </ion-badge>
+              <ion-badge [color]="auditService.getModuleColor(log.module)" fill="outline" class="module-badge">
+                {{ auditService.getModuleLabel(log.module) }}
+              </ion-badge>
+              <ion-badge *ngIf="log.status !== 'success'" [color]="auditService.getStatusColor(log.status)" class="status-badge">
+                {{ auditService.getStatusLabel(log.status) }}
+              </ion-badge>
+            </div>
+
+            <div class="log-meta">
+              <span class="log-time" [title]="formatFullDate(log.timestamp)">
+                <ion-icon name="time-outline"></ion-icon>
+                {{ formatTimestamp(log.timestamp) }}
+              </span>
+              <span class="log-resource" *ngIf="log.resourceId">
+                ID: {{ log.resourceId }}
+              </span>
+            </div>
+
+            <div class="log-details" *ngIf="log.details">
+              <span *ngIf="log.details?.reason">
+                <strong>Motivo:</strong> {{ log.details.reason }}
+              </span>
+              <span *ngIf="log.details?.description">
+                {{ log.details.description }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <app-empty-state *ngIf="logs().length === 0" icon="person-outline"
+        title="Sin actividad"
+        message="Este usuario no tiene acciones registradas">
+      </app-empty-state>
+
+      <!-- Cargar mas -->
+      <div class="load-more" *ngIf="hasMorePages">
+        <ion-button fill="outline" size="default" (click)="loadMore()" [disabled]="loadingMore()">
+          <ion-spinner name="crescent" *ngIf="loadingMore()" slot="start"></ion-spinner>
+          <ion-icon name="chevron-down-outline" slot="start" *ngIf="!loadingMore()"></ion-icon>
+          {{ loadingMore() ? 'Cargando...' : 'Cargar mas' }}
+        </ion-button>
+        <ion-note>
+          Mostrando {{ logs().length }} de {{ totalLogs() | number }}
+        </ion-note>
+      </div>
+
+    </div>
+  </div>
+</ion-content>

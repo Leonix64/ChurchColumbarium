@@ -1,0 +1,139 @@
+<app-header title="Reporte de Actividad" [showSearch]="false" [showAdd]="false"></app-header>
+
+<ion-content [fullscreen]="true">
+
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="report-wrapper">
+
+    <!-- Configuración del reporte -->
+    <ion-card class="section-card">
+      <ion-card-header>
+        <ion-card-title class="section-title">
+          <ion-icon name="search-outline"></ion-icon>
+          Configurar Reporte
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+
+        <!-- Rango de fechas -->
+        <div class="date-row">
+          <div class="date-field">
+            <label>Fecha inicio</label>
+            <input type="date" [value]="startDate()" (change)="onStartDateChange($event)" class="date-input">
+          </div>
+          <span class="date-separator">a</span>
+          <div class="date-field">
+            <label>Fecha fin</label>
+            <input type="date" [value]="endDate()" (change)="onEndDateChange($event)" class="date-input">
+          </div>
+        </div>
+
+        <!-- Agrupar por -->
+        <div class="group-by-section">
+          <label>Agrupar por:</label>
+          <div class="group-options">
+            <button *ngFor="let opt of groupByOptions"
+              class="group-btn"
+              [class.active]="groupBy() === opt.value"
+              (click)="onGroupByChange(opt.value)">
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="action-row">
+          <ion-button expand="block" (click)="generateReport()" [disabled]="loading()">
+            <ion-icon name="stats-chart-outline" slot="start"></ion-icon>
+            {{ loading() ? 'Generando...' : 'Generar Reporte' }}
+            <ion-spinner *ngIf="loading()" name="crescent" slot="end"></ion-spinner>
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Exportar (en desarrollo) -->
+    <div class="export-row" *ngIf="generated() && report()">
+      <ion-button fill="outline" size="small" (click)="exportPdf()">
+        <ion-icon name="download-outline" slot="start"></ion-icon>
+        Exportar PDF
+        <ion-badge color="warning" class="dev-badge">En desarrollo</ion-badge>
+      </ion-button>
+      <ion-button fill="outline" size="small" (click)="exportExcel()">
+        <ion-icon name="download-outline" slot="start"></ion-icon>
+        Exportar Excel
+        <ion-badge color="warning" class="dev-badge">En desarrollo</ion-badge>
+      </ion-button>
+    </div>
+
+    <!-- Resultados -->
+    <div *ngIf="generated() && report()">
+
+      <!-- Resumen KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon">
+            <ion-icon name="stats-chart-outline" color="primary"></ion-icon>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-number">{{ report()!.totalActions | number }}</span>
+            <span class="kpi-label">Total de acciones</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">
+            <ion-icon name="trending-up-outline" color="success"></ion-icon>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-number">~{{ report()!.averagePerGroup | number:'1.0-0' }}</span>
+            <span class="kpi-label">Promedio por {{ groupBy() === 'hour' ? 'hora' : groupBy() === 'day' ? 'día' : groupBy() === 'week' ? 'semana' : 'mes' }}</span>
+          </div>
+        </div>
+
+        <div class="kpi-card" *ngIf="report()!.mostUsedModule">
+          <div class="kpi-icon">
+            <ion-icon name="layers-outline" color="warning"></ion-icon>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-number kpi-text">{{ getModuleLabel(report()!.mostUsedModule!.module) }}</span>
+            <span class="kpi-label">Módulo más usado</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfica de barras -->
+      <ion-card class="section-card" *ngIf="report()!.timeline?.length">
+        <ion-card-header>
+          <ion-card-title class="section-title">
+            <ion-icon name="stats-chart-outline"></ion-icon>
+            Actividad por {{ groupBy() === 'hour' ? 'Hora' : groupBy() === 'day' ? 'Día' : groupBy() === 'week' ? 'Semana' : 'Mes' }}
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="timeline-chart">
+            <div class="chart-bar" *ngFor="let item of report()!.timeline">
+              <div class="bar-count">{{ item.count }}</div>
+              <div class="bar-fill" [style.height.%]="getBarHeight(item.count)"></div>
+              <div class="bar-label">{{ formatTimelineLabel(item._id) }}</div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Empty timeline -->
+      <ion-card class="section-card" *ngIf="!report()!.timeline?.length">
+        <ion-card-content>
+          <div class="empty-chart">
+            <ion-icon name="stats-chart-outline"></ion-icon>
+            <p>No hay datos para el rango seleccionado</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+  </div>
+</ion-content>

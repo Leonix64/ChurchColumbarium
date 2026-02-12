@@ -25,6 +25,7 @@ import { Niche } from '../../models/niche.model';
 import { CurrencyMxPipe } from 'src/app/shared/pipes/currency-mx.pipe';
 import { PaymentRegisterPage } from '../payment/payment-register.page';
 import { SaleCancelComponent } from '../../components/sale-cancel/sale-cancel.component';
+import { ResourceHistoryModalComponent } from '../../components/resource-history-modal/resource-history-modal.component';
 
 @Component({
   selector: 'app-sale-detail',
@@ -210,6 +211,11 @@ export class SaleDetailPage implements OnInit {
         handler: () => this.printContract()
       },
       {
+        text: 'Ver Historial',
+        icon: 'time-outline',
+        handler: () => this.openResourceHistory()
+      },
+      {
         text: 'Compartir',
         icon: 'share-outline',
         handler: () => this.shareSale()
@@ -238,6 +244,23 @@ export class SaleDetailPage implements OnInit {
     });
 
     await actionSheet.present();
+  }
+
+  async openResourceHistory() {
+    const s = this.sale();
+    if (!s?._id) return;
+
+    const modal = await this.modalCtrl.create({
+      component: ResourceHistoryModalComponent,
+      componentProps: {
+        resourceId: s._id,
+        resourceTitle: s.folio || `Venta`,
+        resourceType: 'Venta'
+      },
+      breakpoints: [0, 0.5, 0.8, 1],
+      initialBreakpoint: 0.8
+    });
+    await modal.present();
   }
 
   goToCustomer() {
