@@ -60,6 +60,17 @@
       </ion-menu-toggle>
     </ion-list>
 
+    <!-- Admin Menu -->
+    <ion-item-divider *ngIf="isAdmin()"></ion-item-divider>
+    <ion-list *ngIf="isAdmin()">
+      <ion-menu-toggle auto-hide="false" *ngFor="let item of adminMenu">
+        <ion-item [routerLink]="item.url" routerLinkActive="active-item" lines="none" detail="false">
+          <ion-icon [name]="item.icon" slot="start" color="danger"></ion-icon>
+          <ion-label>{{ item.title }}</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+    </ion-list>
+
     <!-- Separador -->
     <ion-item-divider></ion-item-divider>
 

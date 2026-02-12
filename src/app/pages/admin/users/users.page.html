@@ -1,0 +1,141 @@
+<app-header title="Gestión de Usuarios" [showSearch]="false" [showAdd]="false"></app-header>
+
+<ion-content [fullscreen]="true">
+
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="users-wrapper">
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon">
+          <ion-icon name="people-outline" color="primary"></ion-icon>
+        </div>
+        <div class="kpi-data">
+          <span class="kpi-number">{{ roleCounts().total }}</span>
+          <span class="kpi-label">Total</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">
+          <ion-icon name="shield-outline" color="danger"></ion-icon>
+        </div>
+        <div class="kpi-data">
+          <span class="kpi-number">{{ roleCounts().admin }}</span>
+          <span class="kpi-label">Admins</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">
+          <ion-icon name="person-outline" color="primary"></ion-icon>
+        </div>
+        <div class="kpi-data">
+          <span class="kpi-number">{{ roleCounts().seller }}</span>
+          <span class="kpi-label">Vendedores</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">
+          <ion-icon name="person-outline" color="medium"></ion-icon>
+        </div>
+        <div class="kpi-data">
+          <span class="kpi-number">{{ roleCounts().viewer }}</span>
+          <span class="kpi-label">Visores</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <ion-card class="filter-card">
+      <ion-card-content>
+        <div class="filter-row">
+          <ion-searchbar
+            placeholder="Buscar usuario..."
+            [debounce]="300"
+            (ionInput)="onSearchChange($event)"
+            class="filter-search">
+          </ion-searchbar>
+          <ion-select
+            label="Rol"
+            [value]="roleFilter()"
+            (ionChange)="onRoleFilterChange($event)"
+            interface="popover"
+            placeholder="Todos"
+            class="filter-select">
+            <ion-select-option value="all">Todos los roles</ion-select-option>
+            <ion-select-option value="admin">Administrador</ion-select-option>
+            <ion-select-option value="seller">Vendedor</ion-select-option>
+            <ion-select-option value="viewer">Visor</ion-select-option>
+          </ion-select>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Contador de resultados -->
+    <div class="results-header" *ngIf="!loading()">
+      <span class="results-count">
+        {{ filteredUsers().length }} de {{ users().length }} usuarios
+      </span>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-container" *ngIf="loading()">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando usuarios...</p>
+    </div>
+
+    <!-- Lista de usuarios -->
+    <div class="users-list" *ngIf="!loading()">
+      <div class="user-card" *ngFor="let user of filteredUsers(); trackBy: trackByFn">
+        <div class="user-avatar-wrap">
+          <div class="user-avatar-circle" [class]="'role-' + user.role">
+            {{ getUserInitials(user) }}
+          </div>
+        </div>
+
+        <div class="user-body">
+          <div class="user-top-line">
+            <span class="user-fullname">{{ user.fullName }}</span>
+            <ion-badge [color]="getRoleBadgeColor(user.role)" class="role-badge">
+              {{ getRoleLabel(user.role) }}
+            </ion-badge>
+          </div>
+
+          <div class="user-details">
+            <span class="user-detail">
+              <ion-icon name="person-outline"></ion-icon>
+              {{ user.username }}
+            </span>
+            <span class="user-detail">
+              <ion-icon name="mail-outline"></ion-icon>
+              {{ user.email }}
+            </span>
+            <span class="user-detail" *ngIf="user.phone">
+              <ion-icon name="call-outline"></ion-icon>
+              {{ user.phone }}
+            </span>
+          </div>
+
+          <div class="user-meta">
+            <span class="user-last-login" [class.online]="formatLastLogin(user.lastLogin) === 'En línea'">
+              <ion-icon name="time-outline"></ion-icon>
+              {{ formatLastLogin(user.lastLogin) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <app-empty-state
+      *ngIf="!loading() && filteredUsers().length === 0"
+      icon="people-outline"
+      title="No se encontraron usuarios"
+      [message]="searchTerm() || roleFilter() !== 'all' ? 'Intenta con otros filtros' : 'No hay usuarios registrados'">
+    </app-empty-state>
+
+  </div>
+</ion-content>

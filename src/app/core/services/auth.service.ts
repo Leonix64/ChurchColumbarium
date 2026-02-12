@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment.prod';
 import { StorageService } from './storage.service';
 import { LoginRequest, LoginResponse } from '../models/auth.model';
 import { ApiResponse } from '../models/api-response.model';
-import { User } from '../models/user.model';
+import { User, UpdateProfileRequest } from '../models/user.model';
 
 
 @Injectable({
@@ -160,6 +160,49 @@ export class AuthService {
         this.router.navigate(['/auth/login']);
         return throwError(() => error);
       })
+    );
+  }
+
+  // Actualizar perfil del usuario actual
+  updateProfile(data: UpdateProfileRequest): Observable<ApiResponse<User>> {
+    return this.http.put<ApiResponse<User>>(`${environment.apiUrl}/auth/profile`, data).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.storageService.set('user', response.data);
+          this.currentUserSignal.set(response.data);
+        }
+      }),
+      catchError(error => throwError(() => error))
+    );
+  }
+
+  // Listar todos los usuarios (admin)
+  getAllUsers(): Observable<ApiResponse<User[]>> {
+    return this.http.get<ApiResponse<User[]>>(`${environment.apiUrl}/auth/admin/users`).pipe(
+      catchError(error => throwError(() => error))
+    );
+  }
+
+  // Cambiar contraseña
+  changePassword(currentPassword: string, newPassword: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${environment.apiUrl}/auth/change-password`, {
+      currentPassword,
+      newPassword
+    }).pipe(
+      catchError(error => throwError(() => error))
+    );
+  }
+
+  // Invalidar todos los tokens (cerrar todas las sesiones)
+  invalidateAllTokens(): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${environment.apiUrl}/auth/invalidate-all`, {}).pipe(
+      tap(response => {
+        if (response.success) {
+          this.clearAuthData();
+          this.router.navigate(['/auth/login']);
+        }
+      }),
+      catchError(error => throwError(() => error))
     );
   }
 

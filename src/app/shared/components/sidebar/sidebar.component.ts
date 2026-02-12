@@ -41,11 +41,15 @@ interface MenuItem {
 })
 export class SidebarComponent {
   currentUser = this.authService.currentUser;
+  isAdmin = this.authService.isAdmin;
 
   // Menús predefinidos por proyecto
   dashboardMenu: MenuItem[] = [
     { title: 'Dashboard', url: '/dashboard', icon: 'home-outline' },
-    // { title: 'Mi Perfil', url: '/auth/profile', icon: 'person-outline' }
+  ];
+
+  adminMenu: MenuItem[] = [
+    { title: 'Gestión de Usuarios', url: '/admin/users', icon: 'people-outline' },
   ];
 
   columbariumMenu: MenuItem[] = [

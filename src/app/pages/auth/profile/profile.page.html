@@ -1,13 +1,306 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>profile</ion-title>
-  </ion-toolbar>
-</ion-header>
+<app-header title="Mi Perfil" [showSearch]="false" [showAdd]="false"></app-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">profile</ion-title>
-    </ion-toolbar>
-  </ion-header>
+
+  <div class="profile-wrapper">
+
+    <!-- Loading -->
+    <div class="loading-container" *ngIf="loading()">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando perfil...</p>
+    </div>
+
+    <div *ngIf="!loading() && currentUser()">
+
+      <!-- Avatar y datos principales -->
+      <div class="profile-header-card">
+        <div class="profile-avatar">
+          <div class="avatar-circle">
+            {{ getUserInitials() }}
+          </div>
+        </div>
+        <div class="profile-header-info">
+          <h2>{{ currentUser()!.fullName }}</h2>
+          <ion-note>{{ currentUser()!.username }}</ion-note>
+          <ion-badge [color]="getRoleBadgeColor(currentUser()!.role)" class="role-badge">
+            {{ getRoleLabel(currentUser()!.role) }}
+          </ion-badge>
+        </div>
+
+        <ion-button *ngIf="!editing()" fill="outline" size="small" (click)="startEditing()" class="edit-btn">
+          <ion-icon name="create-outline" slot="start"></ion-icon>
+          Editar
+        </ion-button>
+      </div>
+
+      <!-- ═══════ INFORMACIÓN PERSONAL ═══════ -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title class="section-title">
+            <ion-icon name="person-outline"></ion-icon>
+            Información Personal
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+
+          <!-- Modo lectura -->
+          <div class="info-grid" *ngIf="!editing()">
+            <div class="info-item">
+              <div class="info-label">
+                <ion-icon name="person-outline"></ion-icon>
+                Usuario
+              </div>
+              <div class="info-value">{{ currentUser()!.username }}</div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">
+                <ion-icon name="person-outline"></ion-icon>
+                Nombre completo
+              </div>
+              <div class="info-value">{{ currentUser()!.fullName }}</div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">
+                <ion-icon name="mail-outline"></ion-icon>
+                Email
+              </div>
+              <div class="info-value">{{ currentUser()!.email }}</div>
+            </div>
+
+            <div class="info-item" *ngIf="currentUser()!.phone">
+              <div class="info-label">
+                <ion-icon name="call-outline"></ion-icon>
+                Teléfono
+              </div>
+              <div class="info-value">{{ currentUser()!.phone }}</div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">
+                <ion-icon name="shield-outline"></ion-icon>
+                Rol
+              </div>
+              <div class="info-value">
+                <ion-badge [color]="getRoleBadgeColor(currentUser()!.role)">
+                  {{ getRoleLabel(currentUser()!.role) }}
+                </ion-badge>
+              </div>
+            </div>
+
+            <div class="info-item" *ngIf="currentUser()!.lastLogin">
+              <div class="info-label">
+                <ion-icon name="time-outline"></ion-icon>
+                Último acceso
+              </div>
+              <div class="info-value">{{ formatDate(currentUser()!.lastLogin) }}</div>
+            </div>
+          </div>
+
+          <!-- Modo edición -->
+          <div class="edit-form" *ngIf="editing()">
+            <div class="form-field readonly-field">
+              <label>Usuario</label>
+              <div class="readonly-value">
+                <ion-icon name="person-outline"></ion-icon>
+                {{ currentUser()!.username }}
+                <ion-note>(no se puede cambiar)</ion-note>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label>Nombre completo *</label>
+              <ion-input
+                [(ngModel)]="fullName"
+                placeholder="Tu nombre completo"
+                [clearInput]="true"
+                type="text">
+              </ion-input>
+            </div>
+
+            <div class="form-field">
+              <label>Email *</label>
+              <ion-input
+                [(ngModel)]="email"
+                placeholder="tu@correo.com"
+                [clearInput]="true"
+                type="email">
+              </ion-input>
+            </div>
+
+            <div class="form-field">
+              <label>Teléfono</label>
+              <ion-input
+                [(ngModel)]="phone"
+                placeholder="(618) 123-4567"
+                [clearInput]="true"
+                type="tel">
+              </ion-input>
+            </div>
+
+            <div class="form-field readonly-field">
+              <label>Rol</label>
+              <div class="readonly-value">
+                <ion-icon name="shield-outline"></ion-icon>
+                <ion-badge [color]="getRoleBadgeColor(currentUser()!.role)">
+                  {{ getRoleLabel(currentUser()!.role) }}
+                </ion-badge>
+                <ion-note>(asignado por administrador)</ion-note>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <ion-button fill="outline" color="medium" (click)="cancelEditing()" [disabled]="saving()">
+                <ion-icon name="close-outline" slot="start"></ion-icon>
+                Cancelar
+              </ion-button>
+              <ion-button color="primary" (click)="saveProfile()" [disabled]="saving()">
+                <ion-spinner name="crescent" *ngIf="saving()" slot="start"></ion-spinner>
+                <ion-icon name="save-outline" slot="start" *ngIf="!saving()"></ion-icon>
+                {{ saving() ? 'Guardando...' : 'Guardar Cambios' }}
+              </ion-button>
+            </div>
+          </div>
+
+        </ion-card-content>
+      </ion-card>
+
+      <!-- ═══════ SEGURIDAD ═══════ -->
+      <ion-card class="section-card security-card">
+        <ion-card-header>
+          <ion-card-title class="section-title">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            Seguridad
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+
+          <!-- Cambiar Contraseña -->
+          <div class="security-section">
+            <h3 class="security-subtitle">
+              <ion-icon name="key-outline"></ion-icon>
+              Cambiar Contraseña
+            </h3>
+
+            <div class="password-form">
+              <div class="form-field">
+                <label>Contraseña actual</label>
+                <div class="password-input-wrap">
+                  <ion-input
+                    [(ngModel)]="currentPassword"
+                    placeholder="Ingresa tu contraseña actual"
+                    [type]="showCurrentPassword() ? 'text' : 'password'">
+                  </ion-input>
+                  <ion-button fill="clear" size="small" class="toggle-password" (click)="toggleShowCurrentPassword()">
+                    <ion-icon [name]="showCurrentPassword() ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label>Nueva contraseña</label>
+                <div class="password-input-wrap">
+                  <ion-input
+                    [(ngModel)]="newPassword"
+                    placeholder="Ingresa tu nueva contraseña"
+                    [type]="showNewPassword() ? 'text' : 'password'">
+                  </ion-input>
+                  <ion-button fill="clear" size="small" class="toggle-password" (click)="toggleShowNewPassword()">
+                    <ion-icon [name]="showNewPassword() ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </div>
+
+                <!-- Requisitos de contraseña -->
+                <div class="password-requirements" *ngIf="newPassword.length > 0">
+                  <div class="requirement" [class.met]="passwordHasMinLength">
+                    <ion-icon [name]="passwordHasMinLength ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                      [color]="passwordHasMinLength ? 'success' : 'medium'"></ion-icon>
+                    <span>Mínimo 8 caracteres</span>
+                  </div>
+                  <div class="requirement" [class.met]="passwordHasUppercase">
+                    <ion-icon [name]="passwordHasUppercase ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                      [color]="passwordHasUppercase ? 'success' : 'medium'"></ion-icon>
+                    <span>Al menos 1 mayúscula</span>
+                  </div>
+                  <div class="requirement" [class.met]="passwordHasNumber">
+                    <ion-icon [name]="passwordHasNumber ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                      [color]="passwordHasNumber ? 'success' : 'medium'"></ion-icon>
+                    <span>Al menos 1 número</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label>Confirmar nueva contraseña</label>
+                <div class="password-input-wrap">
+                  <ion-input
+                    [(ngModel)]="confirmPassword"
+                    placeholder="Repite tu nueva contraseña"
+                    [type]="showConfirmPassword() ? 'text' : 'password'">
+                  </ion-input>
+                  <ion-button fill="clear" size="small" class="toggle-password" (click)="toggleShowConfirmPassword()">
+                    <ion-icon [name]="showConfirmPassword() ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </div>
+
+                <!-- Indicador de coincidencia -->
+                <div class="password-match" *ngIf="confirmPassword.length > 0">
+                  <ion-icon [name]="passwordsMatch ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                    [color]="passwordsMatch ? 'success' : 'danger'"></ion-icon>
+                  <span [class.match]="passwordsMatch" [class.no-match]="!passwordsMatch">
+                    {{ passwordsMatch ? 'Las contraseñas coinciden' : 'Las contraseñas no coinciden' }}
+                  </span>
+                </div>
+              </div>
+
+              <ion-button
+                color="primary"
+                (click)="changePassword()"
+                [disabled]="!isPasswordFormValid || changingPassword()"
+                class="change-password-btn">
+                <ion-spinner name="crescent" *ngIf="changingPassword()" slot="start"></ion-spinner>
+                <ion-icon name="key-outline" slot="start" *ngIf="!changingPassword()"></ion-icon>
+                {{ changingPassword() ? 'Cambiando...' : 'Cambiar Contraseña' }}
+              </ion-button>
+            </div>
+          </div>
+
+          <!-- Separador -->
+          <div class="security-divider"></div>
+
+          <!-- Cerrar Todas las Sesiones -->
+          <div class="security-section">
+            <h3 class="security-subtitle">
+              <ion-icon name="log-out-outline"></ion-icon>
+              Sesiones Activas
+            </h3>
+            <p class="security-description">
+              Si sospechas de acceso no autorizado o cambiaste tu contraseña,
+              puedes cerrar todas las sesiones activas en todos los dispositivos.
+              Esto te obligará a volver a iniciar sesión.
+            </p>
+
+            <div class="invalidate-warning">
+              <ion-icon name="warning-outline" color="warning"></ion-icon>
+              <span>Esta acción cerrará sesión en todos los dispositivos, incluyendo este.</span>
+            </div>
+
+            <ion-button
+              color="danger"
+              fill="outline"
+              (click)="invalidateAllTokens()"
+              [disabled]="invalidating()"
+              class="invalidate-btn">
+              <ion-spinner name="crescent" *ngIf="invalidating()" slot="start"></ion-spinner>
+              <ion-icon name="log-out-outline" slot="start" *ngIf="!invalidating()"></ion-icon>
+              {{ invalidating() ? 'Cerrando sesiones...' : 'Cerrar Todas las Sesiones' }}
+            </ion-button>
+          </div>
+
+        </ion-card-content>
+      </ion-card>
+
+    </div>
+  </div>
 </ion-content>
