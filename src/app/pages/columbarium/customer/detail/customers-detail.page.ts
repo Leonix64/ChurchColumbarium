@@ -1,13 +1,19 @@
 import { Component, OnInit, signal } from '@angular/core';
+import { ViewWillEnter } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonButton, IonIcon, IonContent, IonBadge, IonSpinner, ActionSheetController, ModalController, IonProgressBar, IonCardContent, IonCard } from '@ionic/angular/standalone';
+import {
+  IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
+  IonButton, IonIcon, IonContent, IonBadge, IonSpinner,
+  ActionSheetController, ModalController, IonProgressBar,
+  IonCardContent, IonCard
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   ellipsisVertical, personCircle, call, location, medkit,
-  people, informationCircle, createOutline, closeCircleOutline,
+  informationCircle, createOutline, closeCircleOutline,
   checkmarkCircleOutline, alertCircleOutline, person, shareOutline,
-  trashOutline, timeOutline
+  timeOutline, chevronForwardOutline
 } from 'ionicons/icons';
 
 import { CustomerService } from '../../services/customer.service';
@@ -17,7 +23,7 @@ import { Customer } from '../../models/customer.model';
 import { SaleService } from '../../services/sale.service';
 import { Sale } from '../../models/sale.model';
 import { Niche } from '../../models/niche.model';
-import { CurrencyMxPipe } from "../../../../shared/pipes/currency-mx.pipe";
+import { CurrencyMxPipe } from 'src/app/shared/pipes/currency-mx.pipe';
 import { MaintenanceRegisterPage } from '../../maintenance/register/maintenance-register.page';
 import { ResourceHistoryModalComponent } from '../../components/resource-history-modal/resource-history-modal.component';
 
@@ -37,12 +43,11 @@ import { ResourceHistoryModalComponent } from '../../components/resource-history
     IonCard
   ]
 })
-export class CustomersDetailPage implements OnInit {
+export class CustomersDetailPage implements OnInit, ViewWillEnter {
   customerSales = signal<Sale[]>([]);
-  salesStats = signal<any>(null);
-
-  customer = signal<Customer | null>(null);
-  loading = signal(true);
+  salesStats    = signal<any>(null);
+  customer      = signal<Customer | null>(null);
+  loading       = signal(true);
   customerId: string | null = null;
 
   constructor(
@@ -56,19 +61,20 @@ export class CustomersDetailPage implements OnInit {
   ) {
     addIcons({
       ellipsisVertical, personCircle, call, location, medkit,
-      people, informationCircle, createOutline, closeCircleOutline,
+      informationCircle, createOutline, closeCircleOutline,
       checkmarkCircleOutline, alertCircleOutline, person, shareOutline,
-      trashOutline, timeOutline
+      timeOutline, chevronForwardOutline
     });
   }
 
   ngOnInit() {
     this.customerId = this.route.snapshot.paramMap.get('id');
+  }
 
+  ionViewWillEnter() {
     if (this.customerId) {
       this.loadCustomer(this.customerId);
       this.loadCustomerSales(this.customerId);
-      //console.log(this.customerId);
     } else {
       this.loading.set(false);
     }
@@ -76,12 +82,10 @@ export class CustomersDetailPage implements OnInit {
 
   loadCustomer(id: string) {
     this.loading.set(true);
-
     this.customerService.getById(id).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.customer.set(response.data);
-          //console.log(this.customer());
         }
         this.loading.set(false);
       },
@@ -99,73 +103,52 @@ export class CustomersDetailPage implements OnInit {
           this.customerSales.set(response.data || []);
           this.salesStats.set(response.stats || null);
         }
-        //console.log(response.data);
-        //console.log(response.stats);
       },
-      error: () => {
-        // Silencioso, no es crítico
-      }
+      error: () => { /* silencioso */ }
     });
   }
 
   async openMaintenanceModal() {
     const modal = await this.modalCtrl.create({
       component: MaintenanceRegisterPage,
-      componentProps: {
-        customer: this.customer(),
-        defaultAmount: 1000
-      }
+      componentProps: { customer: this.customer(), defaultAmount: 1000 }
     });
-
     await modal.present();
-
     const { data } = await modal.onWillDismiss();
     if (data?.success) {
-      // Recargar info del cliente si es necesario
       this.notificationService.success('Pago registrado');
     }
   }
 
   async presentActionSheet() {
-    const actionSheet = await this.actionSheetCtrl.create({
-      header: 'Acciones',
-      buttons: [
-        {
-          text: 'Editar',
-          icon: 'create-outline',
-          handler: () => this.goToEdit()
-        },
-        {
-          text: this.customer()?.active ? 'Desactivar' : 'Activar',
-          icon: this.customer()?.active ? 'close-circle-outline' : 'checkmark-circle-outline',
-          role: this.customer()?.active ? 'destructive' : undefined,
-          handler: () => this.toggleActiveStatus()
-        },
-        {
-          text: 'Ver Historial',
-          icon: 'time-outline',
-          handler: () => this.openResourceHistory()
-        },
-        {
-          text: 'Compartir',
-          icon: 'share-outline',
-          handler: () => this.shareCustomer()
-        },
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          icon: 'close-circle-outline'
-        }
-      ]
-    });
+    const buttons: any[] = [
+      {
+        text: 'Editar',
+        icon: 'create-outline',
+        handler: () => this.goToEdit()
+      },
+      {
+        text: this.customer()?.active ? 'Desactivar' : 'Activar',
+        icon: this.customer()?.active ? 'close-circle-outline' : 'checkmark-circle-outline',
+        role: this.customer()?.active ? 'destructive' : undefined,
+        handler: () => this.toggleActiveStatus()
+      },
+      {
+        text: 'Ver Historial',
+        icon: 'time-outline',
+        handler: () => this.openResourceHistory()
+      },
+      { text: 'Compartir', icon: 'share-outline', handler: () => this.shareCustomer() },
+      { text: 'Cancelar', role: 'cancel', icon: 'close-circle-outline' }
+    ];
 
+    const actionSheet = await this.actionSheetCtrl.create({ header: 'Acciones', buttons });
     await actionSheet.present();
   }
 
   async openResourceHistory() {
     const c = this.customer();
     if (!c?._id) return;
-
     const modal = await this.modalCtrl.create({
       component: ResourceHistoryModalComponent,
       componentProps: {
@@ -190,12 +173,10 @@ export class CustomersDetailPage implements OnInit {
     if (!currentCustomer || !this.customerId) return;
 
     const action = currentCustomer.active ? 'desactivar' : 'activar';
-
     const confirmed = await this.notificationService.confirm(
       `${action.charAt(0).toUpperCase() + action.slice(1)} Cliente`,
-      `¿Estas seguro de ${action} a ${currentCustomer.firstName} ${currentCustomer.lastName}?`
+      `¿Estás seguro de ${action} a ${currentCustomer.firstName} ${currentCustomer.lastName}?`
     );
-
     if (!confirmed) return;
 
     const request$ = currentCustomer.active
@@ -206,39 +187,29 @@ export class CustomersDetailPage implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           this.customer.set(response.data);
-          this.notificationService.success(
-            `Cliente ${action}do exitosamente`
-          );
+          this.notificationService.success(`Cliente ${action}do exitosamente`);
         }
       },
-      error: () => {
-        // El interceptor ya deberia manejar el error
-      }
+      error: () => { /* manejado por interceptor */ }
     });
   }
 
   shareCustomer() {
-    const currentCustomer = this.customer();
-    if (!currentCustomer) return;
-
-    const text = `
-      Cliente: ${currentCustomer.firstName} ${currentCustomer.lastName}
-      Teléfono: ${currentCustomer.phone}
-      ${currentCustomer.email ? `Email: ${currentCustomer.email}` : ''}
-      ${currentCustomer.rfc ? `RFC: ${currentCustomer.rfc}` : ''}`.trim();
+    const c = this.customer();
+    if (!c) return;
+    const text = [
+      `Cliente: ${c.firstName} ${c.lastName}`,
+      `Teléfono: ${c.phone}`,
+      c.email ? `Email: ${c.email}` : '',
+      c.rfc   ? `RFC: ${c.rfc}`     : '',
+    ].filter(Boolean).join('\n');
 
     if (navigator.share) {
-      navigator.share({
-        title: 'Información del cliente',
-        text: text
-      }).catch(() => {
-        // Usuario cancelo
-      });
+      navigator.share({ title: 'Información del cliente', text }).catch(() => {});
     } else {
-      // Fallback: copiar al clipboard
-      navigator.clipboard.writeText(text).then(() => {
-        this.notificationService.success('Información copiada al portapapeles');
-      });
+      navigator.clipboard.writeText(text).then(() =>
+        this.notificationService.success('Información copiada al portapapeles')
+      );
     }
   }
 
@@ -246,8 +217,12 @@ export class CustomersDetailPage implements OnInit {
     this.router.navigate(['/columbarium/customers']);
   }
 
+  hasActiveSales(): boolean {
+    return this.customerSales().some(s => s.status !== 'cancelled');
+  }
+
   getSaleProgress(sale: Sale): number {
-    return this.saleService.calculateProgress(sale.schedule);
+    return this.saleService.calculateProgress(sale.amortizationTable);
   }
 
   getSaleStatusColor(status: string): string {
@@ -262,11 +237,12 @@ export class CustomersDetailPage implements OnInit {
     this.router.navigate(['/columbarium/sales', saleId]);
   }
 
-  // Agregar método para ver nichos
-  goToCustomerNiches() {
-    // Mostrar lista de nichos del cliente y permitir ver detalles
-    const nicheIds = this.customerSales().map(s => (s.niche as Niche)._id);
-    console.log(nicheIds);
-    // Navegar a una vista filtrada o mostrar modal selector
+  /**
+   * Navega a la ficha del nicho del cliente.
+   * - 1 nicho: directo a /niches/:id
+   * - Varios: muestra lista para elegir (implementación inline en template)
+   */
+  goToNiche(nicheId: string) {
+    this.router.navigate(['/columbarium/niches', nicheId]);
   }
 }

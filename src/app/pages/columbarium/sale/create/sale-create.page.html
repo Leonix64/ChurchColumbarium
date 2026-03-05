@@ -1,0 +1,349 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="prevStep()">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Nueva Venta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="wizard-content">
+
+  <!-- ── INDICADOR DE PASOS ───────────────────────────────────────────────── -->
+  <div class="step-indicator">
+    <div class="step-dot" [class.active]="step() === 0" [class.done]="step() > 0">1</div>
+    <div class="step-line"                              [class.done]="step() > 0"></div>
+    <div class="step-dot" [class.active]="step() === 1" [class.done]="step() > 1">2</div>
+    <div class="step-line"                              [class.done]="step() > 1"></div>
+    <div class="step-dot" [class.active]="step() === 2">3</div>
+  </div>
+  <div class="step-labels">
+    <span [class.active]="step() === 0">Nicho</span>
+    <span [class.active]="step() === 1">Cliente</span>
+    <span [class.active]="step() === 2">Financiamiento</span>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       PASO 0 — SELECCIÓN DEL NICHO
+  ════════════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="step() === 0" class="step-wrapper">
+
+    <!-- Loading: pre-carga desde query param -->
+    <div class="loading-container" *ngIf="loadingNiche()">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando nicho…</p>
+    </div>
+
+    <ng-container *ngIf="!loadingNiche()">
+
+      <div class="step-header">
+        <h2>Seleccionar Nicho</h2>
+        <p>Elige el nicho disponible para este contrato de venta.</p>
+      </div>
+
+      <!-- Botón de búsqueda -->
+      <ion-card class="selector-card" (click)="openNicheSearch()" button>
+        <ion-card-content>
+          <div class="selector-row">
+            <ion-icon name="business-outline" color="primary"></ion-icon>
+            <div class="selector-text">
+              <span *ngIf="!selectedNiche()" class="placeholder">Buscar nicho disponible…</span>
+              <span *ngIf="selectedNiche()" class="selected-value mono">{{ selectedNiche()!.code }}</span>
+            </div>
+            <ion-icon name="search-outline" color="medium"></ion-icon>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Info del nicho seleccionado -->
+      <ion-card class="info-card" *ngIf="selectedNiche()">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="business-outline" color="primary"></ion-icon>
+            {{ selectedNiche()!.code }}
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="field-row">
+            <span class="field-label">Estado</span>
+            <ion-badge [color]="getNicheStatusColor(selectedNiche()!.status)">
+              {{ getNicheStatusLabel(selectedNiche()!.status) }}
+            </ion-badge>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Tipo</span>
+            <span>{{ getNicheTypeLabel(selectedNiche()!.type) }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Ubicación</span>
+            <span>Mód. {{ selectedNiche()!.module }} · Secc. {{ selectedNiche()!.section }} · Fila {{ selectedNiche()!.row }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Precio</span>
+            <strong class="price-highlight">{{ selectedNiche()!.price | currencyMx }}</strong>
+          </div>
+
+          <!-- Alerta si no está disponible -->
+          <div class="status-warning" *ngIf="selectedNiche()!.status !== 'available'">
+            <ion-icon name="alert-circle-outline" color="warning"></ion-icon>
+            <p>
+              Este nicho está en estado "{{ getNicheStatusLabel(selectedNiche()!.status) }}"
+              y no puede venderse. Selecciona otro.
+            </p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <div class="step-actions">
+        <ion-button
+          expand="block"
+          [disabled]="!canAdvanceStep0()"
+          (click)="nextStep()">
+          Siguiente
+          <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+        </ion-button>
+        <ion-button expand="block" fill="outline" color="medium" (click)="cancel()">
+          Cancelar
+        </ion-button>
+      </div>
+
+    </ng-container>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       PASO 1 — CLIENTE Y SUCESORES
+  ════════════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="step() === 1" class="step-wrapper">
+
+    <div class="step-header">
+      <h2>Cliente y Sucesores</h2>
+      <p>Selecciona el comprador y designa al menos 3 sucesores.</p>
+    </div>
+
+    <!-- Chip del nicho seleccionado -->
+    <div class="context-chip">
+      <ion-icon name="business-outline"></ion-icon>
+      <span>{{ selectedNiche()?.code }}</span>
+      <span class="chip-separator">·</span>
+      <strong>{{ selectedNiche()?.price | currencyMx }}</strong>
+    </div>
+
+    <!-- Selector de cliente -->
+    <ion-card class="selector-card" (click)="openCustomerSearch()" button>
+      <ion-card-content>
+        <div class="selector-row">
+          <ion-icon name="person-outline" color="primary"></ion-icon>
+          <div class="selector-text">
+            <span *ngIf="!selectedCustomer()" class="placeholder">Buscar cliente…</span>
+            <span *ngIf="selectedCustomer()" class="selected-value">
+              {{ selectedCustomer()!.firstName }} {{ selectedCustomer()!.lastName }}
+            </span>
+          </div>
+          <ion-icon name="search-outline" color="medium"></ion-icon>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Info del cliente seleccionado -->
+    <ion-card class="info-card" *ngIf="selectedCustomer()">
+      <ion-card-content>
+        <div class="field-row">
+          <span class="field-label">Nombre</span>
+          <strong>{{ selectedCustomer()!.firstName }} {{ selectedCustomer()!.lastName }}</strong>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Teléfono</span>
+          <span>{{ selectedCustomer()!.phone }}</span>
+        </div>
+        <div class="field-row" *ngIf="selectedCustomer()!.email">
+          <span class="field-label">Email</span>
+          <span>{{ selectedCustomer()!.email }}</span>
+        </div>
+        <div class="field-row" *ngIf="selectedCustomer()!.rfc">
+          <span class="field-label">RFC</span>
+          <span class="mono">{{ selectedCustomer()!.rfc }}</span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ── Sucesores (OBLIGATORIO — mínimo 3) ─────────────────────────────── -->
+    <ion-card class="beneficiaries-card" *ngIf="selectedCustomer()">
+      <ion-card-header>
+        <div class="beneficiaries-title-row">
+          <ion-icon name="people-outline" color="success"></ion-icon>
+          <ion-card-title>Sucesores</ion-card-title>
+          <!-- Contador de progreso -->
+          <span class="benef-counter"
+            [class.complete]="validBeneficiariesCount() >= 3"
+            [class.incomplete]="validBeneficiariesCount() < 3">
+            {{ validBeneficiariesCount() }} / 3
+          </span>
+        </div>
+      </ion-card-header>
+      <ion-card-content>
+        <p class="beneficiaries-hint">
+          <ion-icon name="alert-circle-outline" color="warning"></ion-icon>
+          El sistema requiere al menos 3 sucesores para completar el registro de la venta.
+          Completa nombre y parentesco de cada uno.
+        </p>
+        <app-beneficiaries-manager
+          (beneficiariesChange)="onBeneficiariesChange($event)">
+        </app-beneficiaries-manager>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Hint si aún no hay cliente seleccionado -->
+    <div class="no-customer-hint" *ngIf="!selectedCustomer()">
+      <ion-icon name="information-circle-outline" color="medium"></ion-icon>
+      <p>Selecciona un cliente para poder designar sus sucesores.</p>
+    </div>
+
+    <div class="step-actions">
+      <ion-button
+        expand="block"
+        [disabled]="!canAdvanceStep1()"
+        (click)="nextStep()">
+        Siguiente
+        <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+      </ion-button>
+      <ion-button expand="block" fill="outline" color="medium" (click)="prevStep()">
+        <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+        Atrás
+      </ion-button>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       PASO 2 — FINANCIAMIENTO Y CONFIRMACIÓN
+  ════════════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="step() === 2" class="step-wrapper">
+
+    <div class="step-header">
+      <h2>Condiciones de Financiamiento</h2>
+      <p>Define el enganche para generar el plan de pagos a 18 meses.</p>
+    </div>
+
+    <!-- Chips de contexto -->
+    <div class="context-chips">
+      <div class="context-chip">
+        <ion-icon name="business-outline"></ion-icon>
+        <span>{{ selectedNiche()?.code }}</span>
+      </div>
+      <div class="context-chip">
+        <ion-icon name="person-outline"></ion-icon>
+        <span>{{ selectedCustomer()?.firstName }} {{ selectedCustomer()?.lastName }}</span>
+      </div>
+    </div>
+
+    <!-- Datos financieros -->
+    <ion-card class="finance-card">
+      <ion-card-content>
+
+        <!-- Precio total (solo lectura) -->
+        <div class="form-field">
+          <label class="field-label-top">Precio del Nicho</label>
+          <div class="readonly-price">{{ totalAmount() | currencyMx }}</div>
+        </div>
+
+        <!-- Enganche -->
+        <div class="form-field">
+          <label class="field-label-top">
+            Enganche *
+            <span class="min-hint">(mínimo 10% = {{ minDownPayment() | currencyMx }})</span>
+          </label>
+          <ion-input
+            type="number"
+            fill="outline"
+            placeholder="Ingresa el monto del enganche"
+            [min]="minDownPayment()"
+            [max]="totalAmount() - 1"
+            (ionChange)="onDownPaymentChange($event.detail.value)">
+          </ion-input>
+          <p class="field-error" *ngIf="downPaymentError() && downPayment() > 0">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            {{ downPaymentError() }}
+          </p>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Resumen financiero (visible cuando el enganche es válido) -->
+    <ion-card class="summary-card" *ngIf="hasValidFinancials()">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="calculator-outline" color="primary"></ion-icon>
+          Resumen Financiero
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="summary-row">
+          <span>Precio del nicho</span>
+          <span>{{ totalAmount() | currencyMx }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Enganche</span>
+          <span class="success-text">− {{ downPayment() | currencyMx }}</span>
+        </div>
+        <div class="summary-row divider-row">
+          <span><strong>Saldo a financiar</strong></span>
+          <strong>{{ balance() | currencyMx }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Plazo</span>
+          <span>18 meses</span>
+        </div>
+        <div class="summary-row final-row">
+          <span><strong>Mensualidad estimada</strong></span>
+          <strong class="primary-text">{{ monthlyPayment() | currencyMx }}</strong>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Partes del contrato (resumen final) -->
+    <ion-card class="parties-card" *ngIf="hasValidFinancials()">
+      <ion-card-header>
+        <ion-card-title>Partes del Contrato</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="field-row">
+          <span class="field-label">Nicho</span>
+          <span class="mono">{{ selectedNiche()?.code }}</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Comprador</span>
+          <strong>{{ selectedCustomer()?.firstName }} {{ selectedCustomer()?.lastName }}</strong>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Sucesores</span>
+          <ion-badge color="success">{{ validBeneficiariesCount() }} designados</ion-badge>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="step-actions">
+      <ion-button
+        expand="block"
+        [disabled]="!canSubmit()"
+        (click)="confirmSale()">
+        <ion-spinner *ngIf="submitting()" name="crescent" slot="start"></ion-spinner>
+        <ion-icon *ngIf="!submitting()" name="checkmark-circle-outline" slot="start"></ion-icon>
+        {{ submitting() ? 'Registrando venta…' : 'Confirmar Venta' }}
+      </ion-button>
+      <ion-button
+        expand="block"
+        fill="outline"
+        color="medium"
+        [disabled]="submitting()"
+        (click)="prevStep()">
+        <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+        Atrás
+      </ion-button>
+    </div>
+
+  </div>
+
+</ion-content>

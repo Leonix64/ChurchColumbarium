@@ -14,7 +14,7 @@ export interface Sale {
     monthsToPay: number;
     interestRate: number;
     status: SaleStatus;
-    amortizationTable: AmortizationEntry[];
+    schedule: AmortizationEntry[];
     cancellationInfo?: CancellationInfo; // Info de cancelacion
     createdAt: Date;
     updatedAt: Date;
@@ -22,7 +22,6 @@ export interface Sale {
 
 export type SaleStatus = 'active' | 'paid' | 'cancelled' | 'overdue'; // AGREGADO 'overdue'
 
-// Ahora incluye array de pagos aplicados
 export interface AmortizationEntry {
     number: number;
     dueDate: Date;
@@ -30,8 +29,24 @@ export interface AmortizationEntry {
     amountPaid: number; // Cuanto se ha pagado de este pago
     amountRemaining: number; // Cuanto falta por pagar
     status: PaymentStatus;
-    payments: PaymentApplication[]; // Detalle de cada pago aplicado
-    paymentReference?: string; // LEGACY
+}
+
+// Vínculo entre un Payment y una entrada del schedule (colección separada)
+export interface PaymentScheduleLink {
+    _id: string;
+    payment: string | PaymentSummary;
+    amortEntry: string;
+    appliedAmount: number;
+    paidOn: Date;
+}
+
+export interface PaymentSummary {
+    _id: string;
+    amount: number;
+    receiptNumber: string;
+    method: 'cash' | 'card' | 'transfer';
+    paymentDate: Date;
+    notes?: string;
 }
 
 // Detalle de pago aplicado a una cuota

@@ -1,0 +1,118 @@
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  gap: 16px;
+  color: var(--ion-color-medium);
+}
+
+.disabled-wrapper {
+  padding: 16px;
+}
+
+.actions-bar {
+  margin-bottom: 12px;
+
+  .bulk-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+
+    ion-note {
+      font-size: 14px;
+      font-weight: 600;
+    }
+  }
+}
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 0 4px;
+
+  ion-note {
+    font-size: 13px;
+  }
+}
+
+.disabled-list {
+  .disabled-item {
+    --padding-start: 4px;
+    margin-bottom: 4px;
+
+    .niche-disabled-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 8px 0;
+      flex: 1;
+
+      .niche-header-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .niche-code {
+          font-size: 16px;
+          font-weight: 600;
+          font-family: monospace;
+          color: var(--ion-color-dark);
+        }
+
+        ion-badge {
+          font-size: 11px;
+        }
+      }
+
+      .niche-reason {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        font-size: 14px;
+        color: var(--ion-color-dark);
+
+        ion-icon {
+          font-size: 16px;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+      }
+
+      .niche-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+
+        .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 12px;
+          color: var(--ion-color-medium);
+
+          ion-icon {
+            font-size: 14px;
+          }
+        }
+
+        ion-badge {
+          font-size: 11px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .actions-bar .bulk-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

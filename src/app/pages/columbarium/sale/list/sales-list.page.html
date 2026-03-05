@@ -1,0 +1,101 @@
+<app-header title="Ventas" [showSearch]="false" (addEvent)="goToCreate()"></app-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Busqueda y filtros -->
+  <div class="search-section">
+    <ion-searchbar [value]="searchTerm()" (ionInput)="onSearch($event)" placeholder="Buscar por folio, nombre o nicho"
+      debounce="500"></ion-searchbar>
+
+    <ion-segment [value]="statusFilter()" (ionChange)="onFilterChange($event)">
+      <ion-segment-button value="all">
+        <ion-label>Todas</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="active">
+        <ion-label>Activas</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="paid">
+        <ion-label>Pagadas</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="cancelled">
+        <ion-label>Canceladas</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Loading -->
+  <div class="sales-grid" *ngIf="!loading() && filteredSales().length > 0">
+    <ion-card *ngFor="let sale of filteredSales()" class="sale-card" (click)="goToDetail(sale._id)">
+
+      <!-- Header: Folio + Badge -->
+      <ion-card-header>
+        <div class="card-header-content">
+          <div class="folio-section">
+            <ion-icon name="cash-outline" class="folio-icon"></ion-icon>
+            <div>
+              <ion-card-title>{{ sale.folio }}</ion-card-title>
+              <ion-note>{{ sale.createdAt | date: 'dd/MM/yyyy' }}</ion-note>
+            </div>
+          </div>
+          <ion-badge [color]="getStatusColor(sale.status)">{{ getStatusLabel(sale.status) }}</ion-badge>
+        </div>
+      </ion-card-header>
+
+      <!-- Contenido -->
+      <ion-card-content>
+        <!-- Cliente -->
+        <div class="info-row">
+          <ion-icon name="person-outline"></ion-icon>
+          <span class="label">Cliente:</span>
+          <span class="value">{{ getCustomerName(sale) }}</span>
+        </div>
+
+        <!-- Nicho -->
+        <div class="info-row">
+          <ion-icon name="business-outline"></ion-icon>
+          <span class="label">Nicho:</span>
+          <span class="value">{{ getNicheCode(sale) }}</span>
+        </div>
+
+        <!-- Monto total -->
+        <div class="info-row highlight">
+          <ion-icon name="cash-outline"></ion-icon>
+          <span class="label">Total:</span>
+          <span class="value">{{ sale.totalAmount | currencyMx }}</span>
+        </div>
+
+        <!-- Balance -->
+        <div class="info-row">
+          <ion-icon name="alert-circle" *ngIf="sale.balance > 0" color="warning"></ion-icon>
+          <ion-icon name="checkmark-circle" *ngIf="sale.balance === 0" color="success"></ion-icon>
+          <span class="label">Saldo:</span>
+          <span class="value">{{ sale.balance | currencyMx }}</span>
+        </div>
+
+        <!-- Progreso de pago -->
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-label">Progreso de pagos</span>
+            <span class="progress-percentage">{{ getProgress(sale) }}%</span>
+          </div>
+          <ion-progress-bar [value]="getProgress(sale) / 100"
+            [color]="getProgress(sale) === 100 ? 'success' : 'warning'">
+          </ion-progress-bar>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Empty state -->
+  <app-empty-state *ngIf="!loading() && filteredSales().length === 0" icon="cash-outline"
+    [title]="searchTerm() ? 'No se encontraron ventas' : 'No hay ventas registradas'"
+    [message]="searchTerm() ? 'Intenta con otro termino de busqueda' : 'Comienza registrando tu primera venta'"
+    [showButton]="!searchTerm()" buttonText="Nueva venta" (action)="goToCreate()">
+  </app-empty-state>
+
+  <!-- FAB -->
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="goToCreate()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

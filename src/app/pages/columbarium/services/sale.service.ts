@@ -6,7 +6,6 @@ import { environment } from 'src/environments/environment.prod';
 import { Sale, SalesStats, AmortizationEntry } from '../models/sale.model';
 import {
   CreateSaleRequest,
-  CreateBulkSaleRequest,
   RegisterPaymentRequest,
   CancelSaleRequest
 } from '../models/sale.requests';
@@ -43,13 +42,6 @@ export class SaleService {
   // Crear nueva venta
   create(saleData: CreateSaleRequest): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(this.endpoint, saleData).pipe(
-      tap(() => this.getAll().subscribe())
-    );
-  }
-
-  // Crear venta multiple
-  createBulk(bulkData: CreateBulkSaleRequest): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.endpoint}/bulk`, bulkData).pipe(
       tap(() => this.getAll().subscribe())
     );
   }
@@ -161,20 +153,20 @@ export class SaleService {
   }
 
   // Calcular progreso de pago
-  calculateProgress(amortizationTable: AmortizationEntry[]): number {
-    if (!amortizationTable || amortizationTable.length === 0) return 0;
+  calculateProgress(schedule: AmortizationEntry[]): number {
+    if (!schedule || schedule.length === 0) return 0;
 
-    const total = amortizationTable.length;
-    const paid = amortizationTable.filter(p => p.status === 'paid').length;
+    const total = schedule.length;
+    const paid = schedule.filter(p => p.status === 'paid').length;
 
     return Math.round((paid / total) * 100);
   }
 
-  // Calcular total pagado desde amortizationTable
-  calculateTotalPaid(amortizationTable: AmortizationEntry[]): number {
-    if (!amortizationTable || amortizationTable.length === 0) return 0;
+  // Calcular total pagado desde schedule
+  calculateTotalPaid(schedule: AmortizationEntry[]): number {
+    if (!schedule || schedule.length === 0) return 0;
 
-    return amortizationTable.reduce((total, payment) => {
+    return schedule.reduce((total, payment) => {
       return total + (payment.amountPaid || 0);
     }, 0);
   }

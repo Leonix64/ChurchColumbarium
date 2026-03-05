@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, map } from 'rxjs';
+import { Observable, tap, map, forkJoin } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
 import { Niche, ModuleGroup, SectionGroup, NicheStats } from '../models/niche.model';
 import { ApiResponse } from 'src/app/core/models/api-response.model';
@@ -123,11 +123,23 @@ export class NicheService {
     );
   }
 
+  // Cambiar material de múltiples nichos (no vendidos) usando llamadas individuales
+  bulkChangeMaterial(
+    ids: string[],
+    type: 'wood' | 'marble' | 'special',
+    price: number
+  ): Observable<ApiResponse<any>> {
+    const calls = ids.map(id => this.changeMaterial(id, type, price));
+    return forkJoin(calls).pipe(
+      map(() => ({ success: true, data: null, message: `${ids.length} nicho(s) actualizados` }))
+    );
+  }
+
   // Deshabilitar nichos
   disableNiche(id: string, reason: string): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(
       `${this.endpoint}/${id}/disable`,
-      { nicheIds: [id], reason }
+      { reason }
     ).pipe(
       tap(() => this.getAll().subscribe())
     );
@@ -140,21 +152,6 @@ export class NicheService {
     return this.http.post<ApiResponse<any>>(
       `${this.endpoint}/enable`,
       { nicheIds }
-    ).pipe(
-      tap(() => this.getAll().subscribe())
-    );
-  }
-
-  // Cambiar material masivo
-  // Backend: POST /api/niches/bulk-material con { nicheIds, type, price }
-  bulkChangeMaterial(
-    nicheIds: string[],
-    type: 'wood' | 'marble' | 'special',
-    price: number
-  ): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(
-      `${this.endpoint}/bulk-material`,
-      { nicheIds, type, price }
     ).pipe(
       tap(() => this.getAll().subscribe())
     );

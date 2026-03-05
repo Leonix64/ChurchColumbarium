@@ -35,7 +35,7 @@ import { CurrencyMxPipe } from 'src/app/shared/pipes/currency-mx.pipe';
     IonSearchbar, IonSegment, IonSegmentButton,
     IonFab, IonFabButton, IonIcon,
     IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-    IonProgressBar, IonNote,
+    IonProgressBar, IonNote, IonSpinner,
     HeaderComponent, EmptyStateComponent, CurrencyMxPipe
   ]
 })
@@ -125,7 +125,7 @@ export class SalesListPage implements OnInit {
   }
 
   getProgress(sale: Sale): number {
-    return this.saleService.calculateProgress(sale.schedule);
+    return this.saleService.calculateProgress(sale.amortizationTable);
   }
 
   // Safe access para customer y niche

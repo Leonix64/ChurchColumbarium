@@ -1,0 +1,625 @@
+.detail-content {
+  --background: var(--ion-background-color);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  gap: 16px;
+
+  ion-spinner {
+    --color: var(--ion-color-primary);
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.sale-wrapper {
+  padding: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+// Summary Card
+.summary-card {
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    ion-card-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    ion-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 14px;
+    }
+  }
+
+  .financial-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+
+    .financial-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--ion-color-light);
+
+      &.highlight {
+        background: rgba(var(--ion-color-warning-rgb), 0.1);
+        border: 2px solid var(--ion-color-warning);
+      }
+
+      .label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--ion-color-medium);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .value {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--ion-color-dark);
+
+        &.success {
+          color: var(--ion-color-success);
+        }
+      }
+    }
+  }
+
+  .progress-section {
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+
+      .progress-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+      }
+
+      .progress-percentage {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--ion-color-primary);
+      }
+    }
+
+    ion-progress-bar {
+      height: 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .progress-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--ion-color-medium);
+
+      .overdue {
+        color: var(--ion-color-danger);
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Info Cards
+.info-card {
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  ion-card-header {
+    padding: 16px 16px 8px 16px;
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .header-icon {
+        font-size: 24px;
+        color: var(--ion-color-primary);
+      }
+
+      h2 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+        color: var(--ion-color-dark);
+      }
+    }
+  }
+
+  ion-card-content {
+    padding: 8px 16px 16px 16px;
+
+    h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--ion-color-medium);
+      margin: 4px 0;
+
+      ion-icon {
+        font-size: 16px;
+      }
+
+      .niche-icon {
+        font-size: 18px;
+      }
+    }
+  }
+}
+
+// Amortization Card con expandibles
+.amortization-card {
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  ion-card-header {
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 600;
+
+      ion-icon {
+        font-size: 24px;
+      }
+    }
+  }
+
+  .amortization-list {
+    background: transparent;
+    padding: 0;
+
+    .payment-wrapper {
+      margin-bottom: 12px;
+
+      ion-item {
+        --padding-start: 16px;
+        --padding-end: 16px;
+        --inner-padding-end: 0;
+        border-radius: 8px;
+        border: 2px solid transparent;
+        transition: all 0.2s ease;
+
+        &.paid {
+          background: rgba(var(--ion-color-success-rgb), 0.05);
+        }
+
+        &.partial {
+          background: rgba(var(--ion-color-warning-rgb), 0.05);
+          border-color: var(--ion-color-warning);
+        }
+
+        &.overdue {
+          background: rgba(var(--ion-color-danger-rgb), 0.05);
+          border-color: var(--ion-color-danger);
+        }
+
+        &.next-payment {
+          background: rgba(var(--ion-color-primary-rgb), 0.1);
+          border-color: var(--ion-color-primary);
+          animation: pulse 2s ease-in-out infinite;
+        }
+
+        .payment-number {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+          min-width: 60px;
+
+          ion-icon {
+            font-size: 28px;
+          }
+
+          span {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ion-color-dark);
+          }
+        }
+
+        ion-label {
+          h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+          }
+
+          p {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--ion-color-medium);
+
+            ion-icon {
+              font-size: 14px;
+            }
+
+            &.partial-info {
+              color: var(--ion-color-warning);
+              font-weight: 600;
+              font-size: 12px;
+            }
+          }
+        }
+
+        .payment-amount {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 6px;
+          position: relative;
+
+          .amount {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ion-color-dark);
+          }
+
+          .status-badge {
+            font-size: 10px;
+            padding: 4px 8px;
+          }
+
+          .expand-icon {
+            font-size: 20px;
+            color: var(--ion-color-primary);
+            margin-top: 4px;
+          }
+        }
+      }
+
+      // Sección expandible de detalles de pago
+      .payment-details {
+        background: var(--ion-color-light);
+        border-radius: 0 0 8px 8px;
+        padding: 16px;
+        margin-top: -8px;
+        animation: slideDown 0.3s ease;
+
+        .details-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--ion-color-dark);
+          margin-bottom: 12px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid var(--ion-color-medium-shade);
+
+          ion-icon {
+            font-size: 18px;
+            color: var(--ion-color-primary);
+          }
+        }
+
+        .payment-application {
+          background: white;
+          border-radius: 8px;
+          padding: 12px;
+          margin-bottom: 8px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          .app-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--ion-color-light-shade);
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            .app-label {
+              font-size: 13px;
+              color: var(--ion-color-medium);
+              font-weight: 500;
+            }
+
+            .app-value {
+              font-size: 13px;
+              color: gray;
+              font-weight: 600;
+
+              &.amount {
+                color: var(--ion-color-success);
+                font-size: 15px;
+              }
+
+              &.code {
+                font-family: monospace;
+                font-size: 11px;
+                background: var(--ion-color-light);
+                padding: 2px 6px;
+                border-radius: 4px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Action Section
+.action-section {
+  margin-top: 24px;
+
+  .next-payment-card {
+    background: linear-gradient(
+      135deg,
+      var(--ion-color-primary) 0%,
+      var(--ion-color-primary-shade) 100%
+    );
+    color: white;
+    margin-bottom: 16px;
+
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 12px 0;
+    }
+
+    .next-payment-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .label {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+        opacity: 0.9;
+      }
+
+      .date {
+        font-size: 13px;
+        margin: 0;
+        opacity: 0.8;
+      }
+
+      .amount-big {
+        font-size: 28px;
+        font-weight: 700;
+      }
+    }
+  }
+
+  .register-payment-btn {
+    font-weight: 600;
+    height: 56px;
+    font-size: 16px;
+  }
+}
+
+// Completed Section
+.completed-section {
+  margin-top: 24px;
+
+  .completed-card {
+    background: rgba(var(--ion-color-success-rgb), 0.1);
+    border: 2px solid var(--ion-color-success);
+    text-align: center;
+
+    ion-icon {
+      font-size: 64px;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--ion-color-medium);
+      margin: 0;
+    }
+  }
+}
+
+// Cancelled Section
+.cancelled-section {
+  margin-top: 24px;
+
+  .cancelled-card {
+    background: rgba(var(--ion-color-danger-rgb), 0.1);
+    border: 2px solid var(--ion-color-danger);
+    text-align: center;
+
+    ion-icon {
+      font-size: 64px;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 12px 0;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--ion-color-dark);
+      margin: 4px 0;
+      text-align: left;
+
+      strong {
+        color: var(--ion-color-danger);
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--ion-color-primary-rgb), 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(var(--ion-color-primary-rgb), 0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+// Responsive
+@media (min-width: 768px) {
+  .financial-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+app-empty-state {
+  display: block;
+  padding: 60px 16px;
+}
+
+// ── Parties card (Partes del Contrato) ──────────────────────────────────────
+.parties-card {
+  cursor: default;
+
+  &:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.succession-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(var(--ion-color-warning-rgb), 0.12);
+  border-left: 3px solid var(--ion-color-warning);
+  border-radius: 4px;
+  margin-bottom: 14px;
+  font-size: 0.85rem;
+  color: var(--ion-color-warning-shade);
+
+  ion-icon { font-size: 1rem; flex-shrink: 0; }
+}
+
+.party-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--ion-border-color, rgba(0,0,0,0.08));
+  cursor: pointer;
+
+  &:last-of-type { border-bottom: none; }
+
+  &.party-original {
+    cursor: default;
+    opacity: 0.8;
+  }
+}
+
+.party-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ion-color-medium);
+  min-width: 130px;
+  flex-shrink: 0;
+}
+
+.party-info {
+  flex: 1;
+
+  strong {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--ion-color-dark);
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: 0.82rem;
+    color: var(--ion-color-medium);
+  }
+}
+
+.party-arrow {
+  color: var(--ion-color-primary);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.immutable-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  background: rgba(var(--ion-color-medium-rgb), 0.15);
+  color: var(--ion-color-medium);
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-left: 4px;
+  text-transform: none;
+  letter-spacing: 0;
+  vertical-align: middle;
+}

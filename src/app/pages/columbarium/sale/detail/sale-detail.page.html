@@ -71,24 +71,26 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Cliente -->
-    <ion-card class="info-card" (click)="goToCustomer()">
+    <!-- Partes del contrato -->
+    <ion-card class="info-card parties-card">
       <ion-card-header>
         <div class="card-header-row">
           <ion-icon name="person-outline" class="header-icon"></ion-icon>
-          <h2>Cliente</h2>
+          <h2>Partes del Contrato</h2>
         </div>
       </ion-card-header>
       <ion-card-content>
-        <h3>{{ customer()?.firstName }} {{ customer()?.lastName }}</h3>
-        <p>
-          <ion-icon name="call-outline"></ion-icon>
-          {{ customer()?.phone }}
-        </p>
-        <p *ngIf="customer()?.email">
-          <ion-icon name="mail-outline"></ion-icon>
-          {{ customer()?.email }}
-        </p>
+
+        <!-- Cliente firmante (inmutable) -->
+        <div class="party-block" (click)="goToCustomer()">
+          <span class="party-label">Cliente</span>
+          <div class="party-info">
+            <strong>{{ customer()?.firstName }} {{ customer()?.lastName }}</strong>
+            <p *ngIf="customer()?.phone">{{ customer()?.phone }}</p>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="party-arrow"></ion-icon>
+        </div>
+
       </ion-card-content>
     </ion-card>
 
@@ -123,11 +125,12 @@
       </ion-card-header>
       <ion-card-content>
         <ion-list class="amortization-list">
-          <div *ngFor="let payment of sale()?.schedule" class="payment-wrapper">
+          <div *ngFor="let payment of sale()?.amortizationTable" class="payment-wrapper">
 
             <!-- Fila principal del pago -->
             <ion-item [class.next-payment]="isNextPayment(payment)" [class.paid]="payment.status === 'paid'"
-              [class.partial]="payment.status === 'partial'" [class.overdue]="payment.status === 'overdue'" lines="none">
+              [class.partial]="payment.status === 'partial'" [class.overdue]="payment.status === 'overdue'" lines="none"
+              button (click)="togglePaymentDetails(payment.number)">
 
               <div class="payment-number" slot="start">
                 <ion-icon
@@ -155,20 +158,50 @@
                 <ion-badge [color]="getPaymentStatusColor(payment.status)" class="status-badge">
                   {{ getPaymentStatusLabel(payment.status) }}
                 </ion-badge>
+                <!-- Icono para expandir si tiene pagos -->
+                <ion-icon *ngIf="hasPayments(payment)"
+                  [name]="expandedPayment() === payment.number ? 'chevron-up' : 'chevron-down'" class="expand-icon">
+                </ion-icon>
               </div>
             </ion-item>
 
-            <!--
-              Detalle de pagos aplicados: pendiente de implementar
-              con endpoint GET /api/payments?amortEntry=:id
-            -->
+            <!-- Detalle de pagos aplicados (expandible) -->
+            <div class="payment-details" *ngIf="expandedPayment() === payment.number && hasPayments(payment)">
+              <div class="details-header">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <span>Pagos aplicados</span>
+              </div>
+              <div class="payment-application" *ngFor="let app of payment.payments">
+                <div class="app-row">
+                  <span class="app-label">Fecha:</span>
+                  <span class="app-value">{{ app.paidOn | date:'dd/MM/yyyy hh:mm:ss' }}</span>
+                </div>
+                <div class="app-row">
+                  <span class="app-label">Monto:</span>
+                  <span class="app-value amount">{{ app.appliedAmount | currencyMx }}</span>
+                </div>
+                <div class="app-row">
+                  <span class="app-label">Recibo:</span>
+                  <span class="app-value code">{{ app.paymentId.receiptNumber }}</span>
+                </div>
+                <div class="app-row">
+                  <span class="app-label">Metodo de pago:</span>
+                  <!-- <span class="app-value code">{{ app.paymentId.method }}</span> -->
+                  <span class="app-value code">{{ getPaymentMethodLabel(app.paymentId.method) }}</span>
+                </div>
+                <div class="app-row">
+                  <span class="app-label">Notas:</span>
+                  <span class="app-value">{{ app.paymentId.notes || 'No hay notas' }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </ion-list>
       </ion-card-content>
     </ion-card>
 
     <!-- Botón de acción -->
-    <div class="action-section" *ngIf="nextPendingPayment() && sale()?.status === 'active'">
+    <div class="action-section" *ngIf="nextPendingPayment() && (sale()?.status === 'active' || sale()?.status === 'overdue')">
       <ion-card class="next-payment-card">
         <ion-card-content>
           <h3>Siguiente Pago</h3>
@@ -184,8 +217,9 @@
         </ion-card-content>
       </ion-card>
 
-      <ion-button expand="block" (click)="openPaymentModal()" class="register-payment-btn">
-        <ion-icon name="cash-outline" slot="start"></ion-icon>
+      <ion-button expand="block" (click)="openPaymentModal()" [disabled]="openingPaymentModal()" class="register-payment-btn">
+        <ion-spinner *ngIf="openingPaymentModal()" name="dots" slot="start"></ion-spinner>
+        <ion-icon *ngIf="!openingPaymentModal()" name="cash-outline" slot="start"></ion-icon>
         Registrar Pago
       </ion-button>
     </div>

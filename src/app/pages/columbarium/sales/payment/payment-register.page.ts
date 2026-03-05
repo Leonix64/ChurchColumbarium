@@ -10,7 +10,7 @@ import {
 
 import { SaleService } from '../../services/sale.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
-import { Sale } from '../../models/sale.model';
+import { Sale, AmortizationEntry } from '../../models/sale.model';
 import { PaymentMethod } from '../../models/payment.model';
 import { RegisterPaymentRequest } from '../../models/sale.requests';
 import { CurrencyMxPipe } from 'src/app/shared/pipes/currency-mx.pipe';
@@ -68,7 +68,7 @@ export class PaymentRegisterPage implements OnInit {
   ngOnInit() {
     // Si viene paymentNumber, pre-seleccionar modo específico
     if (this.paymentNumber) {
-      const payment = this.sale.amortizationTable.find(p => p.number === this.paymentNumber);
+      const payment = this.sale.schedule.find(p => p.number === this.paymentNumber);
       if (payment) {
         this.paymentForm.patchValue({
           amount: payment.amountRemaining,
@@ -78,7 +78,7 @@ export class PaymentRegisterPage implements OnInit {
       }
     } else {
       // Modo libre: calcular próximo pago pendiente
-      const nextPending = this.sale.amortizationTable.find(p => p.status === 'pending' || p.status === 'partial');
+      const nextPending = this.sale.schedule.find(p => p.status === 'pending' || p.status === 'partial');
       if (nextPending) {
         this.paymentForm.patchValue({
           amount: nextPending.amountRemaining
@@ -100,7 +100,7 @@ export class PaymentRegisterPage implements OnInit {
 
   // Obtener pagos pendientes
   getPendingPayments() {
-    return this.sale.amortizationTable.filter(p =>
+    return this.sale.schedule.filter(p =>
       p.status === 'pending' || p.status === 'partial' || p.status === 'overdue'
     );
   }
@@ -179,7 +179,7 @@ export class PaymentRegisterPage implements OnInit {
   get notes() { return this.paymentForm.get('notes'); }
 
   getPaymentInfo(paymentNumber: number) {
-    return this.sale.amortizationTable.find(p => p.number === paymentNumber);
+    return this.sale.schedule.find((p: AmortizationEntry) => p.number === paymentNumber);
   }
 
   getErrorMessage(field: string): string {

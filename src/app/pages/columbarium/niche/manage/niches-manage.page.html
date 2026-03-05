@@ -1,0 +1,254 @@
+<app-header title="Administrar Nichos" [showSearch]="false" [showAdd]="false"></app-header>
+
+<ion-content [fullscreen]="true" class="manage-content">
+
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading()">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando nichos...</p>
+  </div>
+
+  <div class="manage-wrapper" *ngIf="!loading()">
+
+    <!-- ═══════ RESUMEN RÁPIDO ═══════ -->
+    <div class="stats-bar">
+      <div class="stat-chip available">
+        <span class="stat-number">{{ stats().available }}</span>
+        <span class="stat-text">Disponibles</span>
+      </div>
+      <div class="stat-chip sold">
+        <span class="stat-number">{{ stats().sold }}</span>
+        <span class="stat-text">Vendidos</span>
+      </div>
+      <div class="stat-chip reserved">
+        <span class="stat-number">{{ stats().reserved }}</span>
+        <span class="stat-text">Reservados</span>
+      </div>
+      <div class="stat-chip disabled" (click)="goToDisabled()">
+        <span class="stat-number">{{ stats().disabled }}</span>
+        <span class="stat-text">Deshabilitados</span>
+        <ion-icon name="arrow-forward-outline" class="stat-link-icon"></ion-icon>
+      </div>
+    </div>
+
+    <!-- ═══════ ACCIONES PRINCIPALES ═══════ -->
+    <ion-card class="section-card">
+      <ion-card-header>
+        <ion-card-title class="section-title">Acciones</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="actions-grid">
+          <ion-button (click)="openCreateModal()" color="success" size="small" expand="block">
+            <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+            Crear Nicho
+          </ion-button>
+
+          <ion-button (click)="toggleSelectionMode()" size="small" expand="block"
+            [fill]="selectionMode() ? 'solid' : 'outline'"
+            [color]="selectionMode() ? 'primary' : 'medium'">
+            <ion-icon name="list-outline" slot="start"></ion-icon>
+            {{ selectionMode() ? 'Cancelar' : 'Seleccionar Varios' }}
+          </ion-button>
+
+          <ion-button (click)="goToDisabled()" fill="outline" size="small" color="warning" expand="block">
+            <ion-icon name="ban-outline" slot="start"></ion-icon>
+            Ver Deshabilitados
+          </ion-button>
+        </div>
+
+        <p class="section-description" *ngIf="!selectionMode()">
+          Usa <strong>"Seleccionar Varios"</strong> para elegir múltiples nichos y cambiarles el material de una sola vez.
+        </p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ═══════ BARRA DE SELECCIÓN MASIVA ═══════ -->
+    <div class="bulk-actions" *ngIf="selectionMode()">
+      <div class="bulk-info">
+        <ion-icon name="checkmark-circle-outline" color="primary"></ion-icon>
+        <span><strong>{{ selectedCount() }}</strong> nicho(s) seleccionado(s)</span>
+      </div>
+      <div class="bulk-buttons">
+        <ion-button (click)="openBulkMaterialModal()" size="small" color="tertiary"
+          [disabled]="selectedCount() === 0">
+          <ion-icon name="color-palette-outline" slot="start"></ion-icon>
+          Cambiar Material a los Seleccionados
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- ═══════ BÚSQUEDA Y FILTROS ═══════ -->
+    <ion-card class="section-card">
+      <ion-card-header>
+        <ion-card-title class="section-title">
+          <ion-icon name="search-outline"></ion-icon>
+          Buscar y Filtrar
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-searchbar [value]="searchTerm()" (ionInput)="onSearch($event)"
+          placeholder="Buscar por código, número o módulo..." debounce="300">
+        </ion-searchbar>
+
+        <div class="filter-row">
+          <ion-select label="Estado" [value]="statusFilter()" (ionChange)="onStatusFilter($event)"
+            interface="popover" placeholder="Todos">
+            <ion-select-option value="all">Todos</ion-select-option>
+            <ion-select-option value="available">Disponibles</ion-select-option>
+            <ion-select-option value="sold">Vendidos</ion-select-option>
+            <ion-select-option value="reserved">Reservados</ion-select-option>
+            <ion-select-option value="disabled">Deshabilitados</ion-select-option>
+          </ion-select>
+
+          <ion-select label="Material" [value]="typeFilter()" (ionChange)="onTypeFilter($event)"
+            interface="popover" placeholder="Todos">
+            <ion-select-option value="all">Todos</ion-select-option>
+            <ion-select-option value="wood">Madera</ion-select-option>
+            <ion-select-option value="marble">Mármol</ion-select-option>
+            <ion-select-option value="special">Especial</ion-select-option>
+          </ion-select>
+
+          <ion-select label="Módulo" [value]="moduleFilter()" (ionChange)="onModuleFilter($event)"
+            interface="popover" placeholder="Todos">
+            <ion-select-option value="all">Todos</ion-select-option>
+            <ion-select-option *ngFor="let mod of availableModules()" [value]="mod">
+              {{ mod }} - {{ nicheService.getModuleName(mod) }}
+            </ion-select-option>
+          </ion-select>
+        </div>
+
+        <ion-button *ngIf="hasActiveFilters" fill="clear" size="small" (click)="clearFilters()">
+          Limpiar filtros
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ═══════ RESULTADOS ═══════ -->
+    <div class="results-header">
+      <div class="results-count">
+        <span>{{ totalFiltered() }} nichos encontrados</span>
+        <span class="results-page" *ngIf="totalFiltered() > 0">
+          &middot; Mostrando {{ pageRangeStart() }}-{{ pageRangeEnd() }}
+        </span>
+      </div>
+      <ion-button *ngIf="selectionMode()" fill="clear" size="small" (click)="toggleAll()">
+        {{ allSelected() ? 'Deseleccionar página' : 'Seleccionar página' }}
+      </ion-button>
+    </div>
+
+    <!-- Lista de nichos -->
+    <ion-list class="niche-list">
+      <ion-item *ngFor="let niche of filteredNiches()"
+        class="niche-item" (click)="openDetail(niche)" button detail="false">
+
+        <!-- Checkbox en modo selección -->
+        <ion-checkbox *ngIf="selectionMode()" slot="start"
+          [checked]="isSelected(niche._id)"
+          (ionChange)="toggleSelection(niche._id)"
+          (click)="$event.stopPropagation()">
+        </ion-checkbox>
+
+        <div class="niche-row">
+          <div class="niche-main-line">
+            <span class="niche-code">{{ niche.code }}</span>
+            <span class="niche-price">{{ niche.price | currencyMx }}</span>
+          </div>
+          <div class="niche-meta">
+            <ion-badge [color]="getTypeColor(niche.type)">{{ getTypeLabel(niche.type) }}</ion-badge>
+            <app-status-badge [status]="niche.status"></app-status-badge>
+            <span class="niche-location">
+              {{ nicheService.getModuleName(niche.module) }} &middot; Fila {{ niche.row }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Acciones rápidas -->
+        <div class="quick-actions" slot="end" *ngIf="!selectionMode() &&
+          (niche.status === 'available' || niche.status === 'reserved' || niche.status === 'disabled')">
+
+          <ion-button fill="clear" size="small" title="Cambiar precio"
+            (click)="openPriceModal(niche); $event.stopPropagation()"
+            *ngIf="niche.status !== 'disabled'">
+            <ion-icon name="cash-outline" slot="icon-only" color="primary"></ion-icon>
+          </ion-button>
+
+          <ion-button fill="clear" size="small" title="Cambiar material"
+            (click)="openMaterialModal(niche); $event.stopPropagation()"
+            *ngIf="niche.status !== 'disabled'">
+            <ion-icon name="cube-outline" slot="icon-only" color="tertiary"></ion-icon>
+          </ion-button>
+
+          <ion-button fill="clear" size="small" title="Deshabilitar nicho"
+            (click)="disableNiche(niche); $event.stopPropagation()"
+            *ngIf="niche.status === 'available' || niche.status === 'reserved'">
+            <ion-icon name="ban-outline" slot="icon-only" color="danger"></ion-icon>
+          </ion-button>
+
+          <ion-button fill="clear" size="small" title="Habilitar nicho"
+            (click)="enableNiche(niche); $event.stopPropagation()"
+            *ngIf="niche.status === 'disabled'">
+            <ion-icon name="checkmark-circle-outline" slot="icon-only" color="success"></ion-icon>
+          </ion-button>
+        </div>
+
+      </ion-item>
+    </ion-list>
+
+    <!-- Empty State -->
+    <app-empty-state *ngIf="filteredNiches().length === 0"
+      icon="cube-outline"
+      title="No se encontraron nichos"
+      [message]="hasActiveFilters ? 'Intenta con otros filtros' : 'No hay nichos registrados'">
+    </app-empty-state>
+
+    <!-- ═══════ PAGINACIÓN ═══════ -->
+    <div class="pagination" *ngIf="totalPages() > 1">
+      <ion-button fill="outline" size="small" [disabled]="currentPage() === 1" (click)="prevPage()">
+        <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+
+      <div class="page-info">
+        Página {{ currentPage() }} de {{ totalPages() }}
+      </div>
+
+      <ion-button fill="outline" size="small" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+        <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- ═══════ LEYENDA DE ICONOS ═══════ -->
+    <ion-card class="section-card legend-card">
+      <ion-card-header>
+        <ion-card-title class="section-title">
+          <ion-icon name="help-circle-outline"></ion-icon>
+          Iconos de acciones rápidas
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="legend-grid">
+          <div class="legend-item">
+            <ion-icon name="cash-outline" color="primary"></ion-icon>
+            <span>Cambiar precio del nicho</span>
+          </div>
+          <div class="legend-item">
+            <ion-icon name="cube-outline" color="tertiary"></ion-icon>
+            <span>Cambiar material (madera, mármol, especial)</span>
+          </div>
+          <div class="legend-item">
+            <ion-icon name="ban-outline" color="danger"></ion-icon>
+            <span>Deshabilitar nicho (sacarlo de la venta)</span>
+          </div>
+          <div class="legend-item">
+            <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            <span>Habilitar nicho (regresarlo a disponible)</span>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+</ion-content>

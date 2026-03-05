@@ -1,4 +1,5 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
+import { ViewWillEnter } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
@@ -12,7 +13,7 @@ import {
   ellipsisVertical, personOutline, businessOutline, cashOutline,
   calendarOutline, checkmarkCircle, alertCircle, timeOutline,
   receiptOutline, documentTextOutline, shareOutline, trashOutline,
-  informationCircleOutline
+  informationCircleOutline, swapHorizontalOutline, chevronForwardOutline
 } from 'ionicons/icons';
 
 import { SaleService } from '../../services/sale.service';
@@ -41,7 +42,7 @@ import { ResourceHistoryModalComponent } from '../../components/resource-history
     EmptyStateComponent, CurrencyMxPipe
   ]
 })
-export class SaleDetailPage implements OnInit {
+export class SaleDetailPage implements OnInit, ViewWillEnter {
   loading = signal(true);
   sale = signal<Sale | null>(null);
   saleId: string | null = null;
@@ -53,7 +54,7 @@ export class SaleDetailPage implements OnInit {
   progress = computed(() => {
     const s = this.sale();
     if (!s) return 0;
-    return this.saleService.calculateProgress(s.schedule);
+    return this.saleService.calculateProgress(s.amortizationTable);
   });
 
   // Usar totalPaid del backend
@@ -65,14 +66,17 @@ export class SaleDetailPage implements OnInit {
   nextPendingPayment = computed(() => {
     const s = this.sale();
     if (!s) return null;
-    return s.schedule.find(p =>
+    return s.amortizationTable.find(p =>
       p.status === 'pending' || p.status === 'partial' || p.status === 'overdue'
     );
   });
 
+  /** Firmante original del contrato (inmutable) */
   customer = computed(() => {
     const s = this.sale();
-    return (s?.customer && typeof s.customer === 'object') ? s.customer as Customer : null;
+    return (s?.customer && typeof s.customer === 'object')
+      ? s.customer as Customer
+      : null;
   });
 
   niche = computed(() => {
@@ -83,13 +87,13 @@ export class SaleDetailPage implements OnInit {
   paidPayments = computed(() => {
     const s = this.sale();
     if (!s) return 0;
-    return s.schedule.filter(p => p.status === 'paid').length;
+    return s.amortizationTable.filter(p => p.status === 'paid').length;
   });
 
   overduePayments = computed(() => {
     const s = this.sale();
     if (!s) return 0;
-    return s.schedule.filter(p => p.status === 'overdue').length;
+    return s.amortizationTable.filter(p => p.status === 'overdue').length;
   });
 
   constructor(
@@ -105,12 +109,15 @@ export class SaleDetailPage implements OnInit {
       ellipsisVertical, personOutline, businessOutline, cashOutline,
       calendarOutline, checkmarkCircle, alertCircle, timeOutline,
       receiptOutline, documentTextOutline, shareOutline, trashOutline,
-      informationCircleOutline
+      informationCircleOutline, swapHorizontalOutline, chevronForwardOutline
     });
   }
 
   ngOnInit() {
     this.saleId = this.route.snapshot.paramMap.get('id');
+  }
+
+  ionViewWillEnter() {
     if (this.saleId) {
       this.loadSale(this.saleId);
     } else {
@@ -137,19 +144,19 @@ export class SaleDetailPage implements OnInit {
 
   // MODAL DE PAGO SIN NÚMERO FIJO
   async openPaymentModal() {
+    if (this.openingPaymentModal()) return; // guard anti-doble-clic
+    this.openingPaymentModal.set(true);
+
     const modal = await this.modalCtrl.create({
       component: PaymentRegisterPage,
-      componentProps: {
-        sale: this.sale()
-        // NO enviamos paymentNumber, dejamos que el usuario elija
-      }
+      componentProps: { sale: this.sale() }
     });
 
     await modal.present();
+    this.openingPaymentModal.set(false);
 
     const { data } = await modal.onWillDismiss();
     if (data?.success && this.saleId) {
-      // Recargar venta
       this.loadSale(this.saleId);
     }
   }
@@ -271,15 +278,9 @@ export class SaleDetailPage implements OnInit {
   }
 
   goToNiche() {
-    const niche = this.sale()?.niche as Niche;
-    if (niche) {
-      this.router.navigate([
-        '/columbarium/niches/module',
-        niche.module,
-        niche.section
-      ], {
-        queryParams: { highlight: niche.code }
-      });
+    const niche = this.niche();
+    if (niche?._id) {
+      this.router.navigate(['/columbarium/niches', niche._id]);
     }
   }
 
@@ -350,4 +351,21 @@ Progreso: ${this.progress()}%
     return payment.number === this.nextPendingPayment()?.number;
   }
 
+  // Expandir detalles de pago
+  expandedPayment = signal<number | null>(null);
+  // Guard anti-doble-clic para el modal de pago
+  openingPaymentModal = signal(false);
+
+  togglePaymentDetails(paymentNumber: number) {
+    if (this.expandedPayment() === paymentNumber) {
+      this.expandedPayment.set(null);
+    } else {
+      this.expandedPayment.set(paymentNumber);
+    }
+  }
+
+  // ¿Tiene pagos aplicados?
+  hasPayments(payment: AmortizationEntry): boolean {
+    return payment.payments && payment.payments.length > 0;
+  }
 }

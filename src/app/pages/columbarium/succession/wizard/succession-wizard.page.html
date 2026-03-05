@@ -1,0 +1,434 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="prevStep()">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Registrar Sucesión</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="wizard-content">
+
+  <!-- ── INDICADOR DE PASOS ─────────────────────────────────────────────── -->
+  <div class="step-indicator">
+    <div class="step-dot" [class.active]="step() === 0" [class.done]="step() > 0">1</div>
+    <div class="step-line"                              [class.done]="step() > 0"></div>
+    <div class="step-dot" [class.active]="step() === 1" [class.done]="step() > 1">2</div>
+    <div class="step-line"                              [class.done]="step() > 1"></div>
+    <div class="step-dot" [class.active]="step() === 2">3</div>
+  </div>
+  <div class="step-labels">
+    <span [class.active]="step() === 0">Verificación</span>
+    <span [class.active]="step() === 1">Datos</span>
+    <span [class.active]="step() === 2">Confirmar</span>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       PASO 0 — VERIFICACIÓN DE REQUISITOS
+  ════════════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="step() === 0" class="step-wrapper">
+
+    <!-- Loading preflight -->
+    <div class="loading-container" *ngIf="loadingPreflight()">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Verificando requisitos…</p>
+    </div>
+
+    <ng-container *ngIf="!loadingPreflight()">
+
+      <div class="step-header">
+        <h2>Verificación de Requisitos</h2>
+        <p>Comprueba que todos los requisitos críticos estén cumplidos antes de continuar.</p>
+      </div>
+
+      <ion-card class="checks-card">
+        <ion-card-content>
+
+          <!-- Check 1: Nicho vendido -->
+          <div class="check-item">
+            <ion-icon
+              [name]="checkNicheIsSold() ? 'checkmark-circle-outline' : 'close-circle-outline'"
+              [color]="checkNicheIsSold() ? 'success' : 'danger'">
+            </ion-icon>
+            <div class="check-text">
+              <strong>Nicho en estado "Vendido"</strong>
+              <p *ngIf="checkNicheIsSold()" class="check-detail">
+                Estado actual: <ion-badge color="success">Vendido</ion-badge>
+              </p>
+              <p *ngIf="!checkNicheIsSold()" class="check-hint danger">
+                El nicho está en estado "{{ niche()?.status }}" y no puede sucederse.
+              </p>
+            </div>
+          </div>
+
+          <!-- Check 2: Tiene titular -->
+          <div class="check-item">
+            <ion-icon
+              [name]="checkHasOwner() ? 'checkmark-circle-outline' : 'close-circle-outline'"
+              [color]="checkHasOwner() ? 'success' : 'danger'">
+            </ion-icon>
+            <div class="check-text">
+              <strong>Titular registrado</strong>
+              <p *ngIf="checkHasOwner()" class="check-detail">
+                {{ owner()?.firstName }} {{ owner()?.lastName }}
+              </p>
+              <p *ngIf="!checkHasOwner()" class="check-hint danger">
+                El nicho no tiene titular asignado.
+              </p>
+            </div>
+          </div>
+
+          <!-- Check 3: Estado del titular (INFORMATIVO, no bloquea) -->
+          <div class="check-item informative">
+            <ion-icon
+              [name]="checkOwnerIsActive() ? 'checkmark-circle-outline' : 'information-circle-outline'"
+              [color]="checkOwnerIsActive() ? 'success' : 'warning'">
+            </ion-icon>
+            <div class="check-text">
+              <strong>Estado del titular <span class="info-tag">informativo</span></strong>
+              <p *ngIf="checkOwnerIsActive()" class="check-detail">
+                {{ owner()?.firstName }} {{ owner()?.lastName }} — Activo
+              </p>
+              <p *ngIf="!checkOwnerIsActive()" class="check-hint medium">
+                El titular está inactivo. La sucesión procederá de igual forma y lo reactivará como fallecido en el registro.
+              </p>
+            </div>
+          </div>
+
+          <!-- Check 4: Al menos un sucesor elegible -->
+          <div class="check-item">
+            <ion-icon
+              [name]="checkHasEligibleBeneficiary() ? 'checkmark-circle-outline' : 'close-circle-outline'"
+              [color]="checkHasEligibleBeneficiary() ? 'success' : 'danger'">
+            </ion-icon>
+            <div class="check-text">
+              <strong>Sucesor elegible designado</strong>
+              <p *ngIf="checkHasEligibleBeneficiary()" class="check-detail">
+                {{ eligibleBeneficiaries().length }} sucesor(es) elegible(s) ·
+                Próximo: <strong>{{ nextBeneficiary()?.name }}</strong>
+                ({{ getRelationshipLabel(nextBeneficiary()?.relationship ?? '') }}, orden {{ nextBeneficiary()?.order }})
+              </p>
+              <p *ngIf="!checkHasEligibleBeneficiary()" class="check-hint danger">
+                No hay sucesores elegibles designados para este nicho.
+                <button class="link-btn" (click)="goToNicheDetail()">
+                  Ir al nicho para gestionar sucesores →
+                </button>
+              </p>
+            </div>
+          </div>
+
+          <!-- Check 5: Contrato activo (INFORMATIVO, no bloquea) -->
+          <div class="check-item informative">
+            <ion-icon
+              [name]="checkHasActiveSale() ? 'checkmark-circle-outline' : 'information-circle-outline'"
+              [color]="checkHasActiveSale() ? 'success' : 'medium'">
+            </ion-icon>
+            <div class="check-text">
+              <strong>Contrato de venta activo <span class="info-tag">informativo</span></strong>
+              <p *ngIf="checkHasActiveSale()" class="check-detail">
+                Folio {{ activeSale()?.folio }} · Saldo: {{ activeSale()?.balance | currencyMx }}
+                — La deuda se transferirá al nuevo titular.
+              </p>
+              <p *ngIf="!checkHasActiveSale()" class="check-hint medium">
+                Sin contrato activo. La sucesión solo transfiere la titularidad del nicho.
+              </p>
+            </div>
+          </div>
+
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Resultado global -->
+      <div class="result-banner success" *ngIf="allChecksPassed()">
+        <ion-icon name="checkmark-done-outline"></ion-icon>
+        <span>Todos los requisitos críticos están cumplidos. Puedes continuar.</span>
+      </div>
+      <div class="result-banner danger" *ngIf="!allChecksPassed()">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <span>Hay requisitos pendientes. Resuélvelos antes de continuar.</span>
+      </div>
+
+      <div class="step-actions">
+        <ion-button
+          expand="block"
+          [disabled]="!allChecksPassed()"
+          (click)="nextStep()">
+          Siguiente
+          <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+        </ion-button>
+        <ion-button expand="block" fill="outline" color="medium" (click)="prevStep()">
+          Cancelar
+        </ion-button>
+      </div>
+
+    </ng-container>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       PASO 1 — DATOS DEL FALLECIMIENTO
+  ════════════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="step() === 1" class="step-wrapper">
+
+    <div class="step-header">
+      <h2>Datos del Fallecimiento</h2>
+      <p>Registra la fecha en que falleció el titular actual.</p>
+    </div>
+
+    <!-- Resumen: Titular actual (a registrar como fallecido) -->
+    <ion-card class="info-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="person-outline" color="warning"></ion-icon>
+          Titular Actual
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="field-row">
+          <span class="field-label">Nombre</span>
+          <strong>{{ owner()?.firstName }} {{ owner()?.lastName }}</strong>
+        </div>
+        <div class="field-row" *ngIf="owner()?.phone">
+          <span class="field-label">Teléfono</span>
+          <span>{{ owner()?.phone }}</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Nicho</span>
+          <span class="mono">{{ niche()?.code }}</span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Formulario -->
+    <ion-card class="form-card">
+      <ion-card-content>
+
+        <!-- Fecha de fallecimiento -->
+        <div class="form-field">
+          <label class="field-label-top">Fecha de Fallecimiento *</label>
+          <ion-input
+            type="date"
+            fill="outline"
+            [value]="deceasedDate()"
+            [max]="today"
+            (ionChange)="deceasedDate.set($event.detail.value ?? '')">
+          </ion-input>
+          <p class="field-error" *ngIf="deceasedDate() && dateError()">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            {{ dateError() }}
+          </p>
+        </div>
+
+        <!-- Notas -->
+        <div class="form-field">
+          <label class="field-label-top">Notas (opcional)</label>
+          <ion-textarea
+            fill="outline"
+            rows="3"
+            placeholder="Información adicional sobre la sucesión..."
+            [value]="notes()"
+            (ionChange)="notes.set($event.detail.value ?? '')">
+          </ion-textarea>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Preview del próximo sucesor -->
+    <ion-card class="beneficiary-preview-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="person-outline" color="success"></ion-icon>
+          Próximo Sucesor
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+
+        <!-- Flecha de traspaso -->
+        <div class="succession-arrow">
+          <div class="person deceased">
+            <ion-icon name="skull-outline"></ion-icon>
+            <span>{{ owner()?.firstName }} {{ owner()?.lastName }}</span>
+          </div>
+          <ion-icon name="swap-horizontal-outline" class="arrow-icon"></ion-icon>
+          <div class="person successor">
+            <ion-icon name="person-outline"></ion-icon>
+            <span>{{ nextBeneficiary()?.name }}</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <span class="field-label">Nombre</span>
+          <strong>{{ nextBeneficiary()?.name }}</strong>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Parentesco</span>
+          <span>{{ getRelationshipLabel(nextBeneficiary()?.relationship ?? '') }}</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Orden de sucesión</span>
+          <ion-badge color="primary">{{ nextBeneficiary()?.order }}°</ion-badge>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Acción en el sistema</span>
+          <ion-badge [color]="nextBeneficiary()?.linkedCustomer ? 'warning' : 'tertiary'">
+            {{ nextBeneficiary()?.linkedCustomer ? 'Reactivar cliente existente' : 'Crear nuevo cliente' }}
+          </ion-badge>
+        </div>
+
+        <p class="succession-note">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Este sucesor se convertirá en el nuevo titular del nicho al confirmar la sucesión.
+        </p>
+
+      </ion-card-content>
+    </ion-card>
+
+    <div class="step-actions">
+      <ion-button
+        expand="block"
+        [disabled]="!canAdvanceStep1()"
+        (click)="nextStep()">
+        Siguiente
+        <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+      </ion-button>
+      <ion-button expand="block" fill="outline" color="medium" (click)="prevStep()">
+        <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+        Atrás
+      </ion-button>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       PASO 2 — CONFIRMACIÓN FINAL
+  ════════════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="step() === 2" class="step-wrapper">
+
+    <div class="step-header">
+      <h2>Confirmar Sucesión</h2>
+      <p>Revisa el resumen. Esta acción <strong>no puede deshacerse</strong>.</p>
+    </div>
+
+    <!-- Resumen no editable -->
+    <ion-card class="summary-card">
+      <ion-card-header>
+        <ion-card-title>Resumen de la Sucesión</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+
+        <!-- Nicho -->
+        <div class="summary-section">
+          <p class="section-label">NICHO</p>
+          <div class="field-row">
+            <span class="field-label">Código</span>
+            <span class="mono">{{ niche()?.code }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Número</span>
+            <span>#{{ niche()?.displayNumber }}</span>
+          </div>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <!-- Propietario actual (se registrará como fallecido al confirmar) -->
+        <div class="summary-section">
+          <p class="section-label">PROPIETARIO ACTUAL (FALLECERÁ AL CONFIRMAR)</p>
+          <div class="field-row">
+            <span class="field-label">Nombre</span>
+            <strong>{{ owner()?.firstName }} {{ owner()?.lastName }}</strong>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Fecha de fallecimiento</span>
+            <strong>{{ formatDate(deceasedDate()) }}</strong>
+          </div>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <!-- Nuevo propietario -->
+        <div class="summary-section">
+          <p class="section-label">NUEVO PROPIETARIO</p>
+          <div class="field-row">
+            <span class="field-label">Nombre</span>
+            <strong>{{ nextBeneficiary()?.name }}</strong>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Parentesco</span>
+            <span>{{ getRelationshipLabel(nextBeneficiary()?.relationship ?? '') }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Acción</span>
+            <ion-badge [color]="nextBeneficiary()?.linkedCustomer ? 'warning' : 'tertiary'">
+              {{ nextBeneficiary()?.linkedCustomer ? 'Reactivar cliente' : 'Crear nuevo cliente' }}
+            </ion-badge>
+          </div>
+        </div>
+
+        <!-- Contrato de venta (si existe) -->
+        <ng-container *ngIf="activeSale()">
+          <div class="summary-divider"></div>
+          <div class="summary-section">
+            <p class="section-label">CONTRATO DE VENTA</p>
+            <div class="field-row">
+              <span class="field-label">Folio</span>
+              <span class="mono">{{ activeSale()?.folio }}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Saldo pendiente</span>
+              <strong>{{ activeSale()?.balance | currencyMx }}</strong>
+            </div>
+            <p class="sale-transfer-note">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              La deuda activa pasará a responsabilidad del nuevo titular.
+            </p>
+          </div>
+        </ng-container>
+
+        <!-- Notas (si las hay) -->
+        <ng-container *ngIf="notes()?.trim()">
+          <div class="summary-divider"></div>
+          <div class="summary-section">
+            <p class="section-label">NOTAS</p>
+            <p class="notes-text">{{ notes() }}</p>
+          </div>
+        </ng-container>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Advertencia irreversible -->
+    <div class="irreversible-warning">
+      <ion-icon name="warning-outline"></ion-icon>
+      <p>
+        Esta acción <strong>no puede deshacerse</strong>. El titular anterior quedará registrado como
+        fallecido y el sucesor pasará a ser el nuevo propietario del nicho.
+      </p>
+    </div>
+
+    <div class="step-actions">
+      <ion-button
+        expand="block"
+        color="danger"
+        [disabled]="submitting()"
+        (click)="confirmSuccession()">
+        <ion-spinner *ngIf="submitting()" name="crescent" slot="start"></ion-spinner>
+        <ion-icon *ngIf="!submitting()" name="checkmark-circle-outline" slot="start"></ion-icon>
+        {{ submitting() ? 'Registrando sucesión…' : 'Confirmar Sucesión' }}
+      </ion-button>
+      <ion-button
+        expand="block"
+        fill="outline"
+        color="medium"
+        [disabled]="submitting()"
+        (click)="prevStep()">
+        <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+        Atrás
+      </ion-button>
+    </div>
+
+  </div>
+
+</ion-content>

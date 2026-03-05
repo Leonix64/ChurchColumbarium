@@ -1,0 +1,413 @@
+// ── Wizard layout ────────────────────────────────────────────────────────────
+
+.wizard-content {
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+
+.step-wrapper {
+  padding-bottom: 24px;
+}
+
+// ── Step indicator ────────────────────────────────────────────────────────────
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 24px 6px;
+  gap: 0;
+
+  .step-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--ion-color-light-shade);
+    color: var(--ion-color-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+    transition: background 0.25s ease, color 0.25s ease;
+
+    &.active {
+      background: var(--ion-color-primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(var(--ion-color-primary-rgb), 0.35);
+    }
+
+    &.done {
+      background: var(--ion-color-success);
+      color: #fff;
+    }
+  }
+
+  .step-line {
+    flex: 1;
+    max-width: 72px;
+    height: 2px;
+    background: var(--ion-color-light-shade);
+    transition: background 0.25s ease;
+
+    &.done {
+      background: var(--ion-color-success);
+    }
+  }
+}
+
+.step-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px 12px;
+  font-size: 11px;
+  color: var(--ion-color-medium);
+
+  span.active {
+    color: var(--ion-color-primary);
+    font-weight: 600;
+  }
+}
+
+// ── Loading ───────────────────────────────────────────────────────────────────
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 16px;
+  gap: 16px;
+  color: var(--ion-color-medium);
+
+  p { margin: 0; font-size: 14px; }
+}
+
+// ── Step header ───────────────────────────────────────────────────────────────
+
+.step-header {
+  padding: 8px 0 12px;
+
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: var(--ion-color-dark);
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// ── Check items ───────────────────────────────────────────────────────────────
+
+.checks-card {
+  margin-top: 4px;
+
+  ion-card-content {
+    padding: 8px 16px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--ion-color-light-shade);
+
+    &:last-child { border-bottom: none; }
+
+    &.informative {
+      opacity: 0.9;
+    }
+
+    ion-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .check-text {
+      flex: 1;
+
+      strong {
+        font-size: 14px;
+        display: block;
+        margin-bottom: 2px;
+      }
+
+      .check-detail {
+        font-size: 12px;
+        color: var(--ion-color-medium);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .check-hint {
+        font-size: 12px;
+        margin: 2px 0 0;
+        line-height: 1.4;
+
+        &.danger { color: var(--ion-color-danger); }
+        &.medium { color: var(--ion-color-medium); }
+      }
+    }
+  }
+}
+
+.info-tag {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ion-color-medium);
+  background: var(--ion-color-light);
+  border: 1px solid var(--ion-color-light-shade);
+  border-radius: 4px;
+  padding: 1px 5px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+// ── Result banners ────────────────────────────────────────────────────────────
+
+.result-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin: 12px 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+
+  ion-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  &.success {
+    background: rgba(var(--ion-color-success-rgb), 0.1);
+    color: var(--ion-color-success-shade);
+    border: 1px solid rgba(var(--ion-color-success-rgb), 0.25);
+  }
+
+  &.danger {
+    background: rgba(var(--ion-color-danger-rgb), 0.08);
+    color: var(--ion-color-danger-shade);
+    border: 1px solid rgba(var(--ion-color-danger-rgb), 0.2);
+  }
+}
+
+// ── Field rows (shared) ───────────────────────────────────────────────────────
+
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--ion-color-light-shade);
+  font-size: 14px;
+  gap: 12px;
+
+  &:last-of-type { border-bottom: none; }
+
+  .field-label {
+    color: var(--ion-color-medium);
+    font-size: 12px;
+    flex-shrink: 0;
+    min-width: 90px;
+  }
+
+  .mono {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+  }
+}
+
+// ── Cards ─────────────────────────────────────────────────────────────────────
+
+.info-card,
+.form-card,
+.beneficiary-preview-card,
+.summary-card {
+  margin-top: 8px;
+}
+
+ion-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+// ── Form fields ───────────────────────────────────────────────────────────────
+
+.form-field {
+  margin-bottom: 18px;
+
+  .field-label-top {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ion-color-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 6px;
+  }
+
+  .field-error {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--ion-color-danger);
+    margin: 6px 0 0;
+
+    ion-icon { font-size: 14px; flex-shrink: 0; }
+  }
+}
+
+// ── Succession arrow (visual) ─────────────────────────────────────────────────
+
+.succession-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 0 20px;
+
+  .person {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    max-width: 110px;
+
+    ion-icon { font-size: 28px; }
+    span { word-break: break-word; line-height: 1.3; }
+
+    &.deceased { color: var(--ion-color-danger); }
+    &.successor { color: var(--ion-color-success); }
+  }
+
+  .arrow-icon {
+    font-size: 26px;
+    color: var(--ion-color-medium);
+    flex-shrink: 0;
+  }
+}
+
+.succession-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--ion-color-light-shade);
+
+  ion-icon {
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+// ── Summary card ──────────────────────────────────────────────────────────────
+
+.summary-section {
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--ion-color-medium);
+    margin: 0 0 6px;
+  }
+
+  .sale-transfer-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--ion-color-medium);
+    font-style: italic;
+    margin-top: 6px;
+
+    ion-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  }
+
+  .notes-text {
+    font-size: 13px;
+    color: var(--ion-color-dark);
+    margin: 0;
+    font-style: italic;
+  }
+}
+
+.summary-divider {
+  height: 1px;
+  background: var(--ion-color-light-shade);
+  margin: 12px 0;
+}
+
+// ── Irreversible warning ──────────────────────────────────────────────────────
+
+.irreversible-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(var(--ion-color-warning-rgb), 0.1);
+  border: 1px solid rgba(var(--ion-color-warning-rgb), 0.3);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 12px 0;
+
+  ion-icon {
+    font-size: 22px;
+    color: var(--ion-color-warning-shade);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--ion-color-dark);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// ── Action buttons ────────────────────────────────────────────────────────────
+
+.step-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 0 32px;
+}
+
+// ── Inline link button ────────────────────────────────────────────────────────
+
+.link-btn {
+  display: inline;
+  background: none;
+  border: none;
+  color: var(--ion-color-primary);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline dotted;
+  font-family: inherit;
+
+  &:hover { text-decoration: underline; }
+}

@@ -1,0 +1,239 @@
+.niches-content {
+  --background: var(--ion-background-color);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  gap: 16px;
+
+  ion-spinner {
+    --color: var(--ion-color-primary);
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.niches-wrapper {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stats-card {
+  background: var(--ion-card-background);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .stats-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+    color: var(--ion-color-dark);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+
+    .stat-item {
+      text-align: center;
+      padding: 16px;
+      border-radius: 8px;
+      background: var(--ion-color-light);
+
+      &.available {
+        background: rgba(16, 220, 96, 0.1);
+        .stat-value {
+          color: var(--ion-color-success);
+        }
+      }
+
+      &.sold {
+        background: rgba(245, 61, 61, 0.1);
+        .stat-value {
+          color: var(--ion-color-danger);
+        }
+      }
+
+      &.reserved {
+        background: rgba(255, 206, 0, 0.1);
+        .stat-value {
+          color: var(--ion-color-warning);
+        }
+      }
+
+      &.disabled {
+        background: rgba(146, 148, 156, 0.1);
+        .stat-value {
+          color: var(--ion-color-medium);
+        }
+      }
+
+      .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .stat-label {
+        font-size: 14px;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+.search-section {
+  margin-bottom: 16px;
+
+  ion-searchbar {
+    padding: 0;
+    margin-bottom: 12px;
+  }
+
+  .quick-search-btn {
+    margin-top: 8px;
+    font-weight: 500;
+  }
+}
+
+.filters-section {
+  margin-bottom: 24px;
+
+  ion-segment {
+    background: var(--ion-card-background);
+    border-radius: 8px;
+    padding: 4px;
+  }
+}
+
+.modules-list {
+  display: grid;
+  gap: 16px;
+}
+
+.module-card {
+  background: var(--ion-card-background);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(-2px);
+  }
+
+  .module-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    > ion-icon:first-child {
+      font-size: 32px;
+      color: var(--ion-color-primary);
+    }
+
+    .module-info {
+      flex: 1;
+
+      .module-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+        color: var(--ion-color-dark);
+      }
+
+      .module-subtitle {
+        font-size: 14px;
+        color: var(--ion-color-medium);
+        margin: 0;
+      }
+    }
+
+    .chevron-icon {
+      font-size: 24px;
+      color: var(--ion-color-medium);
+    }
+  }
+
+  .module-stats {
+    margin-bottom: 16px;
+    padding: 12px 0;
+    border-top: 1px solid var(--ion-color-light);
+    border-bottom: 1px solid var(--ion-color-light);
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+
+      .stat-label {
+        font-size: 14px;
+        color: var(--ion-color-medium);
+      }
+
+      .stat-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+
+        &.success {
+          color: var(--ion-color-success);
+        }
+
+        &.danger {
+          color: var(--ion-color-danger);
+        }
+
+        &.warning {
+          color: var(--ion-color-warning);
+        }
+      }
+    }
+  }
+
+  .sections-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    .section-badge {
+      font-size: 12px;
+      padding: 6px 12px;
+      background: var(--ion-color-light);
+      border-radius: 8px;
+      color: var(--ion-color-dark);
+    }
+  }
+
+  .module-action {
+    ion-button {
+      margin: 0;
+      --padding-start: 0;
+      --padding-end: 0;
+    }
+  }
+}
+
+app-empty-state {
+  display: block;
+  padding: 60px 16px;
+}

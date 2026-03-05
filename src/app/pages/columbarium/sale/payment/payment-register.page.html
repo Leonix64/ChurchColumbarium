@@ -1,0 +1,158 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Registrar Pago</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" [disabled]="loading()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="payment-content">
+
+  <!-- ── Info de la venta ──────────────────────────────────────────────────── -->
+  <ion-card class="info-card">
+    <ion-card-content>
+      <div class="info-row">
+        <span class="label">Venta</span>
+        <span class="value mono">{{ sale.folio }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Cliente</span>
+        <span class="value">
+          {{ $any(sale.customer)?.firstName }}
+          {{ $any(sale.customer)?.lastName }}
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="label">Saldo actual</span>
+        <strong class="value highlight">{{ sale.balance | currencyMx }}</strong>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- ── Modo de pago ──────────────────────────────────────────────────────── -->
+  <ion-list>
+    <ion-radio-group
+      [value]="paymentMode()"
+      (ionChange)="onPaymentModeChange($event.detail.value)">
+
+      <ion-list-header>
+        <ion-label>Modo de pago</ion-label>
+      </ion-list-header>
+
+      <ion-item>
+        <ion-label>
+          <h3>Pago libre</h3>
+          <p>El sistema distribuye automáticamente el pago</p>
+        </ion-label>
+        <ion-radio slot="start" value="free"></ion-radio>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>
+          <h3>Pago específico</h3>
+          <p>Aplicar a una mensualidad en particular</p>
+        </ion-label>
+        <ion-radio slot="start" value="specific"></ion-radio>
+      </ion-item>
+    </ion-radio-group>
+
+    <!-- Selector de cuota específica -->
+    <ng-container *ngIf="paymentMode() === 'specific'">
+      <ion-item>
+        <ion-icon name="calendar-outline" slot="start"></ion-icon>
+        <ion-label>Número de pago *</ion-label>
+        <ion-select
+          placeholder="Selecciona…"
+          [value]="specificPaymentNumber()"
+          (ionChange)="onSpecificNumberChange($event.detail.value)">
+          <ion-select-option
+            *ngFor="let p of pendingPayments()"
+            [value]="p.number">
+            Pago #{{ p.number }} — {{ p.amountRemaining | currencyMx }}
+            ({{ p.dueDate | date:'dd/MM/yyyy' }})
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+      <p class="field-error" *ngIf="specificPaymentError()">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        {{ specificPaymentError() }}
+      </p>
+    </ng-container>
+
+    <!-- Monto -->
+    <ion-item>
+      <ion-icon name="cash-outline" slot="start"></ion-icon>
+      <ion-label>Monto recibido *</ion-label>
+      <ion-input
+        type="number"
+        placeholder="0.00"
+        [value]="amount() || ''"
+        [clearInput]="true"
+        (ionChange)="onAmountChange($event.detail.value)">
+      </ion-input>
+    </ion-item>
+    <p class="field-error" *ngIf="amountError() && amount() > 0">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      {{ amountError() }}
+    </p>
+
+    <!-- Método de pago -->
+    <ion-item>
+      <ion-icon name="card-outline" slot="start"></ion-icon>
+      <ion-label>Método de pago *</ion-label>
+      <ion-select
+        [value]="method()"
+        (ionChange)="onMethodChange($event.detail.value)">
+        <ion-select-option *ngFor="let m of paymentMethods" [value]="m.value">
+          {{ m.icon }} {{ m.label }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <!-- Notas -->
+    <ion-item>
+      <ion-label>Notas (opcional)</ion-label>
+      <ion-textarea
+        rows="3"
+        placeholder="Ej: Pagó con billete de 500"
+        [value]="notes()"
+        (ionChange)="onNotesChange($event.detail.value)">
+      </ion-textarea>
+    </ion-item>
+  </ion-list>
+
+  <!-- ── Resumen del impacto ───────────────────────────────────────────────── -->
+  <div class="info-alert" *ngIf="amount() > 0">
+    <ion-icon name="information-circle-outline"></ion-icon>
+    <div>
+      <strong>Resumen</strong>
+      <p *ngIf="!coversFull()">
+        Se aplicarán {{ amount() | currencyMx }} al saldo.
+        Quedará pendiente {{ remaining() | currencyMx }}.
+      </p>
+      <p *ngIf="coversFull()" class="success">
+        ¡Este pago cubrirá el saldo completo!
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Botones ───────────────────────────────────────────────────────────── -->
+  <div class="action-section">
+    <ion-button
+      expand="block"
+      [disabled]="!canSubmit()"
+      (click)="onSubmit()">
+      <ion-spinner name="crescent" slot="start" *ngIf="loading()"></ion-spinner>
+      <ion-icon name="checkmark-circle" slot="start" *ngIf="!loading()"></ion-icon>
+      {{ loading() ? 'Registrando…' : 'Registrar Pago' }}
+    </ion-button>
+
+    <ion-button expand="block" fill="clear" [disabled]="loading()" (click)="dismiss()">
+      Cancelar
+    </ion-button>
+  </div>
+
+</ion-content>

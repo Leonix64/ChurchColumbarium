@@ -42,6 +42,10 @@ export const columbariumRoutes: Routes = [
         loadComponent: () => import('./niches/detail/niches-detail.page').then(m => m.NichesDetailPage)
     },
     {
+        path: 'niches/:id',
+        loadComponent: () => import('./niche/detail/niche-detail.page').then(m => m.NicheDetailPage)
+    },
+    {
         path: 'sales',
         loadComponent: () => import('./sales/list/sales-list.page').then(m => m.SalesListPage)
     },
@@ -72,6 +76,10 @@ export const columbariumRoutes: Routes = [
     {
         path: 'audit/user/:userId',
         loadComponent: () => import('./audit/user-history/user-history.page').then(m => m.UserHistoryPage)
+    },
+    {
+        path: 'succession/wizard/:nicheId',
+        loadComponent: () => import('./succession/wizard/succession-wizard.page').then(m => m.SuccessionWizardPage)
     },
     {
         path: '',
