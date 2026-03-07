@@ -2,9 +2,9 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonButton, IonIcon, IonItem, IonLabel, IonInput,
+  IonContent, IonButton, IonIcon, IonInput,
   IonNote, IonCard, IonCardContent, IonCardHeader, IonCardTitle,
-  IonSpinner, IonBadge, IonText
+  IonSpinner, IonBadge
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -28,9 +28,9 @@ import { User, UpdateProfileRequest } from 'src/app/core/models/user.model';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonButton, IonIcon, IonItem, IonLabel, IonInput,
+    IonContent, IonButton, IonIcon, IonInput,
     IonNote, IonCard, IonCardContent, IonCardHeader, IonCardTitle,
-    IonSpinner, IonBadge, IonText,
+    IonSpinner, IonBadge,
     HeaderComponent
   ]
 })

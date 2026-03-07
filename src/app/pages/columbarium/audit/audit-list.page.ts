@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
-  IonContent, IonButton, IonIcon, IonList, IonItem, IonLabel, IonBadge,
-  IonSearchbar, IonSpinner, IonNote, IonCard, IonCardContent, IonCardHeader,
+  IonContent, IonButton, IonIcon, IonLabel, IonBadge,
+  IonSpinner, IonCard, IonCardContent, IonCardHeader,
   IonCardTitle, IonSelect, IonSelectOption,
   IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton
 } from '@ionic/angular/standalone';
@@ -35,8 +35,8 @@ import { NotificationService } from 'src/app/core/services/notification.service'
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonButton, IonIcon, IonList, IonItem, IonLabel, IonBadge,
-    IonSearchbar, IonSpinner, IonNote, IonCard, IonCardContent, IonCardHeader,
+    IonContent, IonButton, IonIcon, IonLabel, IonBadge,
+    IonSpinner, IonCard, IonCardContent, IonCardHeader,
     IonCardTitle, IonSelect, IonSelectOption,
     IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton,
     HeaderComponent, EmptyStateComponent, AuditRecentWidgetComponent

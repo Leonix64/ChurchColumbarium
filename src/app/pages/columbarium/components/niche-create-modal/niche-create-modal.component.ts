@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import {
   IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
   IonContent, IonCard, IonCardContent, IonList, IonItem,
-  IonLabel, IonIcon, IonNote, IonInput, IonSelect,
+  IonIcon, IonInput, IonSelect,
   IonSelectOption, IonSpinner,
   ModalController
 } from '@ionic/angular/standalone';
@@ -24,7 +24,7 @@ import { NotificationService } from 'src/app/core/services/notification.service'
     ReactiveFormsModule,
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
     IonContent, IonCard, IonCardContent, IonList, IonItem,
-    IonLabel, IonIcon, IonNote, IonInput, IonSelect,
+    IonIcon, IonInput, IonSelect,
     IonSelectOption, IonSpinner
   ]
 })

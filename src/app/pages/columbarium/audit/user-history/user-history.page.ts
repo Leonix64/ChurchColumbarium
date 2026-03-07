@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import {
   IonContent, IonButton, IonIcon, IonCard, IonCardContent,
-  IonCardHeader, IonCardTitle, IonSpinner, IonBadge, IonNote,
+  IonSpinner, IonBadge, IonNote,
   IonRefresher, IonRefresherContent
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -32,7 +32,7 @@ import { EmptyStateComponent } from 'src/app/shared/components/empty-state/empty
   imports: [
     CommonModule,
     IonContent, IonButton, IonIcon, IonCard, IonCardContent,
-    IonCardHeader, IonCardTitle, IonSpinner, IonBadge, IonNote,
+    IonSpinner, IonBadge, IonNote,
     IonRefresher, IonRefresherContent,
     HeaderComponent, EmptyStateComponent
   ]

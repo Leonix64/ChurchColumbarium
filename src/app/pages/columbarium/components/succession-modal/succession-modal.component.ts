@@ -5,7 +5,7 @@ import {
   IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
   IonContent, IonCard, IonCardContent, IonCardHeader,
   IonCardTitle, IonList, IonItem, IonLabel, IonInput,
-  IonTextarea, IonIcon, IonNote, IonSpinner, IonBadge,
+  IonTextarea, IonIcon, IonNote, IonSpinner,
   ModalController, AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -32,7 +32,7 @@ import { NotificationService } from 'src/app/core/services/notification.service'
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
     IonContent, IonCard, IonCardContent, IonCardHeader,
     IonCardTitle, IonList, IonItem, IonLabel, IonInput,
-    IonTextarea, IonIcon, IonNote, IonSpinner, IonBadge
+    IonTextarea, IonIcon, IonNote, IonSpinner
   ]
 })
 export class SuccessionModalComponent implements OnInit {

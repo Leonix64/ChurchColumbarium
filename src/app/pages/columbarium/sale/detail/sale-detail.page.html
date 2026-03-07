@@ -125,7 +125,7 @@
       </ion-card-header>
       <ion-card-content>
         <ion-list class="amortization-list">
-          <div *ngFor="let payment of sale()?.amortizationTable" class="payment-wrapper">
+          <div *ngFor="let payment of sale()?.schedule" class="payment-wrapper">
 
             <!-- Fila principal del pago -->
             <ion-item [class.next-payment]="isNextPayment(payment)" [class.paid]="payment.status === 'paid'"

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonButton, IonIcon, IonCard, IonCardContent,
   IonCardHeader, IonCardTitle, IonSpinner, IonBadge,
-  IonRefresher, IonRefresherContent, IonNote
+  IonRefresher, IonRefresherContent
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -28,7 +28,7 @@ import { NotificationService } from 'src/app/core/services/notification.service'
     CommonModule, FormsModule,
     IonContent, IonButton, IonIcon, IonCard, IonCardContent,
     IonCardHeader, IonCardTitle, IonSpinner, IonBadge,
-    IonRefresher, IonRefresherContent, IonNote,
+    IonRefresher, IonRefresherContent,
     HeaderComponent
   ]
 })

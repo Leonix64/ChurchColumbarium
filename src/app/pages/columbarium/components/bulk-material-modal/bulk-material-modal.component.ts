@@ -13,7 +13,6 @@ import { close, cubeOutline, checkmarkCircleOutline, alertCircleOutline } from '
 import { Niche } from '../../models/niche.model';
 import { NicheService } from '../../services/niche.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
-import { CurrencyMxPipe } from 'src/app/shared/pipes/currency-mx.pipe';
 
 const DEFAULT_PRICES: { [key: string]: number } = {
   wood: 30000,
@@ -32,8 +31,7 @@ const DEFAULT_PRICES: { [key: string]: number } = {
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
     IonContent, IonCard, IonCardContent, IonList, IonItem,
     IonLabel, IonIcon, IonNote, IonRadioGroup, IonRadio,
-    IonInput, IonSpinner, IonBadge,
-    CurrencyMxPipe
+    IonInput, IonSpinner, IonBadge
   ]
 })
 export class BulkMaterialModalComponent {

@@ -2,9 +2,9 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonButton, IonIcon, IonList, IonItem, IonLabel, IonBadge,
-  IonSearchbar, IonSpinner, IonNote, IonCard, IonCardContent,
-  IonSelect, IonSelectOption, IonAvatar, IonText,
+  IonContent, IonIcon, IonBadge,
+  IonSearchbar, IonSpinner, IonCard, IonCardContent,
+  IonSelect, IonSelectOption,
   IonRefresher, IonRefresherContent
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -27,9 +27,9 @@ import { User } from 'src/app/core/models/user.model';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonButton, IonIcon, IonList, IonItem, IonLabel, IonBadge,
-    IonSearchbar, IonSpinner, IonNote, IonCard, IonCardContent,
-    IonSelect, IonSelectOption, IonAvatar, IonText,
+    IonContent, IonIcon, IonBadge,
+    IonSearchbar, IonSpinner, IonCard, IonCardContent,
+    IonSelect, IonSelectOption,
     IonRefresher, IonRefresherContent,
     HeaderComponent, EmptyStateComponent
   ]

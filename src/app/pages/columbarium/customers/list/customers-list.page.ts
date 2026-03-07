@@ -8,11 +8,7 @@ import {
   IonSegmentButton, IonSpinner, IonFab, IonFabButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import {
-  personCircleOutline, chevronForwardOutline,
-  peopleOutline, add
-} from 'ionicons/icons';
-
+import { personCircleOutline, chevronForwardOutline, peopleOutline, add } from 'ionicons/icons';
 import { CustomerService } from '../../services/customer.service';
 import { HeaderComponent } from 'src/app/shared/components/header/header.component';
 import { EmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state.component';
@@ -32,19 +28,15 @@ import { Customer } from '../../models/customer.model';
   ]
 })
 export class CustomersListPage implements OnInit {
-  // Estado
   loading = signal(true);
   searchTerm = signal('');
   statusFilter = signal<'all' | 'active' | 'inactive'>('all');
 
-  // Datos
   customers = this.customerService.customers;
 
-  // Computed para filtrado
   filteredCustomers = computed(() => {
     let result = this.customers();
 
-    // Filtro por búsqueda
     const search = this.searchTerm().toLowerCase();
     if (search) {
       result = result.filter(c =>
@@ -55,7 +47,6 @@ export class CustomersListPage implements OnInit {
       );
     }
 
-    // Filtro por estado
     const status = this.statusFilter();
     if (status === 'active') {
       result = result.filter(c => c.active);
@@ -66,10 +57,7 @@ export class CustomersListPage implements OnInit {
     return result;
   });
 
-  constructor(
-    private customerService: CustomerService,
-    private router: Router
-  ) {
+  constructor(private customerService: CustomerService, private router: Router) {
     addIcons({ personCircleOutline, chevronForwardOutline, peopleOutline, add });
   }
 

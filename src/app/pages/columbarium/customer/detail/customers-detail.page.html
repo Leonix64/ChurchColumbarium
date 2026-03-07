@@ -30,8 +30,8 @@
       </div>
       <div class="name-section">
         <h1 class="customer-name">{{ customer()?.firstName }} {{ customer()?.lastName }}</h1>
-        <ion-badge [color]="customer()?.status === 'active' ? 'success' : 'medium'" class="status-badge">
-          {{ customer()?.status === 'active' ? 'Activo' : 'Inactivo' }}
+        <ion-badge [color]="customer()?.active ? 'success' : 'medium'" class="status-badge">
+          {{ customer()?.active ? 'Activo' : 'Inactivo' }}
         </ion-badge>
       </div>
     </div>

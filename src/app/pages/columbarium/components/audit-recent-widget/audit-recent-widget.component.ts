@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-  IonIcon, IonButton, IonSpinner, IonBadge
+  IonIcon, IonButton, IonSpinner
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -27,7 +27,7 @@ import { AuditLog } from '../../models/audit.model';
   imports: [
     CommonModule,
     IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-    IonIcon, IonButton, IonSpinner, IonBadge
+    IonIcon, IonButton, IonSpinner
   ]
 })
 export class AuditRecentWidgetComponent implements OnInit {

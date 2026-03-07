@@ -1,9 +1,6 @@
 import { Routes } from "@angular/router";
 import { CustomersListPage } from "./customers/list/customers-list.page";
 import { CustomersDetailPage } from "./customers/detail/customers-detail.page";
-import { NichesGridPage } from "./niches/grid/niches-grid.page";
-import { SalesListPage } from "./sales/list/sales-list.page";
-import { SaleCreatePage } from "./sales/create/sale-create.page";
 import { StatsPage } from "./stats/stats.page";
 import { AuditListPage } from "./audit/audit-list.page";
 
@@ -11,7 +8,6 @@ export const columbariumRoutes: Routes = [
     {
         path: 'customers',
         loadComponent: () => import('./customers/list/customers-list.page').then(m => m.CustomersListPage)
-
     },
     {
         path: 'customers/create',
@@ -19,7 +15,7 @@ export const columbariumRoutes: Routes = [
     },
     {
         path: 'customers/:id',
-        loadComponent: () => import('./customers/detail/customers-detail.page').then(m => m.CustomersDetailPage)
+        loadComponent: () => import('./customer/detail/customers-detail.page').then(m => m.CustomersDetailPage)
     },
     {
         path: 'customers/:id/edit',
@@ -27,19 +23,19 @@ export const columbariumRoutes: Routes = [
     },
     {
         path: 'niches',
-        loadComponent: () => import('./niches/grid/niches-grid.page').then(m => m.NichesGridPage)
+        loadComponent: () => import('./niche/grid/niches-grid.page').then(m => m.NichesGridPage)
     },
     {
         path: 'niches/manage',
-        loadComponent: () => import('./niches/manage/niches-manage.page').then(m => m.NichesManagePage)
+        loadComponent: () => import('./niche/manage/niches-manage.page').then(m => m.NichesManagePage)
     },
     {
         path: 'niches/disabled',
-        loadComponent: () => import('./niches/disabled/niches-disabled.page').then(m => m.NichesDisabledPage)
+        loadComponent: () => import('./niche/disabled/niches-disabled.page').then(m => m.NichesDisabledPage)
     },
     {
         path: 'niches/module/:module/:section',
-        loadComponent: () => import('./niches/detail/niches-detail.page').then(m => m.NichesDetailPage)
+        loadComponent: () => import('./niche/detail/niches-detail.page').then(m => m.NichesDetailPage)
     },
     {
         path: 'niches/:id',
@@ -47,19 +43,19 @@ export const columbariumRoutes: Routes = [
     },
     {
         path: 'sales',
-        loadComponent: () => import('./sales/list/sales-list.page').then(m => m.SalesListPage)
+        loadComponent: () => import('./sale/list/sales-list.page').then(m => m.SalesListPage)
     },
     {
         path: 'sales/create',
-        loadComponent: () => import('./sales/create/sale-create.page').then(m => m.SaleCreatePage)
+        loadComponent: () => import('./sale/create/sale-create.page').then(m => m.SaleCreatePage)
     },
     {
         path: 'sales/:id',
-        loadComponent: () => import('./sales/detail/sale-detail.page').then(m => m.SaleDetailPage)
+        loadComponent: () => import('./sale/detail/sale-detail.page').then(m => m.SaleDetailPage)
     },
     {
         path: 'sales/:id/payment',
-        loadComponent: () => import('./sales/payment/payment-register.page').then(m => m.PaymentRegisterPage)
+        loadComponent: () => import('./sale/payment/payment-register.page').then(m => m.PaymentRegisterPage)
     },
     {
         path: 'stats',

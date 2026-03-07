@@ -29,6 +29,7 @@ export interface AmortizationEntry {
     amountPaid: number; // Cuanto se ha pagado de este pago
     amountRemaining: number; // Cuanto falta por pagar
     status: PaymentStatus;
+    payments?: PaymentApplication[]; // Pagos aplicados a esta cuota (poblado en detalle)
 }
 
 // Vínculo entre un Payment y una entrada del schedule (colección separada)

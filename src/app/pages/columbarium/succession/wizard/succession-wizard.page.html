@@ -107,8 +107,8 @@
               <strong>Sucesor elegible designado</strong>
               <p *ngIf="checkHasEligibleBeneficiary()" class="check-detail">
                 {{ eligibleBeneficiaries().length }} sucesor(es) elegible(s) ·
-                Próximo: <strong>{{ nextBeneficiary()?.name }}</strong>
-                ({{ getRelationshipLabel(nextBeneficiary()?.relationship ?? '') }}, orden {{ nextBeneficiary()?.order }})
+                Próximo: <strong>{{ nextBeneficiary().name }}</strong>
+                ({{ getRelationshipLabel(nextBeneficiary().relationship) }}, orden {{ nextBeneficiary().order }})
               </p>
               <p *ngIf="!checkHasEligibleBeneficiary()" class="check-hint danger">
                 No hay sucesores elegibles designados para este nicho.
@@ -254,26 +254,26 @@
           <ion-icon name="swap-horizontal-outline" class="arrow-icon"></ion-icon>
           <div class="person successor">
             <ion-icon name="person-outline"></ion-icon>
-            <span>{{ nextBeneficiary()?.name }}</span>
+            <span>{{ nextBeneficiary().name }}</span>
           </div>
         </div>
 
         <div class="field-row">
           <span class="field-label">Nombre</span>
-          <strong>{{ nextBeneficiary()?.name }}</strong>
+          <strong>{{ nextBeneficiary().name }}</strong>
         </div>
         <div class="field-row">
           <span class="field-label">Parentesco</span>
-          <span>{{ getRelationshipLabel(nextBeneficiary()?.relationship ?? '') }}</span>
+          <span>{{ getRelationshipLabel(nextBeneficiary().relationship) }}</span>
         </div>
         <div class="field-row">
           <span class="field-label">Orden de sucesión</span>
-          <ion-badge color="primary">{{ nextBeneficiary()?.order }}°</ion-badge>
+          <ion-badge color="primary">{{ nextBeneficiary().order }}°</ion-badge>
         </div>
         <div class="field-row">
           <span class="field-label">Acción en el sistema</span>
-          <ion-badge [color]="nextBeneficiary()?.linkedCustomer ? 'warning' : 'tertiary'">
-            {{ nextBeneficiary()?.linkedCustomer ? 'Reactivar cliente existente' : 'Crear nuevo cliente' }}
+          <ion-badge [color]="nextBeneficiary().linkedCustomer ? 'warning' : 'tertiary'">
+            {{ nextBeneficiary().linkedCustomer ? 'Reactivar cliente existente' : 'Crear nuevo cliente' }}
           </ion-badge>
         </div>
 
@@ -353,16 +353,16 @@
           <p class="section-label">NUEVO PROPIETARIO</p>
           <div class="field-row">
             <span class="field-label">Nombre</span>
-            <strong>{{ nextBeneficiary()?.name }}</strong>
+            <strong>{{ nextBeneficiary().name }}</strong>
           </div>
           <div class="field-row">
             <span class="field-label">Parentesco</span>
-            <span>{{ getRelationshipLabel(nextBeneficiary()?.relationship ?? '') }}</span>
+            <span>{{ getRelationshipLabel(nextBeneficiary().relationship) }}</span>
           </div>
           <div class="field-row">
             <span class="field-label">Acción</span>
-            <ion-badge [color]="nextBeneficiary()?.linkedCustomer ? 'warning' : 'tertiary'">
-              {{ nextBeneficiary()?.linkedCustomer ? 'Reactivar cliente' : 'Crear nuevo cliente' }}
+            <ion-badge [color]="nextBeneficiary().linkedCustomer ? 'warning' : 'tertiary'">
+              {{ nextBeneficiary().linkedCustomer ? 'Reactivar cliente' : 'Crear nuevo cliente' }}
             </ion-badge>
           </div>
         </div>

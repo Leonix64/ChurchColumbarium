@@ -54,7 +54,7 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
   progress = computed(() => {
     const s = this.sale();
     if (!s) return 0;
-    return this.saleService.calculateProgress(s.amortizationTable);
+    return this.saleService.calculateProgress(s.schedule);
   });
 
   // Usar totalPaid del backend
@@ -66,7 +66,7 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
   nextPendingPayment = computed(() => {
     const s = this.sale();
     if (!s) return null;
-    return s.amortizationTable.find(p =>
+    return s.schedule.find(p =>
       p.status === 'pending' || p.status === 'partial' || p.status === 'overdue'
     );
   });
@@ -87,13 +87,13 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
   paidPayments = computed(() => {
     const s = this.sale();
     if (!s) return 0;
-    return s.amortizationTable.filter(p => p.status === 'paid').length;
+    return s.schedule.filter(p => p.status === 'paid').length;
   });
 
   overduePayments = computed(() => {
     const s = this.sale();
     if (!s) return 0;
-    return s.amortizationTable.filter(p => p.status === 'overdue').length;
+    return s.schedule.filter(p => p.status === 'overdue').length;
   });
 
   constructor(
@@ -366,6 +366,6 @@ Progreso: ${this.progress()}%
 
   // ¿Tiene pagos aplicados?
   hasPayments(payment: AmortizationEntry): boolean {
-    return payment.payments && payment.payments.length > 0;
+    return !!(payment.payments && payment.payments.length > 0);
   }
 }

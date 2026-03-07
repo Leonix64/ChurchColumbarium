@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
   IonContent, IonCard, IonCardContent, IonIcon, IonBadge,
-  IonSpinner, IonNote, ModalController
+  IonSpinner, ModalController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -27,7 +27,7 @@ import { AuditLog } from '../../models/audit.model';
     CommonModule,
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
     IonContent, IonCard, IonCardContent, IonIcon, IonBadge,
-    IonSpinner, IonNote
+    IonSpinner
   ]
 })
 export class ResourceHistoryModalComponent implements OnInit {

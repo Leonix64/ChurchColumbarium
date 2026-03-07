@@ -2,8 +2,8 @@ import { Component, OnInit, Input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
-  IonContent, IonCard, IonCardContent, IonList, IonItem,
-  IonLabel, IonIcon, IonBadge, IonSpinner, IonNote,
+  IonContent, IonCard, IonCardContent,
+  IonIcon, IonBadge, IonSpinner, IonNote,
   ModalController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -25,8 +25,8 @@ import { NotificationService } from 'src/app/core/services/notification.service'
   imports: [
     CommonModule,
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
-    IonContent, IonCard, IonCardContent, IonList, IonItem,
-    IonLabel, IonIcon, IonBadge, IonSpinner, IonNote
+    IonContent, IonCard, IonCardContent,
+    IonIcon, IonBadge, IonSpinner, IonNote
   ]
 })
 export class OwnershipHistoryModalComponent implements OnInit {

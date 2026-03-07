@@ -1,62 +1,66 @@
-<app-header title="Clientes" [showSearch]="false" (addEvent)="goToCreate()"></app-header>
+<app-header title="Clientes"></app-header>
 
 <ion-content [fullscreen]="true">
-    <div class="search-section">
-        <ion-searchbar [value]="searchTerm()" (ionInput)="onSearch($event)" placeholder="Buscar por nombre o RFC"
-            debounce="500">
-        </ion-searchbar>
 
-        <ion-segment [value]="statusFilter()" (ionChange)="onFilterChange($event)">
-            <ion-segment-button value="all">
-                <ion-label>Todos</ion-label>
-            </ion-segment-button>
-            <ion-segment-button value="active">
-                <ion-label>Activos</ion-label>
-            </ion-segment-button>
-            <ion-segment-button value="inactive">
-                <ion-label>Inactivos</ion-label>
-            </ion-segment-button>
-        </ion-segment>
-    </div>
+  <div class="search-filter-bar">
+    <ion-searchbar
+      placeholder="Buscar cliente..."
+      (ionInput)="onSearch($event)"
+      [debounce]="300">
+    </ion-searchbar>
 
-    <!-- Loading -->
-    <div class="loading-container" *ngIf="loading()">
-        <ion-spinner name="crescent"></ion-spinner>
-        <p>Cargando clientes...</p>
-    </div>
+    <ion-segment [value]="statusFilter()" (ionChange)="onFilterChange($event)">
+      <ion-segment-button value="all">
+        <ion-label>Todos</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="active">
+        <ion-label>Activos</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="inactive">
+        <ion-label>Inactivos</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
 
-    <!-- Lista de clientes -->
-    <ion-list *ngIf="!loading() && filteredCustomers().length > 0">
-        <ion-item *ngFor="let customer of filteredCustomers(); trackBy: trackByFn" [button]="true" [detail]="true"
-            (click)="goToDetail(customer._id)">
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading()">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
 
-            <ion-avatar slot="start">
-                <ion-icon name="person-circle-outline"></ion-icon>
-            </ion-avatar>
+  <!-- Empty State -->
+  <app-empty-state
+    *ngIf="!loading() && filteredCustomers().length === 0"
+    icon="people-outline"
+    title="Sin clientes"
+    description="No se encontraron clientes">
+  </app-empty-state>
 
-            <ion-label>
-                <h2>{{ customer.firstName }} {{ customer.lastName }}</h2>
-                <p>{{ customer.phone }}</p>
-                <p *ngIf="customer.email">{{ customer.email }}</p>
-            </ion-label>
+  <!-- List -->
+  <ion-list *ngIf="!loading() && filteredCustomers().length > 0">
+    <ion-item
+      *ngFor="let customer of filteredCustomers(); trackBy: trackByFn"
+      button
+      detail="false"
+      (click)="goToDetail(customer._id)">
+      <ion-avatar slot="start">
+        <ion-icon name="person-circle-outline" class="avatar-icon"></ion-icon>
+      </ion-avatar>
+      <ion-label>
+        <h2>{{ customer.firstName }} {{ customer.lastName }}</h2>
+        <p>{{ customer.phone }}</p>
+        <p *ngIf="customer.rfc">RFC: {{ customer.rfc }}</p>
+      </ion-label>
+      <ion-badge slot="end" [color]="customer.active ? 'success' : 'medium'">
+        {{ customer.active ? 'Activo' : 'Inactivo' }}
+      </ion-badge>
+      <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+    </ion-item>
+  </ion-list>
 
-            <ion-badge slot="end" [color]="customer.active ? 'success' : 'medium'">
-                {{ customer.active ? 'Activo' : 'Inactivo'}}
-            </ion-badge>
-        </ion-item>
-    </ion-list>
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="goToCreate()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 
-    <!-- Estado vacio -->
-    <app-empty-state *ngIf="!loading() && filteredCustomers().length === 0" icon="people-outline"
-        [title]="searchTerm() ? 'No se encontraron clientes' : 'No hay clientes registrados'"
-        [message]="searchTerm() ? 'Intenta con otro termino de busqueda' : 'Comienza agregando tu primer cliente'"
-        [showButton]="!searchTerm()" buttonText="Agregar cliente" (action)="goToCreate()">
-    </app-empty-state>
-
-    <!-- FAB -->
-    <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-        <ion-fab-button (click)="goToCreate()">
-            <ion-icon name="add"></ion-icon>
-        </ion-fab-button>
-    </ion-fab>
 </ion-content>

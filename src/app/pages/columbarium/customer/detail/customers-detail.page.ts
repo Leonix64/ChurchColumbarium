@@ -222,7 +222,7 @@ export class CustomersDetailPage implements OnInit, ViewWillEnter {
   }
 
   getSaleProgress(sale: Sale): number {
-    return this.saleService.calculateProgress(sale.amortizationTable);
+    return this.saleService.calculateProgress(sale.schedule);
   }
 
   getSaleStatusColor(status: string): string {

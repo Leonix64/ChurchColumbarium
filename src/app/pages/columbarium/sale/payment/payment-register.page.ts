@@ -57,7 +57,7 @@ export class PaymentRegisterPage implements OnInit {
 
   /** Cuotas aún pendientes de cobro */
   pendingPayments = computed<AmortizationEntry[]>(() =>
-    this.sale?.amortizationTable.filter(
+    this.sale?.schedule.filter(
       p => p.status === 'pending' || p.status === 'partial' || p.status === 'overdue'
     ) ?? []
   );
@@ -114,7 +114,7 @@ export class PaymentRegisterPage implements OnInit {
   ngOnInit() {
     if (this.paymentNumber) {
       // Modo específico pre-seleccionado desde fuera
-      const entry = this.sale.amortizationTable.find(p => p.number === this.paymentNumber);
+      const entry = this.sale.schedule.find(p => p.number === this.paymentNumber);
       if (entry) {
         this.paymentMode.set('specific');
         this.specificPaymentNumber.set(this.paymentNumber);
@@ -122,7 +122,7 @@ export class PaymentRegisterPage implements OnInit {
       }
     } else {
       // Modo libre: pre-cargar monto del siguiente pendiente
-      const next = this.sale.amortizationTable.find(
+      const next = this.sale.schedule.find(
         p => p.status === 'pending' || p.status === 'partial'
       );
       if (next) this.amount.set(next.amountRemaining);
@@ -142,7 +142,7 @@ export class PaymentRegisterPage implements OnInit {
 
     // Pre-llenar monto con el saldo de esa cuota
     if (n) {
-      const entry = this.sale.amortizationTable.find(p => p.number === n);
+      const entry = this.sale.schedule.find(p => p.number === n);
       if (entry) this.amount.set(entry.amountRemaining);
     }
   }
@@ -209,6 +209,6 @@ export class PaymentRegisterPage implements OnInit {
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   getPaymentInfo(paymentNumber: number): AmortizationEntry | undefined {
-    return this.sale.amortizationTable.find(p => p.number === paymentNumber);
+    return this.sale.schedule.find(p => p.number === paymentNumber);
   }
 }
