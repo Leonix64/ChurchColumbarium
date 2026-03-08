@@ -26,7 +26,6 @@ import { HeaderComponent } from 'src/app/shared/components/header/header.compone
 import { EmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state.component';
 import { StatusBadgeComponent } from 'src/app/shared/components/status-badge/status-badge.component';
 import { CurrencyMxPipe } from 'src/app/shared/pipes/currency-mx.pipe';
-import { NicheDetailModalComponent } from '../../components/niche-detail-modal/niche-detail-modal.component';
 import { NichePriceModalComponent } from '../../components/niche-price-modal/niche-price-modal.component';
 import { NicheMaterialModalComponent } from '../../components/niche-material-modal/niche-material-modal.component';
 import { BulkMaterialModalComponent } from '../../components/bulk-material-modal/bulk-material-modal.component';
@@ -246,31 +245,12 @@ export class NichesManagePage implements OnInit {
 
   // === Modales ===
 
-  async openDetail(niche: Niche) {
+  openDetail(niche: Niche) {
     if (this.selectionMode()) {
       this.toggleSelection(niche._id);
       return;
     }
-
-    const modal = await this.modalCtrl.create({
-      component: NicheDetailModalComponent,
-      componentProps: { niche },
-      breakpoints: [0, 0.5, 0.8, 1],
-      initialBreakpoint: 0.8
-    });
-
-    await modal.present();
-
-    const { data } = await modal.onWillDismiss();
-    if (data?.action === 'sell') {
-      this.router.navigate(['/columbarium/sales/create'], {
-        queryParams: { nicheId: data.niche._id }
-      });
-    } else if (data?.action === 'viewInGrid') {
-      this.router.navigate(['/columbarium/niches/module', data.niche.module, data.niche.section], {
-        queryParams: { highlight: data.niche.code }
-      });
-    }
+    this.router.navigate(['/columbarium/niches', niche._id]);
   }
 
   async openPriceModal(niche: Niche) {

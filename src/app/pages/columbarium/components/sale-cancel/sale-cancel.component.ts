@@ -146,12 +146,9 @@ export class SaleCancelComponent implements OnInit {
       }
     }
 
-    console.log('Enviando datos de cancelación:', cancelData);
-
     // Cancelar venta
     this.saleService.cancelSale(this.sale._id, cancelData).subscribe({
       next: (response) => {
-        console.log('Respuesta del backend:', response);
         if (response.success) {
           this.notificationService.success('Venta cancelada exitosamente');
           this.modalCtrl.dismiss({
@@ -162,7 +159,6 @@ export class SaleCancelComponent implements OnInit {
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('Error completo:', error);
         this.loading.set(false);
 
         // Mostrar error específico del backend con más detalle

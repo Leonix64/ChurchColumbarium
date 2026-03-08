@@ -170,9 +170,20 @@ ion-content {
         }
       }
 
-      ion-progress-bar {
+      .segmented-bar {
         height: 8px;
         border-radius: 4px;
+        background: var(--ion-color-light-shade);
+        overflow: hidden;
+        display: flex;
+
+        .seg {
+          height: 100%;
+          transition: width 0.3s ease;
+        }
+
+        .seg-paid        { background: var(--ion-color-success); }
+        .seg-installments{ background: var(--ion-color-warning); }
       }
     }
   }

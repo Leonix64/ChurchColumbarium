@@ -134,11 +134,12 @@
               <span class="label">Saldo</span>
               <strong class="balance">{{ activeSale()?.balance | currencyMx }}</strong>
             </div>
-            <ion-progress-bar
-              class="sale-progress"
-              [value]="saleProgress() / 100"
-              [color]="saleProgress() === 100 ? 'success' : 'warning'">
-            </ion-progress-bar>
+            <div class="segmented-bar">
+              <div *ngIf="saleDownPaymentProgress() > 0" class="seg seg-paid"
+                [style.width.%]="saleDownPaymentProgress()"></div>
+              <div *ngIf="saleInstallmentsProgress() > 0" class="seg seg-installments"
+                [style.width.%]="saleInstallmentsProgress()"></div>
+            </div>
             <p class="progress-label">{{ saleProgress() }}% pagado</p>
             <ion-button expand="block" fill="outline" (click)="goToSale()">
               <ion-icon slot="start" name="document-text-outline"></ion-icon>

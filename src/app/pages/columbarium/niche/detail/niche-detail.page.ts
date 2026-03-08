@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
   IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton,
-  IonTitle, IonButton, IonIcon, IonBadge, IonSpinner, IonProgressBar,
+  IonTitle, IonButton, IonIcon, IonBadge, IonSpinner,
   IonCard, IonCardContent, IonCardHeader, IonCardTitle,
   IonList, IonItem, IonLabel,
   ModalController, ActionSheetController
@@ -48,7 +48,7 @@ import { OwnershipHistoryModalComponent } from '../../components/ownership-histo
   imports: [
     CommonModule,
     IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton,
-    IonTitle, IonButton, IonIcon, IonBadge, IonSpinner, IonProgressBar,
+    IonTitle, IonButton, IonIcon, IonBadge, IonSpinner,
     IonCard, IonCardContent, IonCardHeader, IonCardTitle,
     IonList, IonItem, IonLabel,
     EmptyStateComponent, CurrencyMxPipe,
@@ -99,7 +99,20 @@ export class NicheDetailPage implements OnInit, ViewWillEnter {
 
   saleProgress = computed(() => {
     const s = this.activeSale();
-    return s ? this.saleService.calculateProgress(s.schedule) : 0;
+    if (!s) return 0;
+    return this.saleService.calculateProgress(s);
+  });
+
+  saleDownPaymentProgress = computed(() => {
+    const s = this.activeSale();
+    if (!s) return 0;
+    return this.saleService.calculateDownPaymentProgress(s);
+  });
+
+  saleInstallmentsProgress = computed(() => {
+    const s = this.activeSale();
+    if (!s) return 0;
+    return this.saleService.calculateInstallmentsProgress(s);
   });
 
   isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');

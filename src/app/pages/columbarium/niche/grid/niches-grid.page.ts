@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonSearchbar, IonSegment, IonSegmentButton,
-  IonLabel, IonButton, IonIcon, IonSpinner, AlertController, ModalController
+  IonLabel, IonButton, IonIcon, IonSpinner, AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -16,7 +16,6 @@ import { NicheService } from '../../services/niche.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { HeaderComponent } from 'src/app/shared/components/header/header.component';
 import { EmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state.component';
-import { NicheDetailModalComponent } from '../../components/niche-detail-modal/niche-detail-modal.component';
 import { ModuleGroup, Niche } from '../../models/niche.model';
 
 
@@ -68,7 +67,6 @@ export class NichesGridPage implements OnInit {
   constructor(
     public notificationService: NotificationService,
     private nicheService: NicheService,
-    private modalCtrl: ModalController,
     private router: Router,
     private alertCtrl: AlertController
   ) {
@@ -135,7 +133,6 @@ export class NichesGridPage implements OnInit {
         loading.dismiss();
 
         if (response.success && response.data) {
-          // Abrir modal con detalle del nicho
           this.openNicheDetail(response.data);
         } else {
           this.notificationService.error('Nicho no encontrado');
@@ -148,45 +145,9 @@ export class NichesGridPage implements OnInit {
     });
   }
 
-  // Abrir modal con detalle
-  async openNicheDetail(niche: Niche) {
-    const modal = await this.modalCtrl.create({
-      component: NicheDetailModalComponent,
-      componentProps: {
-        niche: niche
-      },
-      breakpoints: [0, 0.5, 0.8, 1],
-      initialBreakpoint: 0.8,
-      cssClass: 'niche-detail-modal'
-    });
-
-    await modal.present();
-
-    const { data } = await modal.onWillDismiss();
-
-    if (data) {
-      if (data.action === 'viewInGrid') {
-        this.goToNicheInGrid(data.niche);
-      } else if (data.action === 'sell') {
-        this.goToSale(data.niche);
-      }
-    }
-  }
-
-  goToNicheInGrid(niche: Niche) {
-    this.router.navigate([
-      '/columbarium/niches/module',
-      niche.module,
-      niche.section,
-    ], {
-      queryParams: { highlight: niche.code }
-    });
-  }
-
-  goToSale(niche: Niche) {
-    this.router.navigate(['/columbarium/sales/create'], {
-      queryParams: { nicheId: niche._id }
-    });
+  // Navegar a la ficha del nicho
+  openNicheDetail(niche: Niche) {
+    this.router.navigate(['/columbarium/niches', niche._id]);
   }
 
   onFilterChange(event: any) {

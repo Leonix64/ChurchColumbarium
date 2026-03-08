@@ -13,6 +13,9 @@
       <ion-segment-button value="active">
         <ion-label>Activas</ion-label>
       </ion-segment-button>
+      <ion-segment-button value="overdue">
+        <ion-label>Vencidas</ion-label>
+      </ion-segment-button>
       <ion-segment-button value="paid">
         <ion-label>Pagadas</ion-label>
       </ion-segment-button>
@@ -77,9 +80,12 @@
             <span class="progress-label">Progreso de pagos</span>
             <span class="progress-percentage">{{ getProgress(sale) }}%</span>
           </div>
-          <ion-progress-bar [value]="getProgress(sale) / 100"
-            [color]="getProgress(sale) === 100 ? 'success' : 'warning'">
-          </ion-progress-bar>
+          <div class="segmented-bar">
+            <div *ngIf="getDownPaymentProgress(sale) > 0" class="seg seg-paid"
+              [style.width.%]="getDownPaymentProgress(sale)"></div>
+            <div *ngIf="getInstallmentsProgress(sale) > 0" class="seg seg-installments"
+              [style.width.%]="getInstallmentsProgress(sale)"></div>
+          </div>
         </div>
       </ion-card-content>
     </ion-card>

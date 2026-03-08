@@ -107,10 +107,45 @@
       }
     }
 
-    ion-progress-bar {
+    .segmented-bar {
       height: 12px;
       border-radius: 6px;
+      background: var(--ion-color-light-shade);
+      overflow: hidden;
+      display: flex;
       margin-bottom: 8px;
+
+      .seg {
+        height: 100%;
+        transition: width 0.3s ease;
+      }
+
+      .seg-paid        { background: var(--ion-color-success); }
+      .seg-installments{ background: var(--ion-color-warning); }
+    }
+
+    .progress-legend {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 8px;
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        color: var(--ion-color-medium);
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .dot-paid { background: var(--ion-color-success); }
+      .dot-inst { background: var(--ion-color-warning); }
     }
 
     .progress-stats {

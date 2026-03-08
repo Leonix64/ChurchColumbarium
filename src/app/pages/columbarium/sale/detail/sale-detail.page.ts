@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import {
   IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton,
   IonTitle, IonButton, IonIcon, IonCard, IonCardHeader, IonCardContent,
-  IonCardTitle, IonBadge, IonProgressBar, IonSpinner, IonList,
+  IonCardTitle, IonBadge, IonSpinner, IonList,
   IonItem, IonLabel, ModalController, ActionSheetController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -37,7 +37,7 @@ import { ResourceHistoryModalComponent } from '../../components/resource-history
     CommonModule,
     IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton,
     IonTitle, IonButton, IonIcon, IonCard, IonCardHeader, IonCardContent,
-    IonCardTitle, IonBadge, IonProgressBar, IonSpinner, IonList,
+    IonCardTitle, IonBadge, IonSpinner, IonList,
     IonItem, IonLabel,
     EmptyStateComponent, CurrencyMxPipe
   ]
@@ -54,7 +54,19 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
   progress = computed(() => {
     const s = this.sale();
     if (!s) return 0;
-    return this.saleService.calculateProgress(s.schedule);
+    return this.saleService.calculateProgress(s);
+  });
+
+  downPaymentProgress = computed(() => {
+    const s = this.sale();
+    if (!s) return 0;
+    return this.saleService.calculateDownPaymentProgress(s);
+  });
+
+  installmentsProgress = computed(() => {
+    const s = this.sale();
+    if (!s) return 0;
+    return this.saleService.calculateInstallmentsProgress(s);
   });
 
   // Usar totalPaid del backend
@@ -289,7 +301,7 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
   }
 
   printContract() {
-    this.notificationService.error('Funcionalidad en desarrollo');
+    this.notificationService.warning('Próximamente disponible');
   }
 
   shareSale() {
@@ -366,6 +378,6 @@ Progreso: ${this.progress()}%
 
   // ¿Tiene pagos aplicados?
   hasPayments(payment: AmortizationEntry): boolean {
-    return !!(payment.payments && payment.payments.length > 0);
+    return !!payment.payments?.length;
   }
 }

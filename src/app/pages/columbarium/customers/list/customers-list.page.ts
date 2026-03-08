@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
+import { ViewWillEnter } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -27,7 +28,7 @@ import { Customer } from '../../models/customer.model';
     HeaderComponent, EmptyStateComponent
   ]
 })
-export class CustomersListPage implements OnInit {
+export class CustomersListPage implements OnInit, ViewWillEnter {
   loading = signal(true);
   searchTerm = signal('');
   statusFilter = signal<'all' | 'active' | 'inactive'>('all');
@@ -63,6 +64,10 @@ export class CustomersListPage implements OnInit {
 
   ngOnInit() {
     this.loadCustomers();
+  }
+
+  ionViewWillEnter() {
+    this.customerService.getAll().subscribe();
   }
 
   loadCustomers() {

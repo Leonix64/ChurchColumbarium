@@ -60,8 +60,20 @@
             <span class="progress-label">Progreso de Pagos</span>
             <span class="progress-percentage">{{ progress() }}%</span>
           </div>
-          <ion-progress-bar [value]="progress() / 100" [color]="progress() === 100 ? 'success' : 'warning'">
-          </ion-progress-bar>
+          <div class="segmented-bar">
+            <div *ngIf="downPaymentProgress() > 0" class="seg seg-paid"
+              [style.width.%]="downPaymentProgress()"></div>
+            <div *ngIf="installmentsProgress() > 0" class="seg seg-installments"
+              [style.width.%]="installmentsProgress()"></div>
+          </div>
+          <div class="progress-legend">
+            <span class="legend-item">
+              <span class="dot dot-paid"></span>Enganche {{ downPaymentProgress() }}%
+            </span>
+            <span class="legend-item">
+              <span class="dot dot-inst"></span>Mensualidades {{ installmentsProgress() }}%
+            </span>
+          </div>
           <div class="progress-stats">
             <span>{{ paidPayments() }} pagados</span>
             <span>{{ sale()!.monthsToPay - paidPayments() }} pendientes</span>
@@ -244,11 +256,17 @@
           <p *ngIf="sale()?.cancellationInfo?.reason">
             <strong>Motivo:</strong> {{ sale()?.cancellationInfo?.reason }}
           </p>
-          <p *ngIf="sale()?.cancellationInfo?.refundAmount">
-            <strong>Reembolso:</strong> {{ sale()?.cancellationInfo?.refundAmount | currencyMx }}
-          </p>
           <p *ngIf="sale()?.cancellationInfo?.cancelledAt">
             <strong>Fecha:</strong> {{ sale()?.cancellationInfo?.cancelledAt | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+          <p *ngIf="sale()?.refund?.amount">
+            <strong>Reembolso:</strong> {{ sale()?.refund?.amount | currencyMx }}
+          </p>
+          <p *ngIf="sale()?.refund?.method">
+            <strong>Método:</strong> {{ sale()?.refund?.method }}
+          </p>
+          <p *ngIf="sale()?.refund?.receiptNumber">
+            <strong>Recibo:</strong> {{ sale()?.refund?.receiptNumber }}
           </p>
         </ion-card-content>
       </ion-card>

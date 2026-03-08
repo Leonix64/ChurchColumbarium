@@ -1,8 +1,4 @@
 import { Routes } from "@angular/router";
-import { CustomersListPage } from "./customers/list/customers-list.page";
-import { CustomersDetailPage } from "./customers/detail/customers-detail.page";
-import { StatsPage } from "./stats/stats.page";
-import { AuditListPage } from "./audit/audit-list.page";
 
 export const columbariumRoutes: Routes = [
     {
@@ -52,10 +48,6 @@ export const columbariumRoutes: Routes = [
     {
         path: 'sales/:id',
         loadComponent: () => import('./sale/detail/sale-detail.page').then(m => m.SaleDetailPage)
-    },
-    {
-        path: 'sales/:id/payment',
-        loadComponent: () => import('./sale/payment/payment-register.page').then(m => m.PaymentRegisterPage)
     },
     {
         path: 'stats',

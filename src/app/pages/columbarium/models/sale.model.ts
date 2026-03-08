@@ -16,6 +16,15 @@ export interface Sale {
     status: SaleStatus;
     schedule: AmortizationEntry[];
     cancellationInfo?: CancellationInfo; // Info de cancelacion
+    refund?: {
+        _id: string;
+        amount: number;
+        method: string;
+        reason: string;
+        refundDate: string;
+        status: string;
+        receiptNumber: string;
+    } | null;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -64,7 +73,7 @@ export interface PaymentApplication {
     paidOn: Date;
 }
 
-export type PaymentStatus = 'pending' | 'partial' | 'paid' | 'overdue';
+export type PaymentStatus = 'pending' | 'partial' | 'paid' | 'paid_late' | 'overdue';
 
 // Info de cancelacion
 export interface CancellationInfo {

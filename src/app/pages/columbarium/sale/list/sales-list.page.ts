@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
+import { ViewWillEnter } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,7 +8,7 @@ import {
   IonSearchbar, IonSegment, IonSegmentButton,
   IonSpinner, IonFab, IonFabButton, IonIcon,
   IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-  IonProgressBar, IonNote
+  IonNote
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -35,14 +36,14 @@ import { CurrencyMxPipe } from 'src/app/shared/pipes/currency-mx.pipe';
     IonSearchbar, IonSegment, IonSegmentButton,
     IonFab, IonFabButton, IonIcon,
     IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-    IonProgressBar, IonNote,
+    IonNote,
     HeaderComponent, EmptyStateComponent, CurrencyMxPipe
   ]
 })
-export class SalesListPage implements OnInit {
+export class SalesListPage implements OnInit, ViewWillEnter {
   loading = signal(true);
   searchTerm = signal('');
-  statusFilter = signal<'all' | 'active' | 'paid' | 'cancelled'>('all');
+  statusFilter = signal<'all' | 'active' | 'paid' | 'cancelled' | 'overdue'>('all');
 
   sales = this.saleService.sales;
 
@@ -87,6 +88,10 @@ export class SalesListPage implements OnInit {
     this.loadSales();
   }
 
+  ionViewWillEnter() {
+    this.saleService.getAll().subscribe();
+  }
+
   loadSales() {
     this.loading.set(true);
     this.saleService.getAll().subscribe({
@@ -125,7 +130,15 @@ export class SalesListPage implements OnInit {
   }
 
   getProgress(sale: Sale): number {
-    return this.saleService.calculateProgress(sale.schedule);
+    return this.saleService.calculateProgress(sale);
+  }
+
+  getDownPaymentProgress(sale: Sale): number {
+    return this.saleService.calculateDownPaymentProgress(sale);
+  }
+
+  getInstallmentsProgress(sale: Sale): number {
+    return this.saleService.calculateInstallmentsProgress(sale);
   }
 
   // Safe access para customer y niche

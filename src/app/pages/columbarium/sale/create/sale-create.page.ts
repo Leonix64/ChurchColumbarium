@@ -242,9 +242,9 @@ export class SaleCreatePage implements OnInit, CanDeactivateWizard {
     // El backend valida ≥3 beneficiarios activos al crear la venta.
     // Por eso: 1) guardar beneficiarios → 2) crear venta → 3) navegar.
 
-    const validBenefs = this.pendingBeneficiaries().filter(
-      b => (b.name?.trim().length ?? 0) >= 3 && !!b.relationship
-    );
+    const validBenefs = this.pendingBeneficiaries()
+      .filter(b => (b.name?.trim().length ?? 0) >= 3 && !!b.relationship)
+      .map((b, i) => ({ ...b, order: b.order ?? i + 1 }));
 
     this.beneficiaryService.updateByNiche(niche._id, validBenefs).subscribe({
       next: () => {
@@ -262,10 +262,14 @@ export class SaleCreatePage implements OnInit, CanDeactivateWizard {
               this.submitting.set(false);
             }
           },
-          error: () => this.submitting.set(false)
+          error: (err) => {
+            console.error('Venta error:', err);
+            this.submitting.set(false);
+          }
         });
       },
-      error: () => {
+      error: (err) => {
+        console.error('Beneficiarios error:', err);
         this.notificationService.error('Error al guardar los sucesores. Verifica los datos.');
         this.submitting.set(false);
       }

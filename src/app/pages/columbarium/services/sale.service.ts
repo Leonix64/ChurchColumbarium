@@ -123,43 +123,44 @@ export class SaleService {
   // Colores de estado de pago
   getPaymentStatusColor(status: string): string {
     switch (status) {
-      case 'pending':
-        return 'warning';
-      case 'partial':
-        return 'warning';
-      case 'paid':
-        return 'success';
-      case 'overdue':
-        return 'danger';
-      default:
-        return 'medium';
+      case 'paid':      return 'success';
+      case 'paid_late': return 'tertiary';
+      case 'partial':   return 'warning';
+      case 'pending':   return 'warning';
+      case 'overdue':   return 'danger';
+      default:          return 'medium';
     }
   }
 
   // Labels de estado de pago
   getPaymentStatusLabel(status: string): string {
     switch (status) {
-      case 'pending':
-        return 'Pendiente';
-      case 'partial':
-        return 'Parcial';
-      case 'paid':
-        return 'Pagado';
-      case 'overdue':
-        return 'Vencido';
-      default:
-        return status;
+      case 'paid':      return 'Pagada';
+      case 'paid_late': return 'Pagada tarde';
+      case 'partial':   return 'Parcial';
+      case 'pending':   return 'Pendiente';
+      case 'overdue':   return 'Vencida';
+      default:          return status;
     }
   }
 
-  // Calcular progreso de pago
-  calculateProgress(schedule: AmortizationEntry[]): number {
-    if (!schedule || schedule.length === 0) return 0;
+  // Progreso total: totalPaid / totalAmount
+  calculateProgress(sale: Sale): number {
+    if (!sale?.totalAmount) return 0;
+    return Math.round((sale.totalPaid / sale.totalAmount) * 100);
+  }
 
-    const total = schedule.length;
-    const paid = schedule.filter(p => p.status === 'paid').length;
+  // Porción del enganche sobre el total (ancho del segmento en la barra)
+  calculateDownPaymentProgress(sale: Sale): number {
+    if (!sale?.totalAmount) return 0;
+    return Math.round((Math.min(sale.totalPaid, sale.downPayment) / sale.totalAmount) * 100);
+  }
 
-    return Math.round((paid / total) * 100);
+  // Porción de mensualidades pagadas sobre el total (ancho del segmento en la barra)
+  calculateInstallmentsProgress(sale: Sale): number {
+    if (!sale?.totalAmount) return 0;
+    const installmentsPaid = Math.max(0, sale.totalPaid - sale.downPayment);
+    return Math.round((installmentsPaid / sale.totalAmount) * 100);
   }
 
   // Calcular total pagado desde schedule

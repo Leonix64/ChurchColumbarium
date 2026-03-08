@@ -6,7 +6,7 @@ import {
   IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
   IonButton, IonIcon, IonContent, IonList, IonListHeader,
   IonLabel, IonItem, IonInput, IonTextarea, IonText,
-  IonSpinner, IonNote
+  IonSpinner
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { checkmarkOutline } from 'ionicons/icons';
@@ -14,7 +14,6 @@ import { checkmarkOutline } from 'ionicons/icons';
 import { CustomerService } from '../../services/customer.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { Customer } from '../../models/customer.model';
-import { Beneficiary } from '../../models/beneficiary.model';
 
 @Component({
   selector: 'app-customers-form',
@@ -26,7 +25,7 @@ import { Beneficiary } from '../../models/beneficiary.model';
     IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
     IonButton, IonIcon, IonContent, IonList, IonListHeader,
     IonLabel, IonItem, IonInput, IonTextarea, IonText,
-    IonSpinner, IonNote, FormsModule,
+    IonSpinner, FormsModule,
   ]
 })
 export class CustomersFormPage implements OnInit {
@@ -58,7 +57,6 @@ export class CustomersFormPage implements OnInit {
         phone: ['', [Validators.pattern(/^[0-9]{10}$/)]],
         relationship: ['']
       }),
-      beneficiariesText: [''] // Campo temporal para input
     });
   }
 
@@ -107,7 +105,6 @@ export class CustomersFormPage implements OnInit {
         phone: customer.emergencyContact?.phone || '',
         relationship: customer.emergencyContact?.relationship || ''
       },
-      beneficiariesText: customer.beneficiaries?.map(b => typeof b === 'string' ? b : b.name).join(', ') || ''
     });
   }
 
@@ -154,7 +151,6 @@ export class CustomersFormPage implements OnInit {
         phone: formValue.emergencyContact.phone.trim(),
         relationship: formValue.emergencyContact.relationship.trim()
       } : undefined,
-      beneficiaries: this.parseBeneficiaries(formValue.beneficiariesText)
     };
 
     // Crear o actualizar
@@ -188,22 +184,6 @@ export class CustomersFormPage implements OnInit {
   hasEmergencyContact(): boolean {
     const ec = this.customerForm.value.emergencyContact;
     return !!(ec.name || ec.phone || ec.relationship);
-  }
-
-  // Parsear beneficiarios desde texto
-  parseBeneficiaries(text: string): Beneficiary[] | undefined {
-    if (!text || !text.trim()) return undefined;
-
-    return text
-      .split(',')
-      .map(b => b.trim())
-      .filter(b => b.length > 0)
-      .map((name, index) => ({
-        name,
-        relationship: 'otro',
-        order: index + 1,
-        isDeceased: false
-      }));
   }
 
   // Cancelar y volver
