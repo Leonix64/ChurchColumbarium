@@ -1,13 +1,14 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonButton, IonIcon, IonContent, IonBadge, IonSpinner, ActionSheetController, ModalController, IonProgressBar, IonCardContent, IonCard } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonButton, IonIcon, IonContent, IonBadge, IonSpinner, ModalController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  ellipsisVertical, personCircle, call, location, medkit,
-  people, informationCircle, createOutline, closeCircleOutline,
-  checkmarkCircleOutline, alertCircleOutline, person, shareOutline,
-  trashOutline, timeOutline
+  call, location, medkit, people,
+  createOutline, closeCircleOutline, checkmarkCircleOutline,
+  alertCircleOutline, shareOutline, timeOutline,
+  documentTextOutline, cashOutline, cubeOutline,
+  cartOutline, mailOutline, informationCircle
 } from 'ionicons/icons';
 
 import { CustomerService } from '../../services/customer.service';
@@ -31,10 +32,7 @@ import { ResourceHistoryModalComponent } from '../../components/resource-history
     IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
     IonButton, IonIcon, IonContent, IonBadge, IonSpinner,
     EmptyStateComponent,
-    CurrencyMxPipe,
-    IonProgressBar,
-    IonCardContent,
-    IonCard
+    CurrencyMxPipe
   ]
 })
 export class CustomersDetailPage implements OnInit {
@@ -45,20 +43,22 @@ export class CustomersDetailPage implements OnInit {
   loading = signal(true);
   customerId: string | null = null;
 
+  activeTab = signal<'info' | 'compras' | 'sistema'>('info');
+
   constructor(
     private customerService: CustomerService,
     private notificationService: NotificationService,
-    private actionSheetCtrl: ActionSheetController,
     private saleService: SaleService,
     private modalCtrl: ModalController,
     private router: Router,
     private route: ActivatedRoute,
   ) {
     addIcons({
-      ellipsisVertical, personCircle, call, location, medkit,
-      people, informationCircle, createOutline, closeCircleOutline,
-      checkmarkCircleOutline, alertCircleOutline, person, shareOutline,
-      trashOutline, timeOutline
+      call, location, medkit, people,
+      createOutline, closeCircleOutline, checkmarkCircleOutline,
+      alertCircleOutline, shareOutline, timeOutline,
+      documentTextOutline, cashOutline, cubeOutline,
+      cartOutline, mailOutline, informationCircle
     });
   }
 
@@ -124,42 +124,6 @@ export class CustomersDetailPage implements OnInit {
       // Recargar info del cliente si es necesario
       this.notificationService.success('Pago registrado');
     }
-  }
-
-  async presentActionSheet() {
-    const actionSheet = await this.actionSheetCtrl.create({
-      header: 'Acciones',
-      buttons: [
-        {
-          text: 'Editar',
-          icon: 'create-outline',
-          handler: () => this.goToEdit()
-        },
-        {
-          text: this.customer()?.active ? 'Desactivar' : 'Activar',
-          icon: this.customer()?.active ? 'close-circle-outline' : 'checkmark-circle-outline',
-          role: this.customer()?.active ? 'destructive' : undefined,
-          handler: () => this.toggleActiveStatus()
-        },
-        {
-          text: 'Ver Historial',
-          icon: 'time-outline',
-          handler: () => this.openResourceHistory()
-        },
-        {
-          text: 'Compartir',
-          icon: 'share-outline',
-          handler: () => this.shareCustomer()
-        },
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          icon: 'close-circle-outline'
-        }
-      ]
-    });
-
-    await actionSheet.present();
   }
 
   async openResourceHistory() {
@@ -247,7 +211,7 @@ export class CustomersDetailPage implements OnInit {
   }
 
   getSaleProgress(sale: Sale): number {
-    return this.saleService.calculateProgress(sale.schedule);
+    return this.saleService.calculateProgress(sale);
   }
 
   getSaleStatusColor(status: string): string {
@@ -266,7 +230,6 @@ export class CustomersDetailPage implements OnInit {
   goToCustomerNiches() {
     // Mostrar lista de nichos del cliente y permitir ver detalles
     const nicheIds = this.customerSales().map(s => (s.niche as Niche)._id);
-    console.log(nicheIds);
     // Navegar a una vista filtrada o mostrar modal selector
   }
 }

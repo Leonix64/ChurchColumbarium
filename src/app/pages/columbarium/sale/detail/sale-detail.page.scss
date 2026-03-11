@@ -1,553 +1,1051 @@
-.detail-content {
-  --background: var(--ion-background-color);
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap");
+
+// ── Palette ─────────────────────────────────────────────────────────────────
+:host {
+  --bg: #f3efe9;
+  --surface: #ffffff;
+  --surface-2: #ebe3da;
+  --primary: #4c3a70ab;
+  --accent: #b79c5a;
+  --border: #ddd4c9;
+  --text: #2a2530;
+  --text-dim: #6f6764;
+  --success: #587c67;
+  --warning: #c69a39;
+  --danger: #b75454;
 }
 
-.loading-container {
+// ── Content ──────────────────────────────────────────────────────────────────
+.sd-content {
+  --background: var(--bg);
+  font-family: "DM Sans", sans-serif;
+  color: var(--text);
+}
+
+// ── Loading ──────────────────────────────────────────────────────────────────
+.sd-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 300px;
   gap: 16px;
+  color: var(--text-dim);
 
   ion-spinner {
-    --color: var(--ion-color-primary);
+    --color: var(--accent);
   }
-
   p {
-    color: var(--ion-color-medium);
     margin: 0;
+    font-size: 0.9rem;
   }
 }
 
-.sale-wrapper {
-  padding: 16px;
-  max-width: 900px;
-  margin: 0 auto;
+// ── Two-column layout ─────────────────────────────────────────────────────────
+.sd-layout {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
 }
 
-// Summary Card
-.summary-card {
-  margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+.sd-sidebar {
+  width: 340px;
+  flex-shrink: 0;
+  height: 100%;
+  overflow-y: auto;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-  .header-row {
+// Folio + badge
+.sd-identity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+
+  .sd-folio-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    ion-icon {
+      font-size: 1.5rem;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .sd-folio {
+      font-family: "DM Mono", monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .sd-folio-date {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+  }
+}
+
+// Status badge
+.sd-status-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &.active {
+    background: rgba(71, 140, 128, 0.2);
+    color: var(--accent);
+  }
+  &.paid {
+    background: rgba(76, 175, 125, 0.2);
+    color: var(--success);
+  }
+  &.overdue {
+    background: rgba(224, 82, 82, 0.2);
+    color: var(--danger);
+  }
+  &.cancelled {
+    background: rgba(141, 185, 178, 0.1);
+    color: var(--text-dim);
+  }
+}
+
+// Clickable blocks (customer / niche)
+.sd-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+
+  &.sd-block-link {
+    cursor: pointer;
+    transition: background 0.2s ease;
+    &:hover {
+      background: rgba(71, 140, 128, 0.18);
+    }
+  }
+
+  .sd-block-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    min-width: 60px;
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 0.9rem;
+      color: var(--accent);
+    }
+  }
+
+  .sd-block-value {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    .sd-block-sub {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: var(--text-dim);
+      margin-top: 2px;
+      white-space: normal;
+    }
+  }
+
+  .sd-block-arrow {
+    font-size: 1rem;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+}
+
+// Financial meta
+.sd-finance {
+  background: var(--surface-2);
+  border-radius: 10px;
+  overflow: hidden;
+
+  .sd-finance-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(43, 95, 83, 0.5);
 
-    ion-card-title {
-      font-size: 20px;
-      font-weight: 600;
+    &:last-child {
+      border-bottom: none;
+    }
+    &.highlight {
+      background: rgba(240, 165, 0, 0.06);
     }
 
-    ion-badge {
-      font-size: 12px;
+    .sd-finance-label {
+      font-size: 0.63rem;
       font-weight: 700;
-      padding: 6px 14px;
-    }
-  }
-
-  .financial-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-
-    .financial-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      padding: 12px;
-      border-radius: 8px;
-      background: var(--ion-color-light);
-
-      &.highlight {
-        background: rgba(var(--ion-color-warning-rgb), 0.1);
-        border: 2px solid var(--ion-color-warning);
-      }
-
-      .label {
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--ion-color-medium);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .value {
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--ion-color-dark);
-
-        &.success {
-          color: var(--ion-color-success);
-        }
-      }
-    }
-  }
-
-  .progress-section {
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-
-      .progress-label {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--ion-color-dark);
-      }
-
-      .progress-percentage {
-        font-size: 18px;
-        font-weight: 700;
-        color: var(--ion-color-primary);
-      }
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    .segmented-bar {
-      height: 12px;
-      border-radius: 6px;
-      background: var(--ion-color-light-shade);
-      overflow: hidden;
-      display: flex;
-      margin-bottom: 8px;
+    .sd-finance-value {
+      font-family: "DM Mono", monospace;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
 
-      .seg {
-        height: 100%;
-        transition: width 0.3s ease;
+      &.success {
+        color: var(--success);
       }
-
-      .seg-paid        { background: var(--ion-color-success); }
-      .seg-installments{ background: var(--ion-color-warning); }
-    }
-
-    .progress-legend {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 8px;
-
-      .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 12px;
-        color: var(--ion-color-medium);
-      }
-
-      .dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        flex-shrink: 0;
-      }
-
-      .dot-paid { background: var(--ion-color-success); }
-      .dot-inst { background: var(--ion-color-warning); }
-    }
-
-    .progress-stats {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      color: var(--ion-color-medium);
-
-      .overdue {
-        color: var(--ion-color-danger);
-        font-weight: 600;
+      &.warning {
+        color: var(--warning);
       }
     }
   }
 }
 
-// Info Cards
-.info-card {
-  margin-bottom: 16px;
+// Progress block
+.sd-progress-block {
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 11px 12px;
+
+  .sd-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+
+    .sd-progress-pct {
+      font-family: "DM Mono", monospace;
+      font-size: 0.92rem;
+      color: var(--accent);
+      text-transform: none;
+    }
+  }
+
+  .sd-seg-bar {
+    height: 7px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    display: flex;
+    margin-bottom: 7px;
+
+    .sd-seg-dp {
+      background: var(--success);
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+    .sd-seg-inst {
+      background: var(--warning);
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+  }
+
+  .sd-progress-legend {
+    display: flex;
+    gap: 12px;
+    font-size: 0.67rem;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+
+    span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .sd-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .sd-dot-dp {
+      background: var(--success);
+    }
+    .sd-dot-inst {
+      background: var(--warning);
+    }
+  }
+
+  .sd-progress-stats {
+    display: flex;
+    gap: 10px;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+
+    .overdue {
+      color: var(--danger);
+      font-weight: 600;
+    }
+  }
+}
+
+// Next payment
+.sd-next-payment {
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    rgba(30, 45, 40, 0.9) 100%
+  );
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 11px 12px;
+
+  .sd-next-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 7px;
+  }
+
+  .sd-next-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .sd-next-num {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .sd-next-date {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .sd-next-amount {
+    font-family: "DM Mono", monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+}
+
+// Status info (paid)
+.sd-status-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  ion-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  &.sd-paid {
+    background: rgba(76, 175, 125, 0.1);
+    color: var(--success);
+    border: 1px solid rgba(76, 175, 125, 0.3);
+  }
+}
+
+// Cancelled info
+.sd-cancelled-info {
+  background: rgba(224, 82, 82, 0.07);
+  border: 1px solid rgba(224, 82, 82, 0.3);
+  border-radius: 10px;
+  padding: 11px 12px;
+
+  .sd-cancelled-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--danger);
+    margin-bottom: 9px;
+
+    ion-icon {
+      font-size: 1.1rem;
+    }
+  }
+
+  .sd-cancelled-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(224, 82, 82, 0.15);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      font-weight: 700;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .val {
+      font-size: 0.78rem;
+      color: var(--text);
+      font-weight: 600;
+      text-align: right;
+    }
+  }
+}
+
+// Quick action buttons
+.sd-quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 2px;
+}
+
+.sd-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  border: none;
+  font-size: 0.87rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: "DM Sans", sans-serif;
+  transition: opacity 0.2s ease;
+
+  ion-icon {
+    font-size: 1.1rem;
+  }
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &.sd-action-pay {
+    background: var(--primary);
+    color: var(--text);
+  }
+
+  &.sd-action-cancel {
+    background: rgba(224, 82, 82, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(224, 82, 82, 0.3);
+  }
+}
+
+// ── Main area ─────────────────────────────────────────────────────────────────
+.sd-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+// Tab bar
+.sd-tab-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 16px 0;
+  background: var(--bg);
+  border-bottom: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sd-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.83rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    background 0.2s;
+  font-family: "DM Sans", sans-serif;
+  white-space: nowrap;
+
+  ion-icon {
+    font-size: 0.95rem;
+  }
+
+  &.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+    background: rgba(71, 140, 128, 0.07);
+  }
+
+  &.sd-tab-danger.active {
+    color: var(--danger);
+    border-bottom-color: var(--danger);
+    background: rgba(224, 82, 82, 0.05);
+  }
+
+  &:hover:not(.active) {
+    color: var(--text);
+    background: rgba(71, 140, 128, 0.04);
+  }
+}
+
+// Tab panels
+.sd-tab-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+// ── Amortization list ─────────────────────────────────────────────────────────
+.sd-amort-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payment-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.sd-payment-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: rgba(71, 140, 128, 0.35);
   }
 
-  ion-card-header {
-    padding: 16px 16px 8px 16px;
+  &.paid {
+    background: rgba(76, 175, 125, 0.07);
+  }
+  &.partial {
+    border-color: var(--warning);
+  }
+  &.overdue {
+    background: rgba(224, 82, 82, 0.07);
+    border-color: var(--danger);
+  }
 
-    .card-header-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+  &.next-payment {
+    background: rgba(48, 110, 97, 0.18);
+    border-color: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
 
-      .header-icon {
-        font-size: 24px;
-        color: var(--ion-color-primary);
+  .sd-pay-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-width: 42px;
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 1.4rem;
+
+      &.status-icon.status-paid {
+        color: var(--success);
       }
-
-      h2 {
-        font-size: 16px;
-        font-weight: 600;
-        margin: 0;
-        color: var(--ion-color-dark);
+      &.status-icon.status-overdue {
+        color: var(--danger);
+      }
+      &.status-icon.status-pending,
+      &.status-icon.status-partial {
+        color: var(--text-dim);
       }
     }
-  }
 
-  ion-card-content {
-    padding: 8px 16px 16px 16px;
-
-    h3 {
-      font-size: 18px;
+    .sd-pay-num {
+      font-family: "DM Mono", monospace;
+      font-size: 0.63rem;
       font-weight: 700;
-      margin: 0 0 8px 0;
-      color: var(--ion-color-dark);
-    }
-
-    p {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      color: var(--ion-color-medium);
-      margin: 4px 0;
-
-      ion-icon {
-        font-size: 16px;
-      }
-
-      .niche-icon {
-        font-size: 18px;
-      }
+      color: var(--text-dim);
     }
   }
-}
 
-// Amortization Card con expandibles
-.amortization-card {
-  margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  .sd-pay-info {
+    flex: 1;
+    min-width: 0;
 
-  ion-card-header {
-    ion-card-title {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 18px;
+    .sd-pay-title {
+      font-size: 0.87rem;
       font-weight: 600;
-
-      ion-icon {
-        font-size: 24px;
-      }
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .sd-pay-date {
+      font-size: 0.73rem;
+      color: var(--text-dim);
+    }
+    .sd-pay-partial {
+      font-size: 0.7rem;
+      color: var(--warning);
+      font-weight: 600;
+      margin-top: 2px;
     }
   }
 
-  .amortization-list {
-    background: transparent;
-    padding: 0;
+  .sd-pay-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
 
-    .payment-wrapper {
-      margin-bottom: 12px;
+    .sd-pay-amount {
+      font-family: "DM Mono", monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
 
-      ion-item {
-        --padding-start: 16px;
-        --padding-end: 16px;
-        --inner-padding-end: 0;
-        border-radius: 8px;
-        border: 2px solid transparent;
-        transition: all 0.2s ease;
+    .sd-pay-badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
 
-        &.paid {
-          background: rgba(var(--ion-color-success-rgb), 0.05);
-        }
-
-        &.partial {
-          background: rgba(var(--ion-color-warning-rgb), 0.05);
-          border-color: var(--ion-color-warning);
-        }
-
-        &.overdue {
-          background: rgba(var(--ion-color-danger-rgb), 0.05);
-          border-color: var(--ion-color-danger);
-        }
-
-        &.next-payment {
-          background: rgba(var(--ion-color-primary-rgb), 0.1);
-          border-color: var(--ion-color-primary);
-          animation: pulse 2s ease-in-out infinite;
-        }
-
-        .payment-number {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-          min-width: 60px;
-
-          ion-icon {
-            font-size: 28px;
-          }
-
-          span {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--ion-color-dark);
-          }
-        }
-
-        ion-label {
-          h3 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 4px;
-          }
-
-          p {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            color: var(--ion-color-medium);
-
-            ion-icon {
-              font-size: 14px;
-            }
-
-            &.partial-info {
-              color: var(--ion-color-warning);
-              font-weight: 600;
-              font-size: 12px;
-            }
-          }
-        }
-
-        .payment-amount {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 6px;
-          position: relative;
-
-          .amount {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--ion-color-dark);
-          }
-
-          .status-badge {
-            font-size: 10px;
-            padding: 4px 8px;
-          }
-
-          .expand-icon {
-            font-size: 20px;
-            color: var(--ion-color-primary);
-            margin-top: 4px;
-          }
-        }
+      &.status-badge-paid {
+        background: rgba(76, 175, 125, 0.15);
+        color: var(--success);
       }
-
-      // Sección expandible de detalles de pago
-      .payment-details {
-        background: var(--ion-color-light);
-        border-radius: 0 0 8px 8px;
-        padding: 16px;
-        margin-top: -8px;
-        animation: slideDown 0.3s ease;
-
-        .details-header {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 14px;
-          font-weight: 600;
-          color: var(--ion-color-dark);
-          margin-bottom: 12px;
-          padding-bottom: 8px;
-          border-bottom: 1px solid var(--ion-color-medium-shade);
-
-          ion-icon {
-            font-size: 18px;
-            color: var(--ion-color-primary);
-          }
-        }
-
-        .payment-application {
-          background: white;
-          border-radius: 8px;
-          padding: 12px;
-          margin-bottom: 8px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-          &:last-child {
-            margin-bottom: 0;
-          }
-
-          .app-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px dashed var(--ion-color-light-shade);
-
-            &:last-child {
-              border-bottom: none;
-            }
-
-            .app-label {
-              font-size: 13px;
-              color: var(--ion-color-medium);
-              font-weight: 500;
-            }
-
-            .app-value {
-              font-size: 13px;
-              color: gray;
-              font-weight: 600;
-
-              &.amount {
-                color: var(--ion-color-success);
-                font-size: 15px;
-              }
-
-              &.code {
-                font-family: monospace;
-                font-size: 11px;
-                background: var(--ion-color-light);
-                padding: 2px 6px;
-                border-radius: 4px;
-              }
-            }
-          }
-        }
+      &.status-badge-overdue {
+        background: rgba(224, 82, 82, 0.15);
+        color: var(--danger);
       }
+      &.status-badge-partial {
+        background: rgba(240, 165, 0, 0.15);
+        color: var(--warning);
+      }
+      &.status-badge-pending {
+        background: rgba(141, 185, 178, 0.1);
+        color: var(--text-dim);
+      }
+    }
+
+    .sd-expand-icon {
+      font-size: 1rem;
+      color: var(--accent);
     }
   }
 }
 
-// Action Section
-.action-section {
-  margin-top: 24px;
+// Expandible details
+.sd-payment-details {
+  background: var(--surface-2);
+  border-radius: 0 0 10px 10px;
+  margin-top: -2px;
+  padding: 12px 14px;
+  animation: slideDown 0.25s ease;
 
-  .next-payment-card {
-    background: linear-gradient(
-      135deg,
-      var(--ion-color-primary) 0%,
-      var(--ion-color-primary-shade) 100%
-    );
-    color: white;
-    margin-bottom: 16px;
+  .sd-details-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.73rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid var(--border);
 
-    h3 {
-      font-size: 16px;
-      font-weight: 700;
-      margin: 0 0 12px 0;
+    ion-icon {
+      font-size: 0.9rem;
+      color: var(--accent);
+    }
+  }
+
+  .sd-pay-app {
+    background: rgba(43, 95, 83, 0.25);
+    border-radius: 7px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+
+    &:last-child {
+      margin-bottom: 0;
     }
 
-    .next-payment-info {
+    .sd-app-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: baseline;
+      padding: 4px 0;
+      border-bottom: 1px dashed rgba(43, 95, 83, 0.5);
 
-      .label {
-        font-size: 14px;
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .al {
+        font-size: 0.7rem;
+        color: var(--text-dim);
+      }
+
+      .av {
+        font-size: 0.73rem;
+        color: var(--text);
         font-weight: 600;
-        margin: 0 0 4px 0;
-        opacity: 0.9;
-      }
 
-      .date {
-        font-size: 13px;
-        margin: 0;
-        opacity: 0.8;
-      }
-
-      .amount-big {
-        font-size: 28px;
-        font-weight: 700;
+        &.amount {
+          font-family: "DM Mono", monospace;
+          color: var(--success);
+          font-size: 0.82rem;
+        }
+        &.code {
+          font-family: "DM Mono", monospace;
+          font-size: 0.67rem;
+          background: rgba(43, 95, 83, 0.4);
+          padding: 1px 5px;
+          border-radius: 3px;
+        }
       }
     }
   }
+}
 
-  .register-payment-btn {
+// ── Form panels ───────────────────────────────────────────────────────────────
+.sd-form-panel {
+  max-width: 620px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+// Info card (at top of forms)
+.sd-pay-info-card {
+  background: var(--surface-2);
+  border-radius: 10px;
+  overflow: hidden;
+
+  .sd-pif-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(43, 95, 83, 0.5);
+
+    &:last-child {
+      border-bottom: none;
+    }
+    &.highlight {
+      background: rgba(240, 165, 0, 0.06);
+    }
+
+    .sd-pif-label {
+      font-size: 0.63rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sd-pif-val {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+
+      &.mono {
+        font-family: "DM Mono", monospace;
+      }
+      &.warning {
+        color: var(--warning);
+      }
+      &.success {
+        color: var(--success);
+      }
+    }
+  }
+}
+
+// Warning banner
+.sd-warning-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(224, 82, 82, 0.08);
+  border-left: 4px solid var(--danger);
+  border-radius: 8px;
+
+  ion-icon {
+    font-size: 1.6rem;
+    color: var(--danger);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  h3 {
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: var(--danger);
+  }
+  p {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// Field groups
+.sd-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .sd-field-label {
+    font-size: 0.63rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+
+    .required {
+      color: var(--danger);
+      margin-left: 2px;
+    }
+    .optional {
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      margin-left: 4px;
+      opacity: 0.7;
+    }
+  }
+
+  .sd-field-error {
+    font-size: 0.72rem;
+    color: var(--danger);
+    font-weight: 500;
+    padding-left: 2px;
+  }
+}
+
+// Form items
+.sd-form-item {
+  --background: var(--surface-2);
+  --background-focused: var(--surface-2);
+  --color: var(--text);
+  --border-color: var(--border);
+  --highlight-color-focused: var(--accent);
+  --placeholder-color: var(--text-dim);
+  border-radius: 8px;
+  margin: 0;
+
+  &.sd-form-item-error {
+    --border-color: var(--danger);
+    animation: shake 0.3s;
+  }
+
+  ion-input,
+  ion-textarea,
+  ion-select {
+    --color: var(--text);
+    --placeholder-color: var(--text-dim);
+  }
+
+  ion-label {
+    color: var(--text-dim) !important;
+    font-size: 0.82rem !important;
+  }
+}
+
+// Radio grid
+.sd-radio-grid {
+  display: flex;
+  gap: 8px;
+
+  .sd-radio-item {
+    flex: 1;
+    --background: var(--surface-2);
+    --color: var(--text);
+    --border-color: var(--border);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+
+    ion-label {
+      h3 {
+        font-size: 0.87rem !important;
+        font-weight: 600 !important;
+        color: var(--text) !important;
+        margin-bottom: 2px;
+      }
+      p {
+        font-size: 0.72rem !important;
+        color: var(--text-dim) !important;
+      }
+    }
+
+    ion-radio {
+      --color: var(--text-dim);
+      --color-checked: var(--accent);
+    }
+  }
+}
+
+// Coverage info alert
+.sd-coverage-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(71, 140, 128, 0.08);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+
+  ion-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+
+    &.icon-success {
+      color: var(--success);
+    }
+    &.icon-info {
+      color: var(--accent);
+    }
+  }
+
+  strong {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  p {
+    font-size: 0.76rem;
+    color: var(--text-dim);
+    margin: 0;
+
+    &.success-text {
+      color: var(--success);
+      font-weight: 600;
+    }
+  }
+}
+
+// Confirmation checkbox
+.sd-confirmation {
+  background: rgba(224, 82, 82, 0.06);
+  border: 1px solid rgba(224, 82, 82, 0.25);
+  border-radius: 8px;
+  padding: 4px 12px 4px;
+
+  .sd-confirm-item {
+    --background: transparent;
+    --border-color: transparent;
+
+    ion-checkbox {
+      --color: var(--text-dim);
+      --color-checked: var(--danger);
+      margin-right: 10px;
+    }
+    ion-label {
+      font-size: 0.82rem !important;
+      font-weight: 500 !important;
+      color: var(--text) !important;
+      white-space: normal !important;
+    }
+  }
+
+  .sd-field-error {
+    padding: 0 0 8px 2px;
+  }
+}
+
+// Form actions
+.sd-form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+
+  ion-button {
+    --border-radius: 10px;
+    height: 48px;
     font-weight: 600;
-    height: 56px;
-    font-size: 16px;
-  }
-}
 
-// Completed Section
-.completed-section {
-  margin-top: 24px;
-
-  .completed-card {
-    background: rgba(var(--ion-color-success-rgb), 0.1);
-    border: 2px solid var(--ion-color-success);
-    text-align: center;
-
-    ion-icon {
-      font-size: 64px;
-      margin-bottom: 12px;
-    }
-
-    h3 {
-      font-size: 20px;
-      font-weight: 700;
-      margin: 0 0 8px 0;
-      color: var(--ion-color-dark);
-    }
-
-    p {
-      font-size: 14px;
-      color: var(--ion-color-medium);
-      margin: 0;
+    ion-spinner {
+      margin-right: 8px;
     }
   }
 }
 
-// Cancelled Section
-.cancelled-section {
-  margin-top: 24px;
-
-  .cancelled-card {
-    background: rgba(var(--ion-color-danger-rgb), 0.1);
-    border: 2px solid var(--ion-color-danger);
-    text-align: center;
-
-    ion-icon {
-      font-size: 64px;
-      margin-bottom: 12px;
-    }
-
-    h3 {
-      font-size: 20px;
-      font-weight: 700;
-      margin: 0 0 12px 0;
-      color: var(--ion-color-dark);
-    }
-
-    p {
-      font-size: 14px;
-      color: var(--ion-color-dark);
-      margin: 4px 0;
-      text-align: left;
-
-      strong {
-        color: var(--ion-color-danger);
-      }
-    }
-  }
+ion-spinner {
+  --color: var(--accent);
 }
 
-// Animations
+// ── Animations ────────────────────────────────────────────────────────────────
 @keyframes pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(var(--ion-color-primary-rgb), 0.4);
+    box-shadow: 0 0 0 0 rgba(71, 140, 128, 0.3);
   }
   50% {
-    box-shadow: 0 0 0 10px rgba(var(--ion-color-primary-rgb), 0);
+    box-shadow: 0 0 0 8px rgba(71, 140, 128, 0);
   }
 }
 
@@ -558,103 +1056,53 @@
   }
   to {
     opacity: 1;
-    max-height: 500px;
+    max-height: 600px;
   }
 }
 
-// Responsive
-@media (min-width: 768px) {
-  .financial-grid {
-    grid-template-columns: repeat(4, 1fr) !important;
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+// ── Responsive: mobile stack ──────────────────────────────────────────────────
+@media (max-width: 767px) {
+  .sd-layout {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  .sd-sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    overflow-y: visible;
+  }
+
+  .sd-main {
+    overflow: visible;
+  }
+
+  .sd-tab-panel {
+    overflow-y: visible;
+  }
+
+  .sd-radio-grid {
+    flex-direction: column;
   }
 }
 
 app-empty-state {
   display: block;
   padding: 60px 16px;
-}
-
-// ── Parties card (Partes del Contrato) ──────────────────────────────────────
-.parties-card {
-  cursor: default;
-
-  &:hover {
-    transform: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.succession-banner {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: rgba(var(--ion-color-warning-rgb), 0.12);
-  border-left: 3px solid var(--ion-color-warning);
-  border-radius: 4px;
-  margin-bottom: 14px;
-  font-size: 0.85rem;
-  color: var(--ion-color-warning-shade);
-
-  ion-icon { font-size: 1rem; flex-shrink: 0; }
-}
-
-.party-block {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--ion-border-color, rgba(0,0,0,0.08));
-  cursor: pointer;
-
-  &:last-of-type { border-bottom: none; }
-
-  &.party-original {
-    cursor: default;
-    opacity: 0.8;
-  }
-}
-
-.party-label {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--ion-color-medium);
-  min-width: 130px;
-  flex-shrink: 0;
-}
-
-.party-info {
-  flex: 1;
-
-  strong {
-    display: block;
-    font-size: 0.95rem;
-    color: var(--ion-color-dark);
-  }
-
-  p {
-    margin: 2px 0 0;
-    font-size: 0.82rem;
-    color: var(--ion-color-medium);
-  }
-}
-
-.party-arrow {
-  color: var(--ion-color-primary);
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.immutable-tag {
-  display: inline-block;
-  font-size: 0.65rem;
-  background: rgba(var(--ion-color-medium-rgb), 0.15);
-  color: var(--ion-color-medium);
-  padding: 1px 5px;
-  border-radius: 3px;
-  margin-left: 4px;
-  text-transform: none;
-  letter-spacing: 0;
-  vertical-align: middle;
 }

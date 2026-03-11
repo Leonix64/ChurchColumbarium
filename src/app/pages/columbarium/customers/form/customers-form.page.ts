@@ -4,12 +4,11 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
   IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
-  IonButton, IonIcon, IonContent, IonList, IonListHeader,
-  IonLabel, IonItem, IonInput, IonTextarea, IonText,
+  IonButton, IonIcon, IonContent, IonInput, IonTextarea,
   IonSpinner
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { checkmarkOutline } from 'ionicons/icons';
+import { checkmarkOutline, personOutline, medkit } from 'ionicons/icons';
 
 import { CustomerService } from '../../services/customer.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
@@ -23,8 +22,7 @@ import { Customer } from '../../models/customer.model';
   imports: [
     CommonModule, ReactiveFormsModule,
     IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
-    IonButton, IonIcon, IonContent, IonList, IonListHeader,
-    IonLabel, IonItem, IonInput, IonTextarea, IonText,
+    IonButton, IonIcon, IonContent, IonInput, IonTextarea,
     IonSpinner, FormsModule,
   ]
 })
@@ -42,7 +40,7 @@ export class CustomersFormPage implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) {
-    addIcons({ checkmarkOutline });
+    addIcons({ checkmarkOutline, personOutline, medkit });
 
     // Inicializar formulario
     this.customerForm = this.fb.group({
@@ -66,9 +64,7 @@ export class CustomersFormPage implements OnInit {
 
     if (this.customerId) {
       this.isEditMode = true;
-      console.log('Modo edicion detectado para la ID: ', this.customerId);
       this.loadCustomer(this.customerId);
-      console.log('Modo creacion');
     }
   }
 

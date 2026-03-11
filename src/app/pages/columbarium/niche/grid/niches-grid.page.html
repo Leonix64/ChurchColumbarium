@@ -1,115 +1,144 @@
-<app-header title="Nichos del Columbario" [showSearch]="true" [showAdd]="false"></app-header>
+<app-header title="Nichos del Columbario" [showSearch]="false" [showAdd]="false"></app-header>
 
 <ion-content [fullscreen]="true" class="niches-content">
+
   <!-- Loading -->
-  <div class="loading-container" *ngIf="loading()">
+  <div class="pg-loading" *ngIf="loading()">
     <ion-spinner name="crescent"></ion-spinner>
-    <p>Cargando nichos...</p>
+    <p>Cargando nichos…</p>
   </div>
 
-  <!-- Content -->
-  <div class="niches-wrapper" *ngIf="!loading()">
+  <!-- Page layout -->
+  <div class="pg-layout" *ngIf="!loading()">
 
-    <!-- Stats Generales -->
-    <div class="stats-card">
-      <h2 class="stats-title">Resumen General</h2>
-      <div class="stats-grid">
-        <div class="stat-item available">
-          <div class="stat-value">{{ stats().available }}</div>
-          <div class="stat-label">Disponibles</div>
+    <!-- ── SIDEBAR ──────────────────────────────────────────────────────── -->
+    <aside class="sidebar">
+
+      <!-- Brand -->
+      <div class="sb-brand">
+        <ion-icon name="cube-outline" class="sb-brand-icon"></ion-icon>
+        <span class="sb-brand-text">Nichos</span>
+      </div>
+
+      <!-- Stats panel -->
+      <div class="sb-stats">
+        <div class="sb-stat available"
+          [class.active]="statusFilter() === 'available'"
+          (click)="goToFilter('available')">
+          <span class="sb-stat-value">{{ stats().available }}</span>
+          <span class="sb-stat-label">Disponibles</span>
         </div>
-        <div class="stat-item sold">
-          <div class="stat-value">{{ stats().sold }}</div>
-          <div class="stat-label">Vendidos</div>
+        <div class="sb-stat sold"
+          [class.active]="statusFilter() === 'sold'"
+          (click)="goToFilter('sold')">
+          <span class="sb-stat-value">{{ stats().sold }}</span>
+          <span class="sb-stat-label">Vendidos</span>
         </div>
-        <div class="stat-item reserved">
-          <div class="stat-value">{{ stats().reserved }}</div>
-          <div class="stat-label">Reservados</div>
+        <div class="sb-stat reserved"
+          [class.active]="statusFilter() === 'reserved'"
+          (click)="goToFilter('reserved')">
+          <span class="sb-stat-value">{{ stats().reserved }}</span>
+          <span class="sb-stat-label">Reservados</span>
         </div>
-        <div class="stat-item disabled">
-          <div class="stat-value">{{ stats().disabled }}</div>
-          <div class="stat-label">Deshabilitados</div>
+        <div class="sb-stat disabled" (click)="goToDisabled()">
+          <span class="sb-stat-value">{{ stats().disabled }}</span>
+          <span class="sb-stat-label">Inhabilitados ↗</span>
         </div>
       </div>
-    </div>
 
-    <!-- Busqueda rapida -->
-    <div class="search-section">
-      <ion-searchbar [value]="searchModule()" (ionInput)="onSearchModule($event)"
-        placeholder="Buscar por modulo (Ej: Guadalupe, Resurreccion)" debounce="300"></ion-searchbar>
-
-      <ion-button expand="block" fill="outline" class="quick-search-btn" (click)="openQuickSearch()">
-        <ion-icon name="search-outline" slot="start"></ion-icon>
-        Busqueda rapida por codigo
-      </ion-button>
-    </div>
-
-    <!-- Filtros -->
-    <div class="filters-section">
-      <ion-segment [value]="statusFilter()" (ionChange)="onFilterChange($event)">
-        <ion-segment-button value="all">
-          <ion-label>Todos</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="available">
-          <ion-label>Disponibles</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="sold">
-          <ion-label>Vendidos</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-    </div>
-
-    <!-- Lista de Modulos -->
-    <div class="modules-list">
-      <div class="module-card" *ngFor="let moduleGroup of filteredModules()" (click)="goToModuleDetail(moduleGroup)">
-        <div class="module-header">
-          <ion-icon name="cube-outline"></ion-icon>
-          <div class="module-info">
-            <h3 class="module-title">{{ moduleGroup.module }}</h3>
-            <p class="module-subtitle">{{ moduleGroup.moduleName }}</p>
-          </div>
-          <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
-        </div>
-
-        <div class="module-stats">
-          <div class="stat-row">
-            <span class="stat-label">Total de nichos:</span>
-            <span class="stat-value">{{ moduleGroup.totalNiches }}</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Disponibles:</span>
-            <span class="stat-value success">{{ moduleGroup.availableNiches }}</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Vendidos:</span>
-            <span class="stat-value danger">{{ moduleGroup.soldNiches }}</span>
-          </div>
-          <div class="stat-row" *ngIf="moduleGroup.reservedNiches > 0">
-            <span class="stat-label">Reservados:</span>
-            <span class="stat-value warning">{{ moduleGroup.reservedNiches }}</span>
-          </div>
-        </div>
-
-        <!-- Secciones -->
-        <div class="sections-info">
-          <div class="section-badge" *ngFor="let section of moduleGroup.sections">
-            Seccion: {{ section.section }}: {{ section.totalNiches }} nichos
-          </div>
-        </div>
-
-        <div class="module-action">
-          <ion-button fill="clear" size="small">
-            Ver Grid Visual
-            <ion-icon name="arrow-forward" slot="end"></ion-icon>
-          </ion-button>
-        </div>
-
+      <!-- Search -->
+      <div class="sb-search">
+        <ion-searchbar
+          [value]="searchModule()"
+          (ionInput)="onSearchModule($event)"
+          placeholder="Buscar módulo…"
+          [debounce]="300"
+          class="sb-searchbar">
+        </ion-searchbar>
+        <button class="sb-quick-btn" (click)="openQuickSearch()">
+          <ion-icon name="search-outline"></ion-icon>
+          Búsqueda rápida por código
+        </button>
       </div>
-    </div>
 
-    <!-- Empty State -->
-    <app-empty-state *ngIf="filteredModules().length === 0" icon="cube-outline" title="No se encontraron módulos"
-      [message]="searchModule() ? 'Intenta con otro código' : 'No hay módulos disponibles'">
-    </app-empty-state>
+    </aside>
+
+    <!-- ── MAIN PANEL ───────────────────────────────────────────────────── -->
+    <main class="main-panel">
+
+      <!-- Filter tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab" [class.active]="statusFilter() === 'all'"
+          (click)="goToFilter('all')">Todos</button>
+        <button class="filter-tab" [class.active]="statusFilter() === 'available'"
+          (click)="goToFilter('available')">Disponibles</button>
+        <button class="filter-tab" [class.active]="statusFilter() === 'sold'"
+          (click)="goToFilter('sold')">Vendidos</button>
+        <button class="filter-tab" [class.active]="statusFilter() === 'reserved'"
+          (click)="goToFilter('reserved')">Reservados</button>
+      </div>
+
+      <!-- Modules grid -->
+      <div class="modules-grid" *ngIf="filteredModules().length > 0">
+        <div class="module-card" *ngFor="let mg of filteredModules()">
+
+          <!-- Card head -->
+          <div class="mc-head">
+            <span class="mc-code">{{ mg.module }}</span>
+            <span class="mc-name">{{ mg.moduleName }}</span>
+          </div>
+
+          <!-- Mini stats -->
+          <div class="mc-stats">
+            <div class="mc-stat available">
+              <span class="mc-stat-val">{{ mg.availableNiches }}</span>
+              <span class="mc-stat-lbl">Disp.</span>
+            </div>
+            <div class="mc-stat sold">
+              <span class="mc-stat-val">{{ mg.soldNiches }}</span>
+              <span class="mc-stat-lbl">Vend.</span>
+            </div>
+            <div class="mc-stat reserved" *ngIf="mg.reservedNiches > 0">
+              <span class="mc-stat-val">{{ mg.reservedNiches }}</span>
+              <span class="mc-stat-lbl">Res.</span>
+            </div>
+            <div class="mc-stat total">
+              <span class="mc-stat-val">{{ mg.totalNiches }}</span>
+              <span class="mc-stat-lbl">Total</span>
+            </div>
+          </div>
+
+          <!-- Section chips -->
+          <div class="mc-sections">
+            <button class="mc-section-chip"
+              *ngFor="let sec of mg.sections"
+              (click)="goToSection(mg.module, sec.section)">
+              <span class="chip-label">Sección {{ sec.section }}</span>
+              <span class="chip-count">{{ sec.totalNiches }}</span>
+              <ion-icon name="arrow-forward" class="chip-arrow"></ion-icon>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <app-empty-state
+        *ngIf="filteredModules().length === 0"
+        icon="cube-outline"
+        title="No se encontraron módulos"
+        [message]="searchModule() ? 'Intenta con otro nombre' : 'No hay módulos disponibles'">
+      </app-empty-state>
+
+    </main>
+
   </div>
+
+  <!-- FAB: Crear Nicho (solo admin) -->
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="isAdmin()">
+    <ion-fab-button color="success" (click)="openCreateModal()" title="Crear Nicho">
+      <ion-icon name="add-circle-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

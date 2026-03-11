@@ -1,16 +1,36 @@
-// ── Wizard layout ────────────────────────────────────────────────────────────
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap");
 
+// ── Palette ─────────────────────────────────────────────────────────────────
+:host {
+  --bg: #f3efe9;
+  --surface: #ffffff;
+  --surface-2: #ebe3da;
+  --primary: #4c3a70ab;
+  --primary-h: #5f4a8671;
+  --accent: #b79c5a;
+  --muted: #9a8f86;
+  --border: #ddd4c9;
+  --text: #2a2530;
+  --text-dim: #6f6764;
+  --success: #587c67;
+  --warning: #c69a39;
+  --danger: #b75454;
+}
+
+// ── Wizard layout ─────────────────────────────────────────────────────────────
 .wizard-content {
+  --background: var(--bg);
   --padding-start: 16px;
   --padding-end: 16px;
+  font-family: "DM Sans", sans-serif;
+  color: var(--text);
 }
 
 .step-wrapper {
   padding-bottom: 24px;
 }
 
-// ── Step indicator (shared design with succession wizard) ─────────────────────
-
+// ── Step indicator ────────────────────────────────────────────────────────────
 .step-indicator {
   display: flex;
   align-items: center;
@@ -22,24 +42,26 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: var(--ion-color-light-shade);
-    color: var(--ion-color-medium);
+    background: rgba(43, 95, 83, 0.5);
+    color: var(--text-dim);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 13px;
     flex-shrink: 0;
-    transition: background 0.25s ease, color 0.25s ease;
+    transition:
+      background 0.25s ease,
+      color 0.25s ease;
 
     &.active {
-      background: var(--ion-color-primary);
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(var(--ion-color-primary-rgb), 0.35);
+      background: var(--primary);
+      color: var(--text);
+      box-shadow: 0 2px 10px rgba(48, 110, 97, 0.4);
     }
 
     &.done {
-      background: var(--ion-color-success);
+      background: var(--success);
       color: #fff;
     }
   }
@@ -48,10 +70,12 @@
     flex: 1;
     max-width: 72px;
     height: 2px;
-    background: var(--ion-color-light-shade);
+    background: rgba(43, 95, 83, 0.5);
     transition: background 0.25s ease;
 
-    &.done { background: var(--ion-color-success); }
+    &.done {
+      background: var(--success);
+    }
   }
 }
 
@@ -60,16 +84,15 @@
   justify-content: space-between;
   padding: 4px 8px 12px;
   font-size: 11px;
-  color: var(--ion-color-medium);
+  color: var(--text-dim);
 
   span.active {
-    color: var(--ion-color-primary);
+    color: var(--accent);
     font-weight: 600;
   }
 }
 
 // ── Loading ───────────────────────────────────────────────────────────────────
-
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -77,158 +100,206 @@
   justify-content: center;
   padding: 56px 16px;
   gap: 16px;
-  color: var(--ion-color-medium);
+  color: var(--text-dim);
 
-  p { margin: 0; font-size: 14px; }
+  p {
+    margin: 0;
+    font-size: 0.88rem;
+  }
 }
 
 // ── Step header ───────────────────────────────────────────────────────────────
-
 .step-header {
   padding: 8px 0 12px;
 
   h2 {
-    font-size: 20px;
+    font-size: 1.15rem;
     font-weight: 700;
     margin: 0 0 4px;
-    color: var(--ion-color-dark);
+    color: var(--text);
   }
 
   p {
-    font-size: 13px;
-    color: var(--ion-color-medium);
+    font-size: 0.82rem;
+    color: var(--text-dim);
     margin: 0;
   }
 }
 
-// ── Selector card (tap to open modal) ─────────────────────────────────────────
+// ── Global ion-card theming ───────────────────────────────────────────────────
+ion-card {
+  --background: var(--surface);
+  --color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  margin-bottom: 12px;
+}
 
+ion-card-content {
+  color: var(--text) !important;
+}
+
+ion-card-title {
+  color: var(--text) !important;
+  font-size: 0.92rem !important;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// ── Selector card ─────────────────────────────────────────────────────────────
 .selector-card {
   margin-top: 4px;
   cursor: pointer;
+  transition: border-color 0.2s ease;
 
-  ion-card-content { padding: 12px 16px; }
+  &:hover {
+    border-color: var(--accent) !important;
+  }
+
+  ion-card-content {
+    padding: 12px 16px !important;
+  }
 
   .selector-row {
     display: flex;
     align-items: center;
     gap: 12px;
 
-    ion-icon:first-child { font-size: 22px; flex-shrink: 0; }
-    ion-icon:last-child  { font-size: 18px; flex-shrink: 0; }
+    ion-icon:first-child {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      color: var(--accent);
+    }
+    ion-icon:last-child {
+      font-size: 1rem;
+      flex-shrink: 0;
+      color: var(--text-dim);
+    }
 
     .selector-text {
       flex: 1;
 
       .placeholder {
-        color: var(--ion-color-medium);
-        font-size: 14px;
+        color: var(--text-dim);
+        font-size: 0.88rem;
       }
-
       .selected-value {
-        font-size: 15px;
+        font-size: 0.92rem;
         font-weight: 600;
-        color: var(--ion-color-dark);
+        color: var(--text);
       }
-
-      .mono { font-family: 'Courier New', monospace; }
+      .mono {
+        font-family: "DM Mono", monospace;
+      }
     }
   }
 }
 
-// ── Info card ─────────────────────────────────────────────────────────────────
-
-.info-card {
-  margin-top: 8px;
-}
-
-ion-card-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 16px;
-}
-
 // ── Field rows ────────────────────────────────────────────────────────────────
-
 .field-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 9px 0;
-  border-bottom: 1px solid var(--ion-color-light-shade);
-  font-size: 14px;
+  border-bottom: 1px solid rgba(43, 95, 83, 0.5);
+  font-size: 0.83rem;
   gap: 12px;
 
-  &:last-of-type { border-bottom: none; }
+  &:last-of-type {
+    border-bottom: none;
+  }
 
   .field-label {
-    color: var(--ion-color-medium);
-    font-size: 12px;
+    color: var(--text-dim);
+    font-size: 0.67rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
     flex-shrink: 0;
     min-width: 90px;
   }
 
-  .mono { font-family: 'Courier New', monospace; font-size: 13px; }
+  .mono {
+    font-family: "DM Mono", monospace;
+    font-size: 0.82rem;
+  }
 }
 
 .price-highlight {
-  font-size: 17px;
-  color: var(--ion-color-primary);
+  font-family: "DM Mono", monospace;
+  font-size: 1rem;
+  color: var(--accent);
   font-weight: 700;
 }
 
 // ── Status warning ────────────────────────────────────────────────────────────
-
 .status-warning {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  background: rgba(var(--ion-color-warning-rgb), 0.1);
-  border: 1px solid rgba(var(--ion-color-warning-rgb), 0.3);
+  background: rgba(240, 165, 0, 0.1);
+  border: 1px solid rgba(240, 165, 0, 0.3);
   border-radius: 8px;
   padding: 10px 12px;
   margin-top: 12px;
 
-  ion-icon { font-size: 18px; color: var(--ion-color-warning-shade); flex-shrink: 0; }
-  p { font-size: 13px; color: var(--ion-color-dark); margin: 0; line-height: 1.4; }
+  ion-icon {
+    font-size: 1rem;
+    color: var(--warning);
+    flex-shrink: 0;
+  }
+  p {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin: 0;
+    line-height: 1.4;
+  }
 }
 
 // ── Context chip ──────────────────────────────────────────────────────────────
-
 .context-chip,
 .context-chips {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: var(--ion-color-light);
+  gap: 6px;
+  background: var(--surface-2);
   border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 13px;
-  color: var(--ion-color-dark);
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
   width: fit-content;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 
-  ion-icon { font-size: 16px; color: var(--ion-color-medium); }
-
-  .chip-separator { color: var(--ion-color-medium); }
-
-  strong { font-weight: 600; }
+  ion-icon {
+    font-size: 0.85rem;
+    color: var(--accent);
+  }
+  .chip-separator {
+    color: var(--border);
+  }
+  strong {
+    font-weight: 600;
+    color: var(--text);
+  }
 }
 
 .context-chips {
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
   padding: 0;
   background: none;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 
-  .context-chip { margin: 0; }
+  .context-chip {
+    margin: 0;
+  }
 }
 
 // ── Beneficiaries card ────────────────────────────────────────────────────────
-
 .beneficiaries-card {
   margin-top: 8px;
 
@@ -237,24 +308,26 @@ ion-card-title {
     align-items: center;
     gap: 8px;
 
-    ion-card-title { font-size: 16px; flex: 1; }
+    ion-card-title {
+      flex: 1;
+    }
   }
 
   .benef-counter {
-    font-size: 12px;
+    font-size: 0.7rem;
     font-weight: 700;
     padding: 2px 8px;
     border-radius: 12px;
     flex-shrink: 0;
 
     &.incomplete {
-      background: rgba(var(--ion-color-warning-rgb), 0.15);
-      color: var(--ion-color-warning-shade);
+      background: rgba(240, 165, 0, 0.15);
+      color: var(--warning);
     }
 
     &.complete {
-      background: rgba(var(--ion-color-success-rgb), 0.15);
-      color: var(--ion-color-success-shade);
+      background: rgba(76, 175, 125, 0.15);
+      color: var(--success);
     }
   }
 
@@ -262,63 +335,73 @@ ion-card-title {
     display: flex;
     align-items: flex-start;
     gap: 6px;
-    font-size: 12px;
-    color: var(--ion-color-warning-shade);
-    background: rgba(var(--ion-color-warning-rgb), 0.08);
+    font-size: 0.75rem;
+    color: var(--warning);
+    background: rgba(240, 165, 0, 0.08);
     border-radius: 8px;
     padding: 8px 10px;
     margin-bottom: 12px;
     line-height: 1.4;
 
-    ion-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    ion-icon {
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
   }
 }
 
 // ── No-customer hint ──────────────────────────────────────────────────────────
-
 .no-customer-hint {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  font-size: 13px;
-  color: var(--ion-color-medium);
+  font-size: 0.8rem;
+  color: var(--text-dim);
   margin-top: 8px;
 
-  ion-icon { font-size: 18px; flex-shrink: 0; }
-  p { margin: 0; }
+  ion-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  p {
+    margin: 0;
+  }
 }
 
 // ── Finance card ──────────────────────────────────────────────────────────────
-
-.finance-card { margin-top: 4px; }
+.finance-card {
+  margin-top: 4px;
+}
 
 .form-field {
   margin-bottom: 18px;
 
   .field-label-top {
     display: block;
-    font-size: 11px;
+    font-size: 0.65rem;
     font-weight: 700;
-    color: var(--ion-color-medium);
+    color: var(--text-dim);
     text-transform: uppercase;
-    letter-spacing: 0.6px;
+    letter-spacing: 0.06em;
     margin-bottom: 6px;
   }
 
   .min-hint {
-    font-size: 10px;
+    font-size: 0.63rem;
     font-weight: 400;
     text-transform: none;
     letter-spacing: 0;
-    color: var(--ion-color-medium);
+    color: var(--text-dim);
     margin-left: 4px;
   }
 
   .readonly-price {
-    font-size: 22px;
+    font-family: "DM Mono", monospace;
+    font-size: 1.3rem;
     font-weight: 700;
-    color: var(--ion-color-primary);
+    color: var(--accent);
     padding: 4px 0;
   }
 
@@ -326,16 +409,18 @@ ion-card-title {
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 12px;
-    color: var(--ion-color-danger);
+    font-size: 0.73rem;
+    color: var(--danger);
     margin: 6px 0 0;
 
-    ion-icon { font-size: 14px; flex-shrink: 0; }
+    ion-icon {
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
   }
 }
 
-// ── Financial summary card ────────────────────────────────────────────────────
-
+// ── Summary rows ──────────────────────────────────────────────────────────────
 .summary-card,
 .parties-card {
   margin-top: 8px;
@@ -345,20 +430,31 @@ ion-card-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 0;
-  font-size: 14px;
-  border-bottom: 1px solid var(--ion-color-light-shade);
+  padding: 9px 0;
+  font-size: 0.83rem;
+  border-bottom: 1px solid rgba(43, 95, 83, 0.5);
 
-  &:last-child { border-bottom: none; }
+  &:last-child {
+    border-bottom: none;
+  }
 
-  .success-text { color: var(--ion-color-success); font-weight: 600; }
-  .primary-text { color: var(--ion-color-primary); font-size: 17px; }
+  .success-text {
+    color: var(--success);
+    font-weight: 600;
+  }
+
+  .primary-text {
+    font-family: "DM Mono", monospace;
+    color: var(--accent);
+    font-size: 1rem;
+    font-weight: 700;
+  }
 
   &.divider-row {
-    border-top: 2px solid var(--ion-color-light-shade);
+    border-top: 2px solid rgba(43, 95, 83, 0.5);
     margin-top: 4px;
     padding-top: 14px;
-    font-size: 15px;
+    font-size: 0.9rem;
   }
 
   &.final-row {
@@ -369,10 +465,34 @@ ion-card-title {
 }
 
 // ── Action buttons ────────────────────────────────────────────────────────────
-
 .step-actions {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 16px 0 32px;
+}
+
+// ── Ion form elements ─────────────────────────────────────────────────────────
+ion-item {
+  --background: var(--surface-2);
+  --background-focused: var(--surface-2);
+  --color: var(--text);
+  --border-color: var(--border);
+  --highlight-color-focused: var(--accent);
+  --placeholder-color: var(--text-dim);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+ion-input,
+ion-textarea,
+ion-select {
+  --color: var(--text);
+  --placeholder-color: var(--text-dim);
+}
+ion-label {
+  color: var(--text-dim) !important;
+}
+ion-spinner {
+  --color: var(--accent);
 }

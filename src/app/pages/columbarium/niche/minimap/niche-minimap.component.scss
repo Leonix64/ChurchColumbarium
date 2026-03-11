@@ -1,0 +1,159 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600&family=DM+Mono:wght@400;500&display=swap");
+
+:host {
+  display: block;
+
+  --cell-available: #4caf7d;
+  --cell-sold: #e05252;
+  --cell-reserved: #f0a500;
+  --cell-disabled: #3a4f48;
+
+  --accent: #b79c5a;
+  --surface: #ffffff;
+  --surface-2: #ebe3da;
+  --border: #ddd4c9;
+  --text: #2a2530;
+  --text-dim: #6f6764;
+
+  // While dragging: lock cursor globally for the component's subtree
+  &.is-dragging,
+  &.is-dragging * {
+    cursor: ew-resize !important;
+    user-select: none !important;
+  }
+}
+
+// ── Wrapper ────────────────────────────────────────────────────────────────────
+.nm-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────────
+.nm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.nm-label {
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.nm-count {
+  font-family: "DM Mono", monospace;
+  font-size: 0.65rem;
+  color: var(--accent);
+}
+
+// ── Scroll area ────────────────────────────────────────────────────────────────
+.nm-scroll {
+  padding: 10px 14px 12px;
+  overflow-x: auto;
+
+  // Thin custom scrollbar
+  &::-webkit-scrollbar {
+    height: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+  }
+}
+
+// ── Grid wrap (position:relative for the viewport rect) ────────────────────────
+.nm-grid-wrap {
+  position: relative;
+  width: fit-content;
+  cursor: crosshair; // indicate "clickable / jump" area
+  user-select: none;
+}
+
+// ── Minimap grid ───────────────────────────────────────────────────────────────
+.nm-grid {
+  display: grid;
+  gap: 2px;
+}
+
+// ── Minimap cells ──────────────────────────────────────────────────────────────
+.nm-cell {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  cursor: crosshair;
+  transition: transform 0.1s ease;
+  position: relative;
+
+  &.available {
+    background: var(--cell-available);
+  }
+  &.sold {
+    background: var(--cell-sold);
+  }
+  &.reserved {
+    background: var(--cell-reserved);
+  }
+  &.disabled {
+    background: var(--cell-disabled);
+  }
+
+  // Highlighted niche
+  &.hl {
+    outline: 1.5px solid #fff;
+    outline-offset: 1px;
+    z-index: 2;
+  }
+
+  &:hover {
+    transform: scale(1.7);
+    z-index: 3;
+  }
+}
+
+// ── Viewport indicator rect ────────────────────────────────────────────────────
+.nm-viewport {
+  position: absolute;
+  top: -3px;
+  height: calc(100% + 6px);
+  background: rgba(71, 140, 128, 0.3);
+  border: 2px solid #478c80;
+  border-radius: 4px;
+  pointer-events: none; // mousedown pasa al wrap
+  transition:
+    left 0.06s linear,
+    width 0.06s linear;
+  z-index: 5;
+  box-shadow:
+    0 0 0 1px rgba(71, 140, 128, 0.2),
+    0 0 10px rgba(71, 140, 128, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  // Líneas de drag handle (blancas para contrastar con el fondo teal)
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1.5px;
+    height: 55%;
+    min-height: 6px;
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: 1px;
+    box-shadow:
+      -3px 0 0 rgba(255, 255, 255, 0.75),
+      3px 0 0 rgba(255, 255, 255, 0.75);
+  }
+}

@@ -4,17 +4,13 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonList, IonItem, IonLabel, IonBadge,
-  IonSearchbar, IonSegment, IonSegmentButton,
-  IonSpinner, IonFab, IonFabButton, IonIcon,
-  IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-  IonNote
+  IonContent, IonSearchbar, IonSpinner,
+  IonFab, IonFabButton, IonIcon
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  add, cashOutline, calendarOutline, personOutline,
-  businessOutline, checkmarkCircle, alertCircle,
-  timeOutline
+  add, cashOutline, personOutline, businessOutline,
+  searchOutline
 } from 'ionicons/icons';
 
 import { SaleService } from '../../services/sale.service';
@@ -32,11 +28,8 @@ import { CurrencyMxPipe } from 'src/app/shared/pipes/currency-mx.pipe';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonLabel, IonBadge,
-    IonSearchbar, IonSegment, IonSegmentButton,
+    IonContent, IonSearchbar, IonSpinner,
     IonFab, IonFabButton, IonIcon,
-    IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-    IonNote,
     HeaderComponent, EmptyStateComponent, CurrencyMxPipe
   ]
 })
@@ -78,10 +71,7 @@ export class SalesListPage implements OnInit, ViewWillEnter {
     private saleService: SaleService,
     private router: Router
   ) {
-    addIcons({
-      add, cashOutline, calendarOutline, personOutline,
-      businessOutline, checkmarkCircle, alertCircle, timeOutline
-    });
+    addIcons({ add, cashOutline, personOutline, businessOutline, searchOutline });
   }
 
   ngOnInit() {

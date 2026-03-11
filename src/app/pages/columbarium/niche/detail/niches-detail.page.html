@@ -1,145 +1,198 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
+  <ion-toolbar class="nd-toolbar">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/columbarium/niches"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ moduleInfo()?.moduleName || 'Cargando...' }}</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="presentFilterMenu()">
-        <ion-icon slot="icon-only" name="options-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
+    <ion-title class="nd-header-title">
+      {{ moduleInfo()?.module || '…' }} — Sección {{ currentSection() }}
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="niches-detail-content">
+<ion-content [fullscreen]="true" class="nd-content">
+
   <!-- Loading -->
-  <div class="loading-container" *ngIf="loading()">
+  <div class="nd-loading" *ngIf="loading()">
     <ion-spinner name="crescent"></ion-spinner>
-    <p>Cargando grid de nichos...</p>
+    <p>Cargando mapa de nichos…</p>
   </div>
 
-  <!-- Content -->
-  <div class="niches-detail-wrapper" *ngIf="!loading() && sectionData()">
+  <!-- Empty state -->
+  <app-empty-state
+    *ngIf="!loading() && !sectionData()"
+    icon="grid-outline"
+    title="No se encontró el módulo"
+    message="El módulo o sección solicitada no existe"
+    [showButton]="true"
+    buttonText="Volver a Nichos"
+    (action)="goBack()">
+  </app-empty-state>
 
-    <!-- Header Stats -->
-    <div class="section-header">
-      <div class="header-info">
-        <h2>{{ moduleInfo()?.module }} - Sección {{ sectionData()?.section }}</h2>
-        <p class="subtitle">{{ sectionData()?.totalNiches }} nichos totales</p>
+  <!-- Two-column layout -->
+  <div class="nd-layout" *ngIf="!loading() && sectionData()">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="nd-sidebar">
+
+      <div class="nd-sidebar-head">
+        <span class="nd-module-code">{{ moduleInfo()?.module }}</span>
+        <span class="nd-section-pill">Sección {{ currentSection() }}</span>
+        <span class="nd-total-sub">{{ sectionData()?.totalNiches }} nichos totales</span>
       </div>
 
-      <!-- Section selector si hay múltiples secciones -->
-      <ion-segment *ngIf="availableSections().length > 1" [value]="currentSection()"
-        (ionChange)="onSectionChange($event)">
-        <ion-segment-button *ngFor="let section of availableSections()" [value]="section">
-          <ion-label>Sección {{ section }}</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-    </div>
-
-    <!-- Stats cards -->
-    <div class="stats-mini-grid">
-      <div class="stat-mini available">
-        <div class="stat-mini-value">{{ sectionData()?.availableNiches }}</div>
-        <div class="stat-mini-label">Disponibles</div>
-      </div>
-      <div class="stat-mini sold">
-        <div class="stat-mini-value">{{ sectionData()?.soldNiches }}</div>
-        <div class="stat-mini-label">Vendidos</div>
-      </div>
-      <div class="stat-mini reserved">
-        <div class="stat-mini-value">{{ sectionData()?.reservedNiches }}</div>
-        <div class="stat-mini-label">Reservados</div>
-      </div>
-    </div>
-
-    <!-- Filtros -->
-    <div class="filters-bar">
-      <ion-chip [outline]="typeFilter() !== 'all'" (click)="setTypeFilter('all')"
-        [color]="typeFilter() === 'all' ? 'primary' : undefined">
-        <ion-label>Todos</ion-label>
-      </ion-chip>
-      <ion-chip [outline]="typeFilter() !== 'wood'" (click)="setTypeFilter('wood')"
-        [color]="typeFilter() === 'wood' ? 'primary' : undefined">
-        <ion-label>🪵 Madera</ion-label>
-      </ion-chip>
-      <ion-chip [outline]="typeFilter() !== 'marble'" (click)="setTypeFilter('marble')"
-        [color]="typeFilter() === 'marble' ? 'primary' : undefined">
-        <ion-label>💎 Mármol</ion-label>
-      </ion-chip>
-    </div>
-
-    <!-- Leyenda de colores -->
-    <div class="legend-card">
-      <h3>Leyenda</h3>
-      <div class="legend-items">
-        <div class="legend-item">
-          <span class="legend-color available"></span>
-          <span class="legend-text">Disponible</span>
+      <div class="nd-stats">
+        <div class="nd-stat available">
+          <span class="nd-stat-val">{{ sectionData()?.availableNiches }}</span>
+          <span class="nd-stat-lbl">Disponibles</span>
         </div>
-        <div class="legend-item">
-          <span class="legend-color sold"></span>
-          <span class="legend-text">Vendido</span>
+        <div class="nd-stat sold">
+          <span class="nd-stat-val">{{ sectionData()?.soldNiches }}</span>
+          <span class="nd-stat-lbl">Vendidos</span>
         </div>
-        <div class="legend-item">
-          <span class="legend-color reserved"></span>
-          <span class="legend-text">Reservado</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-color disabled"></span>
-          <span class="legend-text">Deshabilitado</span>
+        <div class="nd-stat reserved">
+          <span class="nd-stat-val">{{ sectionData()?.reservedNiches }}</span>
+          <span class="nd-stat-lbl">Reservados</span>
         </div>
       </div>
-    </div>
 
-    <!-- Grid Visual -->
-    <div class="grid-container">
-      <div class="grid-label-top">
-        <span>FILA 7 (Techo)</span>
+      <div class="nd-ctrl-group" *ngIf="availableSections().length > 1">
+        <p class="nd-ctrl-label">
+          <ion-icon name="layers-outline"></ion-icon>
+          Sección
+        </p>
+        <div class="nd-chips">
+          <button
+            class="nd-chip"
+            *ngFor="let sec of availableSections()"
+            [class.active]="currentSection() === sec"
+            (click)="goToSection(sec)">
+            {{ sec }}
+          </button>
+        </div>
       </div>
 
-      <div class="niches-grid" [style.grid-template-columns]="getGridColumns()">
-        <div *ngFor="let niche of filteredNiches(); let i = index" class="niche-cell"
-          [class.available]="niche.status === 'available'" [class.sold]="niche.status === 'sold'"
-          [class.reserved]="niche.status === 'reserved'" [class.disabled]="niche.status === 'disabled'"
-          [class.wood]="niche.type === 'wood'" [class.marble]="niche.type === 'marble'"
-          [class.highlighted]="highlightedNiche() === niche.code" (click)="openNicheDetail(niche)">
+      <div class="nd-ctrl-group">
+        <p class="nd-ctrl-label">Tipo</p>
+        <div class="nd-chips">
+          <button class="nd-chip"
+            [class.active]="typeFilter() === 'all'"
+            (click)="setTypeFilter('all')">
+            Todos
+          </button>
+          <button class="nd-chip"
+            [class.active]="typeFilter() === 'wood'"
+            (click)="setTypeFilter('wood')">
+            🪵 Madera
+          </button>
+          <button class="nd-chip"
+            [class.active]="typeFilter() === 'marble'"
+            (click)="setTypeFilter('marble')">
+            💎 Mármol
+          </button>
+        </div>
+      </div>
 
-          <span class="niche-number">#{{ niche.displayNumber }}</span>
-          <span class="niche-type-icon">{{ niche.type === 'marble' ? '💎' : '🪵' }}</span>
-
-          <!-- Tooltip con info al hover -->
-          <div class="niche-tooltip">
-            <div class="tooltip-code">{{ niche.code }}</div>
-            <div class="tooltip-price">${{ niche.price.toLocaleString() }}</div>
-
-            <!-- Mostrar propietario si está vendido -->
-            <div class="tooltip-owner" *ngIf="niche.status === 'sold' && niche.currentOwner">
-              <ion-icon name="person-outline"></ion-icon>
-              <span>{{ getOwnerName(niche) }}</span>
-            </div>
+      <div class="nd-ctrl-group">
+        <p class="nd-ctrl-label">Leyenda</p>
+        <div class="nd-legend">
+          <div class="nd-legend-item">
+            <span class="nd-legend-dot available"></span>
+            <span>Disponible</span>
+          </div>
+          <div class="nd-legend-item">
+            <span class="nd-legend-dot sold"></span>
+            <span>Vendido</span>
+          </div>
+          <div class="nd-legend-item">
+            <span class="nd-legend-dot reserved"></span>
+            <span>Reservado</span>
+          </div>
+          <div class="nd-legend-item">
+            <span class="nd-legend-dot disabled"></span>
+            <span>Deshabilitado</span>
           </div>
         </div>
       </div>
 
-      <div class="grid-label-bottom">
-        <span>FILA 1 (Piso)</span>
+    </aside>
+
+    <!-- ── MAIN COLUMN ── -->
+    <div class="nd-main">
+
+      <!--
+        MINIMAP: fuera del scroll container → NO se mueve.
+        Recibe scroll state del hijo .nd-scroll-area y manda de vuelta
+        el targetScrollLeft via (scrollTo).
+      -->
+      <div class="nd-minimap-strip">
+        <app-niche-minimap
+          [niches]="allSectionNiches()"
+          [nichesPerRow]="sectionData()?.nichesPerRow ?? 1"
+          [highlightedNiche]="highlightedNiche()"
+          [scrollLeft]="scrollLeft()"
+          [clientWidth]="clientWidth()"
+          [scrollWidth]="scrollWidth()"
+          (scrollTo)="onMinimapScrollTo($event)"
+          (nicheClick)="scrollToNiche($event)">
+        </app-niche-minimap>
       </div>
-    </div>
 
-    <!-- Info adicional -->
-    <div class="grid-info">
-      <p>
-        <ion-icon name="information-circle-outline"></ion-icon>
-        Toca cualquier nicho para ver detalles completos
-      </p>
-    </div>
-  </div>
+      <!--
+        SCROLL AREA: este es el contenedor que desborda horizontalmente.
+        #mainScroll es el ViewChild que se escucha para tracking de scroll.
+      -->
+      <div class="nd-scroll-area" #mainScroll>
 
-  <!-- Empty state -->
-  <app-empty-state *ngIf="!loading() && !sectionData()" icon="grid-outline" title="No se encontró el módulo"
-    message="El módulo o sección solicitada no existe" [showButton]="true" buttonText="Volver a Nichos"
-    (action)="goBack()">
-  </app-empty-state>
+        <div class="nd-grid-area">
+
+          <div class="nd-row-label top">
+            <span>↑ FILA 7 (Techo)</span>
+          </div>
+
+          <div class="nd-grid"
+            [style.grid-template-columns]="getGridColumns()">
+
+            <div
+              *ngFor="let niche of filteredNiches()"
+              class="nd-cell"
+              [class.available]="niche.status === 'available'"
+              [class.sold]="niche.status === 'sold'"
+              [class.reserved]="niche.status === 'reserved'"
+              [class.disabled]="niche.status === 'disabled'"
+              [class.highlighted]="highlightedNiche() === niche.code"
+              (click)="openNicheDetail(niche)">
+
+              <span class="nd-cell-num">#{{ niche.displayNumber }}</span>
+              <span class="nd-cell-icon">{{ niche.type === 'marble' ? '💎' : '🪵' }}</span>
+
+              <div class="nd-tooltip">
+                <div class="nd-tooltip-code">{{ niche.code }}</div>
+                <div class="nd-tooltip-price">${{ niche.price.toLocaleString() }}</div>
+                <div class="nd-tooltip-owner"
+                  *ngIf="niche.status === 'sold' && niche.currentOwner">
+                  <ion-icon name="person-outline"></ion-icon>
+                  <span>{{ getOwnerName(niche) }}</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="nd-row-label bottom">
+            <span>FILA 1 (Piso) ↓</span>
+          </div>
+
+        </div><!-- nd-grid-area -->
+
+        <p class="nd-hint">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Toca cualquier nicho para ver su ficha completa
+        </p>
+
+      </div><!-- nd-scroll-area -->
+
+    </div><!-- nd-main -->
+
+  </div><!-- nd-layout -->
+
 </ion-content>

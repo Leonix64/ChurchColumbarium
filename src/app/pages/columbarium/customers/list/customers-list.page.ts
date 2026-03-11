@@ -4,12 +4,11 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonList, IonItem, IonLabel, IonAvatar,
-  IonIcon, IonBadge, IonSearchbar, IonSegment,
-  IonSegmentButton, IonSpinner, IonFab, IonFabButton
+  IonContent, IonIcon, IonSearchbar,
+  IonSpinner, IonFab, IonFabButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { personCircleOutline, chevronForwardOutline, peopleOutline, add } from 'ionicons/icons';
+import { peopleOutline, add, chevronForwardOutline } from 'ionicons/icons';
 import { CustomerService } from '../../services/customer.service';
 import { HeaderComponent } from 'src/app/shared/components/header/header.component';
 import { EmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state.component';
@@ -22,9 +21,8 @@ import { Customer } from '../../models/customer.model';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonList, IonItem, IonLabel, IonAvatar,
-    IonIcon, IonBadge, IonSearchbar, IonSegment,
-    IonSegmentButton, IonSpinner, IonFab, IonFabButton,
+    IonContent, IonIcon, IonSearchbar,
+    IonSpinner, IonFab, IonFabButton,
     HeaderComponent, EmptyStateComponent
   ]
 })
@@ -59,7 +57,7 @@ export class CustomersListPage implements OnInit, ViewWillEnter {
   });
 
   constructor(private customerService: CustomerService, private router: Router) {
-    addIcons({ personCircleOutline, chevronForwardOutline, peopleOutline, add });
+    addIcons({ peopleOutline, add, chevronForwardOutline });
   }
 
   ngOnInit() {
@@ -81,6 +79,10 @@ export class CustomersListPage implements OnInit, ViewWillEnter {
   onFilterChange(event: any) {
     const value = event.detail?.value || 'all';
     this.statusFilter.set(value);
+  }
+
+  goToFilter(filter: string) {
+    this.statusFilter.set(filter as 'all' | 'active' | 'inactive');
   }
 
   onSearch(event: any) {

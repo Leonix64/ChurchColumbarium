@@ -1,385 +1,527 @@
-.niches-detail-content {
-  --background: var(--ion-background-color);
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap");
+
+// ── Palette ─────────────────────────────────────────────────────────────────
+:host {
+  --bg: #f3efe9;
+  --surface: #ffffff;
+  --surface-2: #ebe3da;
+  --primary: #4c3a70ab;
+  --primary-h: #5f4a8671;
+  --accent: #b79c5a;
+  --muted: #9a8f86;
+  --border: #ddd4c9;
+  --text: #2a2530;
+  --text-dim: #6f6764;
+  --success: #587c67;
+  --warning: #c69a39;
+  --danger: #b75454;
+
+  // niche cell colors
+  --cell-available: #4caf7d;
+  --cell-sold: #e05252;
+  --cell-reserved: #f0a500;
+  --cell-disabled: #3a4f48;
 }
 
-.loading-container {
+// ── Toolbar ───────────────────────────────────────────────────────────────────
+.nd-toolbar {
+  --background: var(--surface);
+  --border-color: var(--border);
+  --color: var(--text);
+}
+
+.nd-header-title {
+  font-family: "DM Sans", sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+// ── Content ───────────────────────────────────────────────────────────────────
+.nd-content {
+  --background: var(--bg);
+  font-family: "DM Sans", sans-serif;
+  color: var(--text);
+}
+
+// ── Loading ───────────────────────────────────────────────────────────────────
+.nd-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 300px;
-  gap: 16px;
+  height: 60vh;
+  gap: 14px;
+  color: var(--text-dim);
 
   ion-spinner {
-    --color: var(--ion-color-primary);
+    --color: var(--accent);
   }
-
   p {
-    color: var(--ion-color-medium);
     margin: 0;
+    font-size: 0.9rem;
   }
 }
 
-.niches-detail-wrapper {
-  padding: 16px;
-  max-width: 1400px;
+// ── Two-column layout ─────────────────────────────────────────────────────────
+.nd-layout {
+  display: flex;
+  min-height: 100%;
+}
+
+// ── SIDEBAR ───────────────────────────────────────────────────────────────────
+.nd-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+// Module head
+.nd-sidebar-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.nd-module-code {
+  font-family: "DM Mono", monospace;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.nd-section-pill {
+  display: inline-block;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  border-radius: 10px;
+}
+
+.nd-total-sub {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+// Stats
+.nd-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+.nd-stat {
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 8px 6px;
+  text-align: center;
+  border-top: 2px solid var(--border);
+
+  &.available {
+    border-top-color: var(--cell-available);
+  }
+  &.sold {
+    border-top-color: var(--cell-sold);
+  }
+  &.reserved {
+    border-top-color: var(--cell-reserved);
+  }
+}
+
+.nd-stat-val {
+  display: block;
+  font-family: "DM Mono", monospace;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.nd-stat-lbl {
+  display: block;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+// Control groups
+.nd-ctrl-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nd-ctrl-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin: 0;
+
+  ion-icon {
+    font-size: 0.85rem;
+  }
+}
+
+// Section / Type chips
+.nd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.nd-chip {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  font-family: "DM Sans", sans-serif;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  &:not(.active):hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+}
+
+// Legend
+.nd-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nd-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.nd-legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+
+  &.available {
+    background: var(--cell-available);
+  }
+  &.sold {
+    background: var(--cell-sold);
+  }
+  &.reserved {
+    background: var(--cell-reserved);
+  }
+  &.disabled {
+    background: var(--cell-disabled);
+    border: 1px solid var(--border);
+  }
+}
+
+// ── MAIN COLUMN ───────────────────────────────────────────────────────────────
+.nd-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden; // clip — children manage their own overflow
+}
+
+// Minimap strip: fixed at top, never scrolls
+.nd-minimap-strip {
+  flex-shrink: 0;
+  padding: 12px 16px 0;
+}
+
+// Actual scroll container: only this div scrolls horizontally
+.nd-scroll-area {
+  flex: 1;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 16px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+    &:hover {
+      background: var(--accent);
+    }
+  }
+}
+
+// Grid area container (with labels)
+.nd-grid-area {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  width: fit-content;
+  min-width: 100%;
+}
+
+// Row labels
+.nd-row-label {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+
+  &.top {
+    margin-bottom: 14px;
+  }
+  &.bottom {
+    margin-top: 14px;
+  }
+}
+
+// Niche grid
+.nd-grid {
+  display: grid;
+  gap: 6px;
+  width: fit-content;
   margin: 0 auto;
 }
 
-// Header section
-.section-header {
-  margin-bottom: 16px;
-
-  .header-info {
-    margin-bottom: 12px;
-
-    h2 {
-      font-size: 22px;
-      font-weight: 600;
-      margin: 0 0 4px 0;
-      color: var(--ion-color-dark);
-    }
-
-    .subtitle {
-      font-size: 14px;
-      color: var(--ion-color-medium);
-      margin: 0;
-    }
-  }
-
-  ion-segment {
-    background: var(--ion-card-background);
-    border-radius: 8px;
-    padding: 4px;
-  }
-}
-
-// Mini stats
-.stats-mini-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
-
-  .stat-mini {
-    background: var(--ion-card-background);
-    border-radius: 8px;
-    padding: 12px;
-    text-align: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-    &.available {
-      border-left: 4px solid var(--ion-color-success);
-    }
-
-    &.sold {
-      border-left: 4px solid var(--ion-color-danger);
-    }
-
-    &.reserved {
-      border-left: 4px solid var(--ion-color-warning);
-    }
-
-    .stat-mini-value {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .stat-mini-label {
-      font-size: 12px;
-      color: var(--ion-color-medium);
-    }
-  }
-}
-
-// Filtros
-.filters-bar {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-
-  ion-chip {
-    margin: 0;
-    cursor: pointer;
-  }
-}
-
-// Leyenda
-.legend-card {
-  background: var(--ion-card-background);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-  h3 {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0 0 12px 0;
-    color: var(--ion-color-dark);
-  }
-
-  .legend-items {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 12px;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .legend-color {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-
-      &.available {
-        background: #10dc60;
-      }
-
-      &.sold {
-        background: #f53d3d;
-      }
-
-      &.reserved {
-        background: #ffce00;
-      }
-
-      &.disabled {
-        background: #92949c;
-      }
-    }
-
-    .legend-text {
-      font-size: 14px;
-      color: var(--ion-color-dark);
-    }
-  }
-}
-
-// Grid container
-.grid-container {
-  background: var(--ion-card-background);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  overflow-x: auto;
-
-  .grid-label-top,
-  .grid-label-bottom {
-    text-align: center;
-    padding: 8px 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ion-color-medium);
-  }
-
-  .grid-label-top {
-    margin-bottom: 12px;
-  }
-
-  .grid-label-bottom {
-    margin-top: 12px;
-  }
-}
-
-// Grid de nichos
-.niches-grid {
-  display: grid;
-  gap: 6px;
-  min-width: fit-content;
-}
-
-.niche-cell {
+// Niche cell
+.nd-cell {
   position: relative;
   aspect-ratio: 1;
-  min-width: 50px;
-  min-height: 50px;
-  border-radius: 6px;
+  min-width: 52px;
+  min-height: 52px;
+  border-radius: 7px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   border: 2px solid transparent;
+  overflow: visible;
 
-  // Estados
   &.available {
-    background: linear-gradient(135deg, #10dc60 0%, #0ec254 100%);
-    color: white;
-
+    background: var(--cell-available);
+    color: #fff;
     &:hover {
-      background: linear-gradient(135deg, #0ec254 0%, #0ab548 100%);
-      transform: scale(1.05);
+      transform: scale(1.06);
+      box-shadow: 0 4px 12px rgba(76, 175, 125, 0.4);
     }
   }
 
   &.sold {
-    background: linear-gradient(135deg, #f53d3d 0%, #e42b2b 100%);
-    color: white;
-
+    background: var(--cell-sold);
+    color: #fff;
     &:hover {
-      background: linear-gradient(135deg, #e42b2b 0%, #d41f1f 100%);
+      transform: scale(1.04);
+      box-shadow: 0 4px 12px rgba(224, 82, 82, 0.35);
     }
   }
 
   &.reserved {
-    background: linear-gradient(135deg, #ffce00 0%, #f0c000 100%);
-    color: #333;
-
+    background: var(--cell-reserved);
+    color: #1a1a1a;
     &:hover {
-      background: linear-gradient(135deg, #f0c000 0%, #e0b000 100%);
+      transform: scale(1.04);
+      box-shadow: 0 4px 12px rgba(240, 165, 0, 0.35);
     }
   }
 
   &.disabled {
-    background: linear-gradient(135deg, #92949c 0%, #7e8089 100%);
-    color: white;
-    opacity: 0.7;
+    background: var(--cell-disabled);
+    color: var(--text-dim);
     cursor: not-allowed;
-
+    opacity: 0.7;
     &:hover {
       transform: none;
     }
   }
 
-  // Destacado
   &.highlighted {
-    border-color: var(--ion-color-primary);
-    box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.3);
-    animation: pulse 1.5s ease-in-out infinite;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(71, 140, 128, 0.35);
+    animation: nd-pulse 1.5s ease-in-out infinite;
   }
+}
 
-  .niche-number {
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 2px;
-  }
+.nd-cell-num {
+  font-family: "DM Mono", monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 2px;
+}
 
-  .niche-type-icon {
-    font-size: 16px;
-  }
+.nd-cell-icon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
 
-  // Tooltip
-  .niche-tooltip {
+// Tooltip on hover
+.nd-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 11px;
+  border-radius: 8px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 20;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+
+  // Arrow
+  &::after {
+    content: "";
     position: absolute;
-    bottom: 100%;
+    top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.9);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-    margin-bottom: 8px;
-    z-index: 10;
-
-    .tooltip-code {
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-
-    .tooltip-price {
-      font-size: 11px;
-      color: #4ade80;
-    }
-
-    .tooltip-owner {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 10px;
-      color: #94a3b8;
-      margin-top: 4px;
-      padding-top: 4px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-
-      ion-icon {
-        font-size: 12px;
-      }
-    }
-
-    &::after {
-      content: "";
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      border: 5px solid transparent;
-      border-top-color: rgba(0, 0, 0, 0.9);
-    }
-  }
-
-  &:hover .niche-tooltip {
-    opacity: 1;
+    border: 5px solid transparent;
+    border-top-color: var(--border);
   }
 }
 
-// Grid info
-.grid-info {
-  text-align: center;
-  margin-top: 16px;
+.nd-tooltip-code {
+  font-family: "DM Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
 
-  p {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-size: 14px;
-    color: var(--ion-color-medium);
-    margin: 0;
+.nd-tooltip-price {
+  font-family: "DM Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--success);
+}
 
-    ion-icon {
-      font-size: 18px;
-    }
+.nd-tooltip-owner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid var(--border);
+
+  ion-icon {
+    font-size: 0.75rem;
   }
 }
 
-// Animación pulse
-@keyframes pulse {
+.nd-cell:hover .nd-tooltip {
+  opacity: 1;
+}
+
+// Hint text
+.nd-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin: 0;
+
+  ion-icon {
+    font-size: 1rem;
+    color: var(--accent);
+  }
+}
+
+// Pulse animation
+@keyframes nd-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.3);
+    box-shadow: 0 0 0 3px rgba(71, 140, 128, 0.35);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(var(--ion-color-primary-rgb), 0.1);
+    box-shadow: 0 0 0 7px rgba(71, 140, 128, 0.1);
   }
 }
 
-// Responsive
+// ── Responsive ────────────────────────────────────────────────────────────────
 @media (max-width: 768px) {
-  .niche-cell {
-    min-width: 45px;
-    min-height: 45px;
-
-    .niche-number {
-      font-size: 12px;
-    }
-
-    .niche-type-icon {
-      font-size: 14px;
-    }
+  .nd-layout {
+    flex-direction: column;
   }
 
-  .stats-mini-grid {
+  .nd-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    gap: 14px;
+  }
+
+  .nd-stats {
     grid-template-columns: repeat(3, 1fr);
   }
-}
 
-app-empty-state {
-  display: block;
-  padding: 60px 16px;
+  .nd-main {
+    padding: 14px;
+  }
+
+  .nd-cell {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .nd-cell-num {
+    font-size: 0.68rem;
+  }
+  .nd-cell-icon {
+    font-size: 0.8rem;
+  }
 }

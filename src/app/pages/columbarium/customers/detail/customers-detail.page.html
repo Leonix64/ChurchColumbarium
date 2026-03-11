@@ -1,172 +1,191 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
+  <ion-toolbar class="cd-toolbar">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/columbarium/customers"></ion-back-button>
     </ion-buttons>
-    <ion-title>Detalle del Cliente</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="presentActionSheet()">
-        <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
-      </ion-button>
-    </ion-buttons>
+    <ion-title class="cd-header-title">
+      {{ customer() ? customer()!.firstName + ' ' + customer()!.lastName : 'Cliente' }}
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="detail-content">
+<ion-content [fullscreen]="true" class="cd-content">
 
   <!-- Loading -->
-  <div class="loading-container" *ngIf="loading()">
+  <div class="cd-loading" *ngIf="loading()">
     <ion-spinner name="crescent"></ion-spinner>
-    <p>Cargando información...</p>
+    <p>Cargando cliente…</p>
   </div>
 
-  <!-- Customer Data -->
-  <div class="customer-wrapper" *ngIf="!loading() && customer()">
+  <!-- Not found -->
+  <app-empty-state *ngIf="!loading() && !customer()" icon="alert-circle-outline" title="Cliente no encontrado"
+    message="No se pudo cargar la información del cliente" [showButton]="true" buttonText="Volver a Clientes"
+    (action)="goBack()">
+  </app-empty-state>
 
-    <!-- Header Card -->
-    <div class="header-card">
-      <div class="avatar-section">
-        <ion-icon name="person-circle" class="avatar-icon"></ion-icon>
-      </div>
-      <div class="name-section">
-        <h1 class="customer-name">{{ customer()?.firstName }} {{ customer()?.lastName }}</h1>
-        <ion-badge [color]="customer()?.active ? 'success' : 'medium'" class="status-badge">
+  <!-- Two-column layout -->
+  <div class="cd-layout" *ngIf="!loading() && customer()">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="cd-sidebar">
+
+      <!-- Identity -->
+      <div class="cd-identity">
+        <div class="cd-avatar">
+          {{ customer()!.firstName[0] }}{{ customer()!.lastName[0] }}
+        </div>
+        <h2 class="cd-name">{{ customer()?.firstName }} {{ customer()?.lastName }}</h2>
+        <span class="cd-status-badge" [class.active]="customer()?.active" [class.inactive]="!customer()?.active">
           {{ customer()?.active ? 'Activo' : 'Inactivo' }}
-        </ion-badge>
+        </span>
       </div>
-    </div>
 
-    <!-- Info Card -->
-    <div class="info-grid">
-
-      <!-- Contacto -->
-      <div class="info-card">
-        <div class="card-header">
-          <ion-icon name="call" class="header-icon"></ion-icon>
-          <h2>Contacto</h2>
+      <!-- Quick contact -->
+      <div class="cd-contact-block">
+        <a [href]="'tel:' + customer()?.phone" class="cd-contact-row">
+          <ion-icon name="call"></ion-icon>
+          <span class="cd-contact-val mono">{{ customer()?.phone }}</span>
+        </a>
+        <a *ngIf="customer()?.email" [href]="'mailto:' + customer()?.email" class="cd-contact-row">
+          <ion-icon name="mail-outline"></ion-icon>
+          <span class="cd-contact-val">{{ customer()?.email }}</span>
+        </a>
+        <div *ngIf="customer()?.rfc" class="cd-contact-row no-link">
+          <ion-icon name="document-text-outline"></ion-icon>
+          <span class="cd-contact-val mono">{{ customer()?.rfc }}</span>
         </div>
-        <div class="card-content">
-          <div class="info-row">
-            <span class="label">Telefono: </span>
-            <a [href]="'tel:' + customer()?.phone" class="value clickable">
-              {{ customer()?.phone }}
-            </a>
-          </div>
-          <div class="info-row" *ngIf="customer()?.email">
-            <span class="label">Email: </span>
-            <a [href]="'mailto:' + customer()?.email" class="value clickable">
-              {{ customer()?.email }}
-            </a>
-          </div>
-          <div class="info-row" *ngIf="customer()?.rfc">
-            <span class="label">RFC: </span>
-            <span class="value">{{ customer()?.rfc }}</span>
-          </div>
+        <div *ngIf="customer()?.address" class="cd-contact-row no-link">
+          <ion-icon name="location"></ion-icon>
+          <span class="cd-contact-val small">{{ customer()?.address }}</span>
         </div>
       </div>
 
-      <!-- Direccion -->
-      <div class="info-card" *ngIf="customer()?.address">
-        <div class="card-header">
-          <ion-icon name="location" class="header-icon"></ion-icon>
-          <h2>Direccion</h2>
+      <!-- Sales mini stats -->
+      <div class="cd-sales-mini" *ngIf="salesStats()">
+        <div class="cd-sm-item">
+          <span class="cd-sm-val">{{ salesStats()?.totalSales || 0 }}</span>
+          <span class="cd-sm-lbl">Ventas</span>
         </div>
-        <div class="card-content">
-          <p class="address-text">{{ customer()?.address }}</p>
+        <div class="cd-sm-item success">
+          <span class="cd-sm-val">{{ salesStats()?.totalPaid | currencyMx }}</span>
+          <span class="cd-sm-lbl">Pagado</span>
         </div>
-      </div>
-
-      <!-- Contacto de Emergencia -->
-      <div class="info-card" *ngIf="customer()?.emergencyContact?.name">
-        <div class="card-header">
-          <ion-icon name="medkit" class="header-icon"></ion-icon>
-          <h2>Contacto de Emergencia</h2>
-        </div>
-        <div class="card-content">
-          <div class="info-row">
-            <span class="label">Nombre: </span>
-            <span class="value">{{ customer()?.emergencyContact?.name }}</span>
-          </div>
-          <div class="info-row" *ngIf="customer()?.emergencyContact?.phone">
-            <span class="label">Teléfono: </span>
-            <a [href]="'tel:' + customer()?.emergencyContact?.phone" class="value clickable">
-              {{ customer()?.emergencyContact?.phone }}
-            </a>
-          </div>
-          <div class="info-row" *ngIf="customer()?.emergencyContact?.relationship">
-            <span class="label">Relación: </span>
-            <span class="value">{{ customer()?.emergencyContact?.relationship }}</span>
-          </div>
+        <div class="cd-sm-item warning">
+          <span class="cd-sm-val">{{ salesStats()?.totalPending | currencyMx }}</span>
+          <span class="cd-sm-lbl">Pendiente</span>
         </div>
       </div>
 
-      <!-- Beneficiarios -->
-      <div class="info-card" *ngIf="customer()?.beneficiaries && customer()?.beneficiaries!.length > 0">
-        <div class="card-header">
-          <ion-icon name="people" class="header-icon"></ion-icon>
-          <h2>Beneficiarios</h2>
-        </div>
-        <div class="card-content">
-          <div class="beneficiaries-list">
-            <div class="beneficiary-item" *ngFor="let beneficiary of customer()?.beneficiaries">
-              <ion-icon name="person" class="beneficiary-icon"></ion-icon>
-              <div class="beneficiary-info">
-                <span class="beneficiary-name">{{ beneficiary.name }}</span>
-                <ion-badge color="light" class="beneficiary-relationship" *ngIf="beneficiary.relationship">
-                  {{ beneficiary.relationship }}
-                </ion-badge>
-              </div>
+      <!-- Actions -->
+      <div class="cd-actions">
+        <ion-button expand="block" fill="solid" color="success" (click)="goToEdit()" [disabled]="!customer()?.active">
+          <ion-icon slot="start" name="create-outline"></ion-icon>
+          Editar
+        </ion-button>
+
+        <ion-button expand="block" fill="outline" [color]="customer()?.active ? 'danger' : 'success'"
+          (click)="toggleActiveStatus()">
+          <ion-icon slot="start" [name]="customer()?.active ? 'close-circle-outline' : 'checkmark-circle-outline'">
+          </ion-icon>
+          {{ customer()?.active ? 'Desactivar' : 'Activar' }}
+        </ion-button>
+
+        <ion-button expand="block" fill="outline" (click)="shareCustomer()">
+          <ion-icon slot="start" name="share-outline"></ion-icon>
+          Compartir
+        </ion-button>
+
+        <!-- <ion-button expand="block" fill="clear" (click)="openResourceHistory()">
+          <ion-icon slot="start" name="time-outline"></ion-icon>
+          Ver Historial
+        </ion-button> -->
+
+        <ion-button expand="block" fill="clear" *ngIf="customerSales().length > 0" (click)="goToCustomerNiches()">
+          <ion-icon slot="start" name="cube-outline"></ion-icon>
+          Nichos ({{ customerSales().length }})
+        </ion-button>
+      </div>
+
+    </aside>
+
+    <!-- ── MAIN / TABS ── -->
+    <div class="cd-main">
+
+      <!-- Tab bar -->
+      <div class="cd-tabs">
+        <button class="cd-tab" [class.active]="activeTab() === 'info'" (click)="activeTab.set('info')">
+          <ion-icon name="information-circle"></ion-icon>
+          Info
+        </button>
+        <button class="cd-tab" [class.active]="activeTab() === 'compras'" (click)="activeTab.set('compras')">
+          <ion-icon name="cart-outline"></ion-icon>
+          Compras
+          <span class="cd-tab-badge" *ngIf="customerSales().length > 0">
+            {{ customerSales().length }}
+          </span>
+        </button>
+        <button class="cd-tab" [class.active]="activeTab() === 'sistema'" (click)="activeTab.set('sistema')">
+          <ion-icon name="document-text-outline"></ion-icon>
+          Sistema
+        </button>
+      </div>
+
+      <!-- ── TAB: Info ── -->
+      <div class="cd-tab-content" *ngIf="activeTab() === 'info'">
+
+        <!-- Emergencia -->
+        <div class="cd-section" *ngIf="customer()?.emergencyContact?.name">
+          <p class="cd-section-title">
+            <ion-icon name="medkit"></ion-icon>
+            Contacto de Emergencia
+          </p>
+          <div class="cd-meta-block">
+            <div class="cd-meta-row">
+              <span class="cd-meta-label">Nombre</span>
+              <span class="cd-meta-value">{{ customer()?.emergencyContact?.name }}</span>
+            </div>
+            <div class="cd-meta-row" *ngIf="customer()?.emergencyContact?.phone">
+              <span class="cd-meta-label">Teléfono</span>
+              <a [href]="'tel:' + customer()?.emergencyContact?.phone" class="cd-meta-value link mono">
+                {{ customer()?.emergencyContact?.phone }}
+              </a>
+            </div>
+            <div class="cd-meta-row" *ngIf="customer()?.emergencyContact?.relationship">
+              <span class="cd-meta-label">Relación</span>
+              <span class="cd-meta-value">{{ customer()?.emergencyContact?.relationship }}</span>
             </div>
           </div>
         </div>
+
+        <!-- Beneficiarios -->
+        <div class="cd-section" *ngIf="customer()?.beneficiaries && customer()!.beneficiaries!.length > 0">
+          <p class="cd-section-title">
+            <ion-icon name="people"></ion-icon>
+            Beneficiarios
+          </p>
+          <div class="cd-meta-block">
+            <div class="cd-meta-row" *ngFor="let b of customer()?.beneficiaries">
+              <span class="cd-meta-label">{{ b.relationship || 'Beneficiario' }}</span>
+              <span class="cd-meta-value">{{ b.name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty info -->
+        <p class="cd-empty-tab" *ngIf="!customer()?.emergencyContact?.name &&
+                 (!customer()?.beneficiaries || customer()!.beneficiaries!.length === 0)">
+          No hay información adicional registrada.
+        </p>
+
       </div>
 
-      <!-- Metadata -->
-      <div class="info-card metadata-card">
-        <div class="card-header">
-          <ion-icon name="information-circle" class="header-icon"></ion-icon>
-          <h2>Información del Sistema</h2>
-        </div>
-        <div class="card-content">
-          <div class="info-row">
-            <span class="label">Registrado: </span>
-            <span class="value">{{ customer()?.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-          </div>
-          <div class="info-row" *ngIf="customer()?.updatedAt">
-            <span class="label">Última actualización: </span>
-            <span class="value">{{ customer()?.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
-          </div>
-        </div>
-      </div>
+      <!-- ── TAB: Compras ── -->
+      <div class="cd-tab-content" *ngIf="activeTab() === 'compras'">
 
-      <!-- Historial de Compras -->
-      <div class="purchases-section" *ngIf="!loading() && customerSales().length > 0">
-        <div class="section-header">
-          <h2>
-            <ion-icon name="cart-outline"></ion-icon>
-            Historial de Compras
-          </h2>
-        </div>
-
-        <div class="stats-mini-grid">
-          <div class="stat-mini">
-            <div class="stat-mini-value">{{ salesStats()?.totalSales || 0 }}</div>
-            <div class="stat-mini-label">Ventas</div>
-          </div>
-          <div class="stat-mini success">
-            <div class="stat-mini-value">{{ salesStats()?.totalPaid | currencyMx }}</div>
-            <div class="stat-mini-label">Pagado</div>
-          </div>
-          <div class="stat-mini warning">
-            <div class="stat-mini-value">{{ salesStats()?.totalPending | currencyMx }}</div>
-            <div class="stat-mini-label">Pendiente</div>
-          </div>
-        </div>
-
-        <ion-card *ngFor="let sale of customerSales()" class="sale-summary-card" (click)="goToSale(sale._id)">
-          <ion-card-content>
-            <div class="sale-header">
-              <div class="sale-folio">
+        <div *ngIf="customerSales().length > 0">
+          <div class="cd-sale-card" *ngFor="let sale of customerSales()" (click)="goToSale(sale._id)">
+            <div class="cd-sale-head">
+              <div class="cd-sale-folio">
                 <ion-icon name="document-text-outline"></ion-icon>
                 <span>{{ sale.folio }}</span>
               </div>
@@ -174,66 +193,70 @@
                 {{ getSaleStatusLabel(sale.status) }}
               </ion-badge>
             </div>
-
-            <div class="sale-details">
-              <p>
-                <ion-icon name="business-outline"></ion-icon>
-                <strong>Nicho:</strong> {{ $any(sale.niche)?.code }}
-              </p>
-              <p>
-                <ion-icon name="cash-outline"></ion-icon>
-                <strong>Total:</strong> {{ sale.totalAmount | currencyMx }}
-              </p>
-              <p>
-                <ion-icon name="checkmark-circle-outline"
-                  [color]="sale.balance === 0 ? 'success' : 'warning'"></ion-icon>
-                <strong>Saldo:</strong> {{ sale.balance | currencyMx }}
-              </p>
+            <div class="cd-sale-body">
+              <div class="cd-sale-row">
+                <span class="cd-sale-label">Nicho</span>
+                <span class="cd-sale-val mono">{{ $any(sale.niche)?.code }}</span>
+              </div>
+              <div class="cd-sale-row">
+                <span class="cd-sale-label">Total</span>
+                <span class="cd-sale-val mono">{{ sale.totalAmount | currencyMx }}</span>
+              </div>
+              <div class="cd-sale-row">
+                <span class="cd-sale-label">Saldo</span>
+                <span class="cd-sale-val mono" [class.zero]="sale.balance === 0" [class.pending]="sale.balance > 0">
+                  {{ sale.balance | currencyMx }}
+                </span>
+              </div>
             </div>
-
-            <ion-progress-bar [value]="getSaleProgress(sale) / 100"
-              [color]="getSaleProgress(sale) === 100 ? 'success' : 'warning'">
-            </ion-progress-bar>
-          </ion-card-content>
-        </ion-card>
-      </div>
-
-      <div class="info-card" *ngIf="!loading() && customerSales().length === 0">
-        <ion-card-content>
-          <div class="empty-purchases">
-            <ion-icon name="cart-outline"></ion-icon>
-            <p>Este cliente aún no tiene compras registradas</p>
+            <!-- Progress bar -->
+            <div class="cd-progress-wrap">
+              <div class="cd-progress-track">
+                <div class="cd-progress-fill" [style.width.%]="getSaleProgress(sale)"
+                  [class.full]="getSaleProgress(sale) === 100">
+                </div>
+              </div>
+              <span class="cd-progress-pct">{{ getSaleProgress(sale) | number:'1.0-0' }}%</span>
+            </div>
           </div>
-        </ion-card-content>
+        </div>
+
+        <!-- Empty compras -->
+        <p class="cd-empty-tab" *ngIf="customerSales().length === 0">
+          <ion-icon name="cart-outline"></ion-icon>
+          Este cliente aún no tiene compras registradas.
+        </p>
+
       </div>
 
-    </div>
+      <!-- ── TAB: Sistema ── -->
+      <div class="cd-tab-content" *ngIf="activeTab() === 'sistema'">
+        <div class="cd-meta-block">
+          <div class="cd-meta-row">
+            <span class="cd-meta-label">ID</span>
+            <span class="cd-meta-value mono small">{{ customer()?._id }}</span>
+          </div>
+          <div class="cd-meta-row">
+            <span class="cd-meta-label">Registrado</span>
+            <span class="cd-meta-value">
+              {{ customer()?.createdAt | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
+          <div class="cd-meta-row" *ngIf="customer()?.updatedAt">
+            <span class="cd-meta-label">Actualizado</span>
+            <span class="cd-meta-value">
+              {{ customer()?.updatedAt | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
+          <div class="cd-meta-row">
+            <span class="cd-meta-label">Estado</span>
+            <span class="cd-meta-value">{{ customer()?.active ? 'Activo' : 'Inactivo' }}</span>
+          </div>
+        </div>
+      </div>
 
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-      <ion-button expand="block" fill="outline" *ngIf="customerSales().length > 0" (click)="goToCustomerNiches()">
-        <ion-icon slot="start" name="cube-outline"></ion-icon>
-        Ver Nichos del Cliente ({{ customerSales().length }}) (Beta)
-      </ion-button>
+    </div><!-- cd-main -->
 
-      <ion-button expand="block" (click)="goToEdit()" [disabled]="!customer()?.active">
-        <ion-icon slot="start" name="create-outline"></ion-icon>
-        Editar Cliente
-      </ion-button>
+  </div><!-- cd-layout -->
 
-      <ion-button expand="block" fill="outline" [color]="customer()?.active ? 'danger' : 'success'"
-        (click)="toggleActiveStatus()">
-        <ion-icon slot="start" [name]="customer()?.active ? 'close-circle-outline' : 'checkmark-circle-outline'">
-        </ion-icon>
-        {{ customer()?.active ? 'Desactivar' : 'Activar' }} Cliente
-      </ion-button>
-    </div>
-
-  </div>
-
-  <!-- Estado vacío / error -->
-  <app-empty-state *ngIf="!loading() && !customer()" icon="alert-circle-outline" title="Cliente no encontrado"
-    message="No se pudo cargar la informacion del cliente" [showButton]="true" buttonText="Volver a Clientes"
-    (action)="goBack()">
-  </app-empty-state>
 </ion-content>

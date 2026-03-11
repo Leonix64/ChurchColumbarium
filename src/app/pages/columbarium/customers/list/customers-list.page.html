@@ -1,64 +1,99 @@
-<app-header title="Clientes"></app-header>
+<app-header title="Clientes" [showSearch]="false" [showAdd]="false"></app-header>
 
-<ion-content [fullscreen]="true">
-
-  <div class="search-filter-bar">
-    <ion-searchbar
-      placeholder="Buscar cliente..."
-      (ionInput)="onSearch($event)"
-      [debounce]="300">
-    </ion-searchbar>
-
-    <ion-segment [value]="statusFilter()" (ionChange)="onFilterChange($event)">
-      <ion-segment-button value="all">
-        <ion-label>Todos</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="active">
-        <ion-label>Activos</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="inactive">
-        <ion-label>Inactivos</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-  </div>
+<ion-content [fullscreen]="true" class="customers-content">
 
   <!-- Loading -->
-  <div class="loading-container" *ngIf="loading()">
+  <div class="cl-loading" *ngIf="loading()">
     <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando clientes…</p>
   </div>
 
-  <!-- Empty State -->
-  <app-empty-state
-    *ngIf="!loading() && filteredCustomers().length === 0"
-    icon="people-outline"
-    title="Sin clientes"
-    description="No se encontraron clientes">
-  </app-empty-state>
+  <div class="cl-wrapper" *ngIf="!loading()">
 
-  <!-- List -->
-  <ion-list *ngIf="!loading() && filteredCustomers().length > 0">
-    <ion-item
-      *ngFor="let customer of filteredCustomers(); trackBy: trackByFn"
-      button
-      detail="false"
-      (click)="goToDetail(customer._id)">
-      <ion-avatar slot="start">
-        <ion-icon name="person-circle-outline" class="avatar-icon"></ion-icon>
-      </ion-avatar>
-      <ion-label>
-        <h2>{{ customer.firstName }} {{ customer.lastName }}</h2>
-        <p>{{ customer.phone }}</p>
-        <p *ngIf="customer.rfc">RFC: {{ customer.rfc }}</p>
-      </ion-label>
-      <ion-badge slot="end" [color]="customer.active ? 'success' : 'medium'">
-        {{ customer.active ? 'Activo' : 'Inactivo' }}
-      </ion-badge>
-      <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
-    </ion-item>
-  </ion-list>
+    <!-- Toolbar -->
+    <div class="cl-toolbar">
+      <ion-searchbar
+        [value]="searchTerm()"
+        (ionInput)="onSearch($event)"
+        placeholder="Buscar cliente…"
+        [debounce]="300"
+        class="cl-searchbar">
+      </ion-searchbar>
 
+      <div class="cl-filter-tabs">
+        <button class="cl-tab" [class.active]="statusFilter() === 'all'" (click)="goToFilter('all')">
+          Todos
+          <span class="cl-tab-count">{{ customers().length }}</span>
+        </button>
+        <button class="cl-tab" [class.active]="statusFilter() === 'active'" (click)="goToFilter('active')">
+          Activos
+        </button>
+        <button class="cl-tab" [class.active]="statusFilter() === 'inactive'" (click)="goToFilter('inactive')">
+          Inactivos
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="cl-table-wrap" *ngIf="filteredCustomers().length > 0">
+      <table class="cl-table">
+        <thead>
+          <tr>
+            <th class="col-avatar"></th>
+            <th>Cliente</th>
+            <th class="col-phone">Teléfono</th>
+            <th class="col-rfc">RFC</th>
+            <th class="col-status">Estado</th>
+            <th class="col-arrow"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let customer of filteredCustomers(); trackBy: trackByFn"
+            (click)="goToDetail(customer._id)"
+            class="cl-row">
+            <td class="col-avatar">
+              <div class="cl-avatar">
+                {{ customer.firstName[0] }}{{ customer.lastName[0] }}
+              </div>
+            </td>
+            <td>
+              <span class="cl-name">{{ customer.firstName }} {{ customer.lastName }}</span>
+            </td>
+            <td class="col-phone">
+              <span class="cl-phone">{{ customer.phone }}</span>
+            </td>
+            <td class="col-rfc">
+              <span class="cl-rfc" *ngIf="customer.rfc">{{ customer.rfc }}</span>
+              <span class="cl-empty" *ngIf="!customer.rfc">—</span>
+            </td>
+            <td class="col-status">
+              <span class="cl-badge"
+                [class.active]="customer.active"
+                [class.inactive]="!customer.active">
+                {{ customer.active ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="col-arrow">
+              <ion-icon name="chevron-forward-outline" class="cl-chevron"></ion-icon>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty state -->
+    <app-empty-state
+      *ngIf="filteredCustomers().length === 0"
+      icon="people-outline"
+      title="Sin clientes"
+      [message]="searchTerm() ? 'No hay resultados para tu búsqueda' : 'No hay clientes registrados'">
+    </app-empty-state>
+
+  </div>
+
+  <!-- FAB -->
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button (click)="goToCreate()">
+    <ion-fab-button color="success" (click)="goToCreate()" title="Nuevo Cliente">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>

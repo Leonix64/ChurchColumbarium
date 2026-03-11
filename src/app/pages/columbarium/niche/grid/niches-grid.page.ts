@@ -3,19 +3,22 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonSearchbar, IonSegment, IonSegmentButton,
-  IonLabel, IonButton, IonIcon, IonSpinner, AlertController
+  IonContent, IonSearchbar,
+  IonIcon, IonSpinner, IonFab, IonFabButton,
+  AlertController, ModalController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   chevronForward, cubeOutline, arrowForward,
-  searchOutline
+  searchOutline, addCircleOutline
 } from 'ionicons/icons';
 
 import { NicheService } from '../../services/niche.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { HeaderComponent } from 'src/app/shared/components/header/header.component';
 import { EmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state.component';
+import { NicheCreateModalComponent } from '../../components/niche-create-modal/niche-create-modal.component';
 import { ModuleGroup, Niche } from '../../models/niche.model';
 
 
@@ -26,15 +29,15 @@ import { ModuleGroup, Niche } from '../../models/niche.model';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonSearchbar, IonSegment, IonSegmentButton,
-    IonLabel, IonButton, IonIcon, IonSpinner,
+    IonContent, IonSearchbar,
+    IonIcon, IonSpinner, IonFab, IonFabButton,
     HeaderComponent, EmptyStateComponent
   ]
 })
 export class NichesGridPage implements OnInit {
   loading = signal(true);
   searchModule = signal('');
-  statusFilter = signal<'all' | 'available' | 'sold'>('all');
+  statusFilter = signal<'all' | 'available' | 'sold' | 'reserved'>('all');
 
   // Data from service
   moduleGroups = this.nicheService.moduleGroups;
@@ -59,18 +62,24 @@ export class NichesGridPage implements OnInit {
       modules = modules.filter(m => m.availableNiches > 0);
     } else if (status === 'sold') {
       modules = modules.filter(m => m.soldNiches > 0);
+    } else if (status === 'reserved') {
+      modules = modules.filter(m => m.reservedNiches > 0);
     }
 
     return modules;
   });
 
+  isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
+
   constructor(
     public notificationService: NotificationService,
     private nicheService: NicheService,
+    private authService: AuthService,
     private router: Router,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private modalCtrl: ModalController
   ) {
-    addIcons({ chevronForward, cubeOutline, arrowForward, searchOutline });
+    addIcons({ chevronForward, cubeOutline, arrowForward, searchOutline, addCircleOutline });
   }
 
   ngOnInit() {
@@ -153,6 +162,29 @@ export class NichesGridPage implements OnInit {
   onFilterChange(event: any) {
     const value = event.detail?.value || 'all';
     this.statusFilter.set(value);
+  }
+
+  goToFilter(filter: string) {
+    this.statusFilter.set(filter as 'all' | 'available' | 'sold' | 'reserved');
+  }
+
+  goToSection(module: string, section: string) {
+    this.router.navigate(['/columbarium/niches/module', module, section]);
+  }
+
+  async openCreateModal() {
+    const modal = await this.modalCtrl.create({
+      component: NicheCreateModalComponent
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+    if (data?.created) {
+      this.loadNiches();
+    }
+  }
+
+  goToDisabled() {
+    this.router.navigate(['/columbarium/niches/disabled']);
   }
 
   goToModuleDetail(moduleGroup: ModuleGroup) {

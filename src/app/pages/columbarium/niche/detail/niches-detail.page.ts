@@ -1,14 +1,16 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy, computed, signal,
+  ViewChild, ElementRef
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
   IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton,
-  IonTitle, IonButton, IonIcon, IonSegment, IonSegmentButton,
-  IonLabel, IonChip, IonSpinner, ActionSheetController
+  IonTitle, IonIcon, IonSpinner
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  optionsOutline, informationCircleOutline, gridOutline
+  informationCircleOutline, gridOutline, personOutline, layersOutline
 } from 'ionicons/icons';
 
 import { NicheService } from '../../services/niche.service';
@@ -16,6 +18,7 @@ import { NotificationService } from 'src/app/core/services/notification.service'
 import { EmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state.component';
 import { Niche, SectionGroup, ModuleGroup } from '../../models/niche.model';
 import { Customer } from '../../models/customer.model';
+import { NicheMinimapComponent } from '../minimap/niche-minimap.component';
 
 @Component({
   selector: 'app-niches-detail',
@@ -25,75 +28,87 @@ import { Customer } from '../../models/customer.model';
   imports: [
     CommonModule,
     IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton,
-    IonTitle, IonButton, IonIcon, IonSegment, IonSegmentButton,
-    IonLabel, IonChip, IonSpinner,
-    EmptyStateComponent
+    IonTitle, IonIcon, IonSpinner,
+    EmptyStateComponent,
+    NicheMinimapComponent
   ]
 })
-export class NichesDetailPage implements OnInit {
-  loading = signal(true);
-  currentModule = signal<string>('');
-  currentSection = signal<string>('');
-  typeFilter = signal<'all' | 'wood' | 'marble'>('all');
+export class NichesDetailPage implements OnInit, OnDestroy {
+
+  // Points to the INNER scroll container (.nd-scroll-area), not nd-main
+  @ViewChild('mainScroll') mainScrollEl?: ElementRef<HTMLElement>;
+
+  loading          = signal(true);
+  currentModule    = signal<string>('');
+  currentSection   = signal<string>('');
+  typeFilter       = signal<'all' | 'wood' | 'marble'>('all');
   highlightedNiche = signal<string | null>(null);
 
-  // Data from service
-  niches = this.nicheService.niches;
+  // ── Viewport state for minimap ─────────────────────────────────────────────
+  scrollLeft  = signal(0);
+  clientWidth = signal(0);
+  scrollWidth = signal(0);
+
+  // Stable references for removeEventListener
+  private readonly onScroll = () => this.updateViewport();
+  private readonly onResize = () => this.updateViewport();
+
+  // ── Service data ───────────────────────────────────────────────────────────
+  niches       = this.nicheService.niches;
   moduleGroups = this.nicheService.moduleGroups;
 
-  // Current module info
-  moduleInfo = computed(() => {
-    return this.moduleGroups().find(m => m.module === this.currentModule());
-  });
+  // ── Computed ───────────────────────────────────────────────────────────────
+  moduleInfo = computed(() =>
+    this.moduleGroups().find(m => m.module === this.currentModule())
+  );
 
-  // Available sections in current module
   availableSections = computed(() => {
     const module = this.moduleInfo();
     return module ? module.sections.map(s => s.section).sort() : [];
   });
 
-  // Current section data
   sectionData = computed(() => {
     const module = this.moduleInfo();
     if (!module) return null;
     return module.sections.find(s => s.section === this.currentSection());
   });
 
-  // Filtered niches for current section and type filter
+  // All section niches sorted — for the minimap (ignores type filter)
+  allSectionNiches = computed(() => {
+    const section = this.sectionData();
+    if (!section) return [];
+    return [...section.niches].sort((a, b) =>
+      b.row !== a.row ? b.row - a.row : a.number - b.number
+    );
+  });
+
+  // Filtered + sorted niches for the interactive grid
   filteredNiches = computed(() => {
     const section = this.sectionData();
     if (!section) return [];
 
     let niches = section.niches;
-
-    // Aplicar filtro de tipo
     const filter = this.typeFilter();
-    if (filter !== 'all') {
-      niches = niches.filter(n => n.type === filter);
-    }
+    if (filter !== 'all') niches = niches.filter(n => n.type === filter);
 
-    // Ordenar por fila (de 7 a 1, arriba a abajo) y luego por columna
-    return niches.sort((a, b) => {
-      if (b.row !== a.row) {
-        return b.row - a.row; // Fila 7 primero
-      }
-      return a.number - b.number; // Columna ascendente
-    });
+    return [...niches].sort((a, b) =>
+      b.row !== a.row ? b.row - a.row : a.number - b.number
+    );
   });
 
+  // ── Constructor ────────────────────────────────────────────────────────────
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private nicheService: NicheService,
     private notificationService: NotificationService,
-    private actionSheetCtrl: ActionSheetController
   ) {
-    addIcons({ optionsOutline, informationCircleOutline, gridOutline });
+    addIcons({ informationCircleOutline, gridOutline, personOutline, layersOutline });
   }
 
+  // ── Lifecycle ──────────────────────────────────────────────────────────────
   ngOnInit() {
-    // Obtener parametros de ruta
-    const module = this.route.snapshot.paramMap.get('module');
+    const module  = this.route.snapshot.paramMap.get('module');
     const section = this.route.snapshot.paramMap.get('section');
 
     if (!module || !section) {
@@ -105,15 +120,22 @@ export class NichesDetailPage implements OnInit {
     this.currentModule.set(module.toUpperCase());
     this.currentSection.set(section.toUpperCase());
 
-    // Cargar nichos si no estan cargados
     if (this.niches().length === 0) {
       this.loadNiches();
     } else {
       this.loading.set(false);
       this.checkHighlight();
+      setTimeout(() => this.setupScrollListener(), 50);
     }
   }
 
+  ngOnDestroy() {
+    const el = this.mainScrollEl?.nativeElement;
+    if (el) el.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('resize', this.onResize);
+  }
+
+  // ── Data ───────────────────────────────────────────────────────────────────
   loadNiches() {
     this.loading.set(true);
     this.nicheService.getAll({
@@ -123,6 +145,7 @@ export class NichesDetailPage implements OnInit {
       next: () => {
         this.loading.set(false);
         this.checkHighlight();
+        setTimeout(() => this.setupScrollListener(), 50);
       },
       error: () => {
         this.loading.set(false);
@@ -131,17 +154,75 @@ export class NichesDetailPage implements OnInit {
     });
   }
 
-  // Verificar si hay un nicho para destacar (desde query params)
   checkHighlight() {
     const highlight = this.route.snapshot.queryParamMap.get('highlight');
     if (highlight) {
       this.highlightedNiche.set(highlight);
-      // Quitar highlight después de 10 segundos
       setTimeout(() => this.highlightedNiche.set(null), 10000);
     }
   }
 
-  // Obtener nombre del propietario del nicho
+  // ── Scroll listener ────────────────────────────────────────────────────────
+  private setupScrollListener() {
+    const el = this.mainScrollEl?.nativeElement;
+    if (!el) return;
+    this.updateViewport();
+    el.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('resize', this.onResize, { passive: true });
+  }
+
+  private updateViewport() {
+    const el = this.mainScrollEl?.nativeElement;
+    if (!el) return;
+    this.scrollLeft.set(el.scrollLeft);
+    this.clientWidth.set(el.clientWidth);
+    this.scrollWidth.set(el.scrollWidth);
+  }
+
+  // ── Minimap handlers ───────────────────────────────────────────────────────
+
+  // Called when minimap emits scrollTo (drag or click-jump) — INSTANT, no animation
+  onMinimapScrollTo(targetScrollLeft: number) {
+    const el = this.mainScrollEl?.nativeElement;
+    if (!el) return;
+    el.scrollLeft = targetScrollLeft;
+  }
+
+  // Called when minimap emits nicheClick — highlight only, no scroll
+  highlightFromMinimap(niche: Niche) {
+    this.highlightedNiche.set(niche.code);
+    setTimeout(() => this.highlightedNiche.set(null), 3000);
+  }
+
+  // Called when clicking a niche in the MAIN grid — full niche detail
+  openNicheDetail(niche: Niche) {
+    this.router.navigate(['/columbarium/niches', niche._id]);
+  }
+
+  // ── Scroll to niche (from minimap nicheClick) ──────────────────────────────
+  scrollToNiche(niche: Niche) {
+    const el = this.mainScrollEl?.nativeElement;
+    if (!el) return;
+
+    // Main grid: cell 52px + gap 6px = 58px step; nd-scroll-area padding 24px + nd-grid-area padding 20px = 44px
+    const CELL_STEP = 58;
+    const PADDING   = 44;
+    const colIndex  = niche.number - 1;
+    const cellCenter = PADDING + colIndex * CELL_STEP + CELL_STEP / 2;
+    const targetLeft = cellCenter - el.clientWidth / 2;
+
+    el.scrollTo({ left: Math.max(0, targetLeft), behavior: 'smooth' });
+    this.highlightedNiche.set(niche.code);
+    setTimeout(() => this.highlightedNiche.set(null), 3000);
+  }
+
+  // ── Grid helpers ───────────────────────────────────────────────────────────
+  getGridColumns(): string {
+    const section = this.sectionData();
+    if (!section) return 'repeat(10, 1fr)';
+    return `repeat(${section.nichesPerRow}, 1fr)`;
+  }
+
   getOwnerName(niche: Niche): string {
     if (niche.currentOwner && typeof niche.currentOwner === 'object') {
       const owner = niche.currentOwner as Customer;
@@ -150,64 +231,17 @@ export class NichesDetailPage implements OnInit {
     return 'Propietario';
   }
 
-  // Calcular columnas del grid basado en número de nichos por fila
-  getGridColumns(): string {
-    const section = this.sectionData();
-    if (!section) return 'repeat(10, 1fr)';
-    return `repeat(${section.nichesPerRow}, 1fr)`;
-  }
-
-  // Cambiar seccion
-  onSectionChange(event: any) {
-    const newSection = event.detail.value;
-    this.currentSection.set(newSection);
-
-    // Actualizar URL
+  // ── Navigation ─────────────────────────────────────────────────────────────
+  goToSection(section: string) {
+    this.currentSection.set(section);
     this.router.navigate(
-      ['/columbarium/niches/module', this.currentModule(), newSection],
+      ['/columbarium/niches/module', this.currentModule(), section],
       { replaceUrl: true }
     );
   }
 
-  // Cambiar filtro de tipo
   setTypeFilter(filter: 'all' | 'wood' | 'marble') {
     this.typeFilter.set(filter);
-  }
-
-  // Navegar a la ficha completa del nicho
-  openNicheDetail(niche: Niche) {
-    this.router.navigate(['/columbarium/niches', niche._id]);
-  }
-
-  // Menu de filtros/opciones
-  async presentFilterMenu() {
-    const actionSheet = await this.actionSheetCtrl.create({
-      header: 'Opciones',
-      buttons: [
-        {
-          text: 'Ver todos los tipos',
-          icon: 'grid-outline',
-          handler: () => this.setTypeFilter('all')
-        },
-        {
-          text: 'Solo madera',
-          icon: 'filter-outline',
-          handler: () => this.setTypeFilter('wood')
-        },
-        {
-          text: 'Solo mármol',
-          icon: 'filter-outline',
-          handler: () => this.setTypeFilter('marble')
-        },
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          icon: 'close-outline'
-        }
-      ]
-    });
-
-    await actionSheet.present();
   }
 
   goBack() {

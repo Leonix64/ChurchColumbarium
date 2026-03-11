@@ -1,0 +1,41 @@
+<div class="nm-wrap">
+
+  <!-- Header -->
+  <div class="nm-header">
+    <span class="nm-label">Vista general</span>
+    <span class="nm-count">{{ niches.length }} nichos</span>
+  </div>
+
+  <!-- Scroll area — se auto-scrollea para mantener el rect visible -->
+  <div class="nm-scroll" #nmScroll>
+
+    <!-- Grid wrap: position:relative for the viewport rect overlay -->
+    <div class="nm-grid-wrap" (mousedown)="onWrapMouseDown($event)">
+
+      <!-- Viewport indicator rect (draggable) -->
+      <div
+        class="nm-viewport"
+        *ngIf="showViewport"
+        [style.left.px]="vpRectLeft"
+        [style.width.px]="vpRectWidth">
+      </div>
+
+      <!-- Minimap grid (reference for click coordinates) -->
+      <div class="nm-grid" #gridEl [style.grid-template-columns]="miniGridColumns">
+        <div
+          *ngFor="let niche of niches; trackBy: trackByCode"
+          class="nm-cell"
+          [class.available]="niche.status === 'available'"
+          [class.sold]="niche.status === 'sold'"
+          [class.reserved]="niche.status === 'reserved'"
+          [class.disabled]="niche.status === 'disabled'"
+          [class.hl]="highlightedNiche === niche.code"
+          (click)="onCellClick(niche)"
+          [title]="niche.code">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
