@@ -1,192 +1,330 @@
-ion-content {
-  --background: var(--ion-background-color);
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap");
+
+// ── Palette ─────────────────────────────────────────────────────────────────
+:host {
+  --bg: #f3efe9;
+  --surface: #ffffff;
+  --surface-2: #ebe3da;
+  --primary: #4c3a70ab;
+  --primary-h: #5f4a8671;
+  --accent: #b79c5a;
+  --muted: #9a8f86;
+  --border: #ddd4c9;
+  --text: #2a2530;
+  --text-dim: #6f6764;
+  --success: #587c67;
+  --warning: #c69a39;
+  --danger: #b75454;
 }
 
-.search-section {
-  padding: 16px;
-  background: var(--ion-card-background);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+// ── Content ─────────────────────────────────────────────────────────────────
+.sl-content {
+  --background: var(--bg);
+  font-family: "DM Sans", sans-serif;
+  color: var(--text);
+}
+
+// ── Filter strip ─────────────────────────────────────────────────────────────
+.sl-filter-strip {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sl-searchbar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 12px;
+
+  ion-icon {
+    color: var(--text-dim);
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
 
   ion-searchbar {
+    --background: transparent;
+    --color: var(--text);
+    --placeholder-color: var(--text-dim);
+    --icon-color: transparent;
+    --clear-button-color: var(--text-dim);
+    --box-shadow: none;
     padding: 0;
-    margin-bottom: 12px;
-  }
-
-  ion-segment {
-    background: var(--ion-color-light);
-    border-radius: 8px;
-    padding: 4px;
+    font-family: "DM Sans", sans-serif;
   }
 }
 
-.loading-container {
+.sl-filters {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.sl-chip {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  padding: 5px 14px;
+  cursor: pointer;
+  font-family: "DM Sans", sans-serif;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  &.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--text);
+    font-weight: 600;
+  }
+}
+
+// ── Loading ──────────────────────────────────────────────────────────────────
+.sl-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 300px;
-  gap: 16px;
+  height: 280px;
+  gap: 14px;
+  color: var(--text-dim);
 
   ion-spinner {
-    --color: var(--ion-color-primary);
+    --color: var(--accent);
   }
-
   p {
-    color: var(--ion-color-medium);
     margin: 0;
+    font-size: 0.9rem;
   }
 }
 
-.sales-grid {
+// ── Grid ─────────────────────────────────────────────────────────────────────
+.sl-grid {
   display: grid;
-  gap: 16px;
+  gap: 14px;
   padding: 16px;
 }
 
-.sale-card {
-  margin: 0;
+// ── Card ─────────────────────────────────────────────────────────────────────
+.sl-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+}
+
+.sl-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sl-folio-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sl-folio-icon {
+  color: var(--accent);
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.sl-folio {
+  font-family: "DM Mono", monospace;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.sl-date {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+// ── Status badge ─────────────────────────────────────────────────────────────
+.sl-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+
+  &.active {
+    background: rgba(76, 175, 125, 0.18);
+    color: var(--success);
+    border: 1px solid rgba(76, 175, 125, 0.35);
   }
 
-  ion-card-header {
-    padding: 16px;
-    border-bottom: 1px solid var(--ion-color-light);
-
-    .card-header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-
-      .folio-section {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex: 1;
-
-        .folio-icon {
-          font-size: 32px;
-          color: var(--ion-color-primary);
-        }
-
-        ion-card-title {
-          font-size: 18px;
-          font-weight: 600;
-          margin: 0 0 4px 0;
-          color: var(--ion-color-dark);
-        }
-
-        ion-note {
-          font-size: 12px;
-          color: var(--ion-color-medium);
-        }
-      }
-
-      ion-badge {
-        font-size: 12px;
-        font-weight: 600;
-        padding: 6px 12px;
-        border-radius: 12px;
-      }
-    }
+  &.paid {
+    background: rgba(71, 140, 128, 0.18);
+    color: var(--accent);
+    border: 1px solid rgba(71, 140, 128, 0.35);
   }
 
-  ion-card-content {
-    padding: 16px;
+  &.overdue {
+    background: rgba(224, 82, 82, 0.15);
+    color: var(--danger);
+    border: 1px solid rgba(224, 82, 82, 0.3);
+  }
 
-    .info-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--ion-color-light);
+  &.cancelled {
+    background: rgba(141, 185, 178, 0.1);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+}
 
-      &:last-child {
-        border-bottom: none;
-      }
+// ── Card body ────────────────────────────────────────────────────────────────
+.sl-card-body {
+  padding: 12px 16px 14px;
+  display: flex;
+  flex-direction: column;
+}
 
-      &.highlight {
-        background: rgba(var(--ion-color-primary-rgb), 0.05);
-        padding: 12px 8px;
-        border-radius: 8px;
-        margin: 8px 0;
-      }
+.sl-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(43, 95, 83, 0.4);
+  font-size: 0.83rem;
 
-      ion-icon {
-        font-size: 20px;
-        color: var(--ion-color-primary);
-        min-width: 20px;
-      }
+  &:last-of-type {
+    border-bottom: none;
+  }
 
-      .label {
-        font-size: 14px;
-        color: var(--ion-color-medium);
-        font-weight: 500;
-        min-width: 70px;
-      }
-
-      .value {
-        font-size: 14px;
-        color: var(--ion-color-dark);
-        font-weight: 600;
-        flex: 1;
-
-        &.price {
-          font-size: 18px;
-          color: var(--ion-color-success);
-        }
-      }
-    }
-
-    .progress-section {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--ion-color-light);
-
-      .progress-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-
-        .progress-label {
-          font-size: 12px;
-          font-weight: 600;
-          color: var(--ion-color-medium);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .progress-percentage {
-          font-size: 14px;
-          font-weight: 700;
-          color: var(--ion-color-primary);
-        }
-      }
-
-      .segmented-bar {
-        height: 8px;
-        border-radius: 4px;
-        background: var(--ion-color-light-shade);
-        overflow: hidden;
-        display: flex;
-
-        .seg {
-          height: 100%;
-          transition: width 0.3s ease;
-        }
-
-        .seg-paid        { background: var(--ion-color-success); }
-        .seg-installments{ background: var(--ion-color-warning); }
-      }
+  &.highlight {
+    .sl-info-value {
+      font-family: "DM Mono", monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
     }
   }
+}
+
+.sl-info-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  flex-shrink: 0;
+
+  ion-icon {
+    font-size: 0.82rem;
+    flex-shrink: 0;
+  }
+}
+
+.sl-info-value {
+  color: var(--text);
+  font-weight: 500;
+  text-align: right;
+  font-size: 0.83rem;
+
+  &.balance-ok {
+    color: var(--success);
+    font-weight: 600;
+  }
+  &.balance-due {
+    color: var(--warning);
+    font-weight: 600;
+  }
+}
+
+// ── Progress ─────────────────────────────────────────────────────────────────
+.sl-progress-row {
+  padding-top: 10px;
+  border-top: 1px solid rgba(43, 95, 83, 0.4);
+  margin-top: 2px;
+}
+
+.sl-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.sl-progress-pct {
+  font-family: "DM Mono", monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.sl-seg-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  display: flex;
+
+  .sl-seg-dp {
+    height: 100%;
+    background: var(--success);
+    transition: width 0.3s ease;
+  }
+  .sl-seg-inst {
+    height: 100%;
+    background: var(--warning);
+    transition: width 0.3s ease;
+  }
+}
+
+// ── FAB ──────────────────────────────────────────────────────────────────────
+ion-fab ion-fab-button {
+  --background: var(--primary);
+  --background-activated: var(--primary-h);
+  --color: var(--text);
 }
 
 app-empty-state {
@@ -194,15 +332,15 @@ app-empty-state {
   padding: 60px 16px;
 }
 
-// Responsive
+// ── Responsive ───────────────────────────────────────────────────────────────
 @media (min-width: 768px) {
-  .sales-grid {
+  .sl-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 1024px) {
-  .sales-grid {
+  .sl-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }

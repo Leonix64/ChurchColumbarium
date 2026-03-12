@@ -11,7 +11,7 @@ export const columbariumRoutes: Routes = [
     },
     {
         path: 'customers/:id',
-        loadComponent: () => import('./customer/detail/customers-detail.page').then(m => m.CustomersDetailPage)
+        loadComponent: () => import('./customers/detail/customers-detail.page').then(m => m.CustomersDetailPage)
     },
     {
         path: 'customers/:id/edit',

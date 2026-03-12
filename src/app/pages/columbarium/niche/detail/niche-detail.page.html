@@ -4,278 +4,352 @@
       <ion-back-button defaultHref="/columbarium/niches"></ion-back-button>
     </ion-buttons>
     <ion-title>{{ niche()?.code || 'Cargando…' }}</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="presentAdminMenu()">
-        <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
-      </ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="niche-detail-content">
 
   <!-- Loading -->
-  <div class="loading-container" *ngIf="loading()">
+  <div class="nd-loading" *ngIf="loading()">
     <ion-spinner name="crescent"></ion-spinner>
     <p>Cargando ficha del nicho…</p>
   </div>
 
-  <!-- ── MAIN CONTENT ──────────────────────────────────────────────────────── -->
-  <div class="niche-wrapper" *ngIf="!loading() && niche()">
+  <!-- Two-column layout -->
+  <div class="nd-layout" *ngIf="!loading() && niche()">
 
-    <!-- Identity strip -->
-    <div class="identity-strip">
-      <div class="identity-left">
-        <span class="niche-code">{{ niche()?.code }}</span>
-        <span class="niche-type-chip">
-          {{ niche()?.type === 'marble' ? '💎 Mármol' : '🪵 Madera' }}
-        </span>
+    <!-- ── SIDEBAR ──────────────────────────────────────────────────────── -->
+    <aside class="nd-sidebar">
+
+      <!-- Identity block -->
+      <div class="nd-identity">
+        <span class="nd-code">{{ niche()?.code }}</span>
+        <div class="nd-identity-meta">
+          <ion-badge [color]="getNicheStatusColor(niche()!.status)" class="nd-status-badge">
+            {{ getNicheStatusLabel(niche()!.status) }}
+          </ion-badge>
+          <span class="nd-type">{{ niche()?.type === 'marble' ? '💎 Mármol' : '🪵 Madera' }}</span>
+        </div>
+        <span class="nd-price">{{ niche()?.price | currencyMx }}</span>
       </div>
-      <div class="identity-right">
-        <ion-badge [color]="getNicheStatusColor(niche()!.status)">
-          {{ getNicheStatusLabel(niche()!.status) }}
-        </ion-badge>
-        <span class="niche-price">{{ niche()?.price | currencyMx }}</span>
+
+      <!-- Disabled banner -->
+      <div class="nd-disabled-alert" *ngIf="niche()?.status === 'disabled'">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <p>Deshabilitado. Solo un admin puede reactivarlo.</p>
       </div>
-    </div>
 
-    <!-- Disabled warning -->
-    <div class="disabled-alert" *ngIf="niche()?.status === 'disabled'">
-      <ion-icon name="alert-circle-outline"></ion-icon>
-      <p>Nicho deshabilitado. Solo un administrador puede reactivarlo.</p>
-    </div>
+      <!-- Meta block -->
+      <div class="nd-meta-block">
+        <div class="nd-meta-row">
+          <span class="nd-meta-label">Módulo</span>
+          <span class="nd-meta-value">{{ niche()?.module }} — {{ nicheService.getModuleName(niche()!.module) }}</span>
+        </div>
+        <div class="nd-meta-row">
+          <span class="nd-meta-label">Ubicación</span>
+          <span class="nd-meta-value">Secc. {{ niche()?.section }} · Fila {{ niche()?.row }} · Pos. {{ niche()?.number }}</span>
+        </div>
+        <div class="nd-meta-row" *ngIf="niche()?.notes">
+          <span class="nd-meta-label">Notas</span>
+          <span class="nd-meta-value">{{ niche()?.notes }}</span>
+        </div>
+      </div>
 
-    <!-- ── 3 ZONES ────────────────────────────────────────────────────────── -->
-    <div class="zones-wrapper">
+      <!-- Owner block -->
+      <div class="nd-owner-block">
+        <p class="nd-block-title">Titular</p>
 
-      <!-- ── ZONA 1: PROPIEDAD ─────────────────────────────────────────────── -->
-      <ion-card class="zone-card zone-ownership">
-        <ion-card-header>
-          <ion-card-title>
-            <ion-icon name="person-outline"></ion-icon>
-            Propiedad
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
+        <ng-container *ngIf="owner(); else noOwner">
+          <button class="nd-owner-link" (click)="goToCustomer()">
+            <strong class="nd-owner-name">{{ owner()?.firstName }} {{ owner()?.lastName }}</strong>
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+          <p class="nd-owner-phone" *ngIf="owner()?.phone">{{ owner()?.phone }}</p>
+          <ion-badge [color]="getOwnerStatusColor(owner()?.active ? 'active' : 'inactive')">
+            {{ getOwnerStatusLabel(owner()?.active ? 'active' : 'inactive') }}
+          </ion-badge>
+        </ng-container>
+        <ng-template #noOwner>
+          <p class="nd-no-data">Sin titular registrado</p>
+        </ng-template>
 
-          <!-- Hay titular -->
-          <div class="owner-block" *ngIf="owner(); else noOwner">
-            <p class="owner-role-label">Titular del nicho</p>
-            <button class="owner-link" (click)="goToCustomer()">
-              <strong class="owner-name">{{ owner()?.firstName }} {{ owner()?.lastName }}</strong>
-              <ion-icon name="chevron-forward-outline" class="link-arrow"></ion-icon>
-            </button>
-            <p class="owner-phone" *ngIf="owner()?.phone">{{ owner()?.phone }}</p>
-            <div class="owner-meta">
-              <ion-badge [color]="getOwnerStatusColor(owner()?.active ? 'active' : 'inactive')">
-                {{ getOwnerStatusLabel(owner()?.active ? 'active' : 'inactive') }}
-              </ion-badge>
-            </div>
+        <!-- Primary actions -->
+        <div class="nd-owner-actions">
+          <ion-button expand="block" color="warning" size="small"
+            *ngIf="niche()?.status === 'sold'"
+            [disabled]="!canStartSuccession()"
+            (click)="openSuccessionModal()">
+            <ion-icon slot="start" name="swap-horizontal-outline"></ion-icon>
+            Iniciar Sucesión
+          </ion-button>
+          <p class="nd-block-hint" *ngIf="successionBlockReason()">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            {{ successionBlockReason() }}
+          </p>
+
+          <ion-button expand="block" color="success" size="small"
+            *ngIf="niche()?.status === 'available' && canEdit()"
+            (click)="goToCreateSale()">
+            <ion-icon slot="start" name="cart-outline"></ion-icon>
+            Iniciar Venta
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- History button -->
+      <button class="nd-history-btn" (click)="openOwnershipHistory()">
+        <ion-icon name="time-outline"></ion-icon>
+        Ver Historial de Titularidad
+      </button>
+
+      <!-- Admin actions -->
+      <div class="nd-admin-block" *ngIf="isAdmin()">
+        <p class="nd-block-title">Administración</p>
+
+        <ion-button expand="block" fill="outline" size="small"
+          *ngIf="niche()?.status !== 'disabled'"
+          (click)="openPriceModal()">
+          <ion-icon name="cash-outline" slot="start"></ion-icon>
+          Cambiar Precio
+        </ion-button>
+
+        <ion-button expand="block" fill="outline" size="small" color="tertiary"
+          *ngIf="niche()?.status !== 'disabled'"
+          (click)="openMaterialModal()">
+          <ion-icon name="cube-outline" slot="start"></ion-icon>
+          Cambiar Material
+        </ion-button>
+
+        <ion-button expand="block" fill="outline" size="small" color="danger"
+          *ngIf="niche()?.status === 'available' || niche()?.status === 'reserved'"
+          (click)="confirmDisable()">
+          <ion-icon name="ban-outline" slot="start"></ion-icon>
+          Deshabilitar
+        </ion-button>
+
+        <ion-button expand="block" fill="outline" size="small" color="success"
+          *ngIf="niche()?.status === 'disabled'"
+          (click)="confirmEnable()">
+          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+          Habilitar
+        </ion-button>
+      </div>
+
+    </aside>
+
+    <!-- ── MAIN / TABS ──────────────────────────────────────────────────── -->
+    <div class="nd-main">
+
+      <!-- Tab bar -->
+      <div class="nd-tabs">
+        <button class="nd-tab" [class.active]="activeTab() === 'contrato'"
+          (click)="activeTab.set('contrato')">
+          <ion-icon name="cash-outline"></ion-icon>
+          Contrato
+        </button>
+        <button class="nd-tab" [class.active]="activeTab() === 'sucesores'"
+          (click)="activeTab.set('sucesores')">
+          <ion-icon name="people-outline"></ion-icon>
+          Sucesores
+        </button>
+        <button class="nd-tab" [class.active]="activeTab() === 'ocupantes'"
+          (click)="activeTab.set('ocupantes')">
+          <ion-icon name="skull-outline"></ion-icon>
+          Ocupantes
+        </button>
+        <button class="nd-tab" [class.active]="activeTab() === 'mantenimiento'"
+          (click)="activeTab.set('mantenimiento')">
+          <ion-icon name="build-outline"></ion-icon>
+          Mantenimiento
+        </button>
+      </div>
+
+      <!-- ── TAB: Contrato ──────────────────────────────────────────────── -->
+      <div class="nd-tab-content" *ngIf="activeTab() === 'contrato'">
+
+        <div *ngIf="loadingSale()">
+          <ion-spinner name="dots"></ion-spinner>
+        </div>
+
+        <!-- Contrato activo -->
+        <div class="nd-contract-panel" *ngIf="!loadingSale() && activeSale()">
+          <div class="nd-debt-row">
+            <span class="nd-debt-label">Folio</span>
+            <span class="nd-debt-value mono">{{ activeSale()?.folio }}</span>
+          </div>
+          <div class="nd-debt-row">
+            <span class="nd-debt-label">Estado</span>
+            <ion-badge [color]="getSaleStatusColor(activeSale()!.status)">
+              {{ getSaleStatusLabel(activeSale()!.status) }}
+            </ion-badge>
+          </div>
+          <div class="nd-debt-row highlight">
+            <span class="nd-debt-label">Saldo pendiente</span>
+            <strong class="nd-balance">{{ activeSale()?.balance | currencyMx }}</strong>
           </div>
 
-          <ng-template #noOwner>
-            <p class="no-data">Sin titular registrado</p>
-          </ng-template>
+          <div class="nd-seg-bar">
+            <div *ngIf="saleDownPaymentProgress() > 0" class="nd-seg nd-seg-paid"
+              [style.width.%]="saleDownPaymentProgress()"></div>
+            <div *ngIf="saleInstallmentsProgress() > 0" class="nd-seg nd-seg-inst"
+              [style.width.%]="saleInstallmentsProgress()"></div>
+          </div>
+          <p class="nd-progress-label">{{ saleProgress() }}% pagado</p>
 
-          <!-- Acción: sucesión (solo si vendido) -->
-          <div class="zone-action" *ngIf="niche()?.status === 'sold'">
-            <ion-button
-              expand="block"
-              color="warning"
-              [disabled]="!canStartSuccession()"
-              (click)="openSuccessionModal()">
-              <ion-icon slot="start" name="swap-horizontal-outline"></ion-icon>
-              Iniciar Sucesión
+          <ion-button expand="block" fill="outline" (click)="goToSale()" class="nd-contract-btn">
+            <ion-icon slot="start" name="document-text-outline"></ion-icon>
+            Ver Contrato Completo
+          </ion-button>
+        </div>
+
+        <!-- Sin contrato -->
+        <div class="nd-no-contract" *ngIf="!loadingSale() && !activeSale()">
+          <p class="nd-no-data" *ngIf="niche()?.status === 'sold'">Sin contrato activo registrado</p>
+          <p class="nd-no-data" *ngIf="niche()?.status === 'available'">Nicho disponible para venta</p>
+          <p class="nd-no-data" *ngIf="niche()?.status === 'reserved'">Nicho en reserva</p>
+          <p class="nd-no-data" *ngIf="niche()?.status === 'disabled'">—</p>
+        </div>
+
+      </div>
+
+      <!-- ── TAB: Sucesores ─────────────────────────────────────────────── -->
+      <div class="nd-tab-content" *ngIf="activeTab() === 'sucesores'">
+
+        <!-- Modo edición -->
+        <div *ngIf="editingBeneficiaries(); else viewMode">
+          <app-beneficiaries-manager
+            [initialBeneficiaries]="eligibleBeneficiaries()"
+            (beneficiariesChange)="onBeneficiariesChange($event)">
+          </app-beneficiaries-manager>
+          <div class="nd-editor-actions">
+            <ion-button expand="block" [disabled]="savingBeneficiaries()" (click)="saveBeneficiaries()">
+              <ion-spinner *ngIf="savingBeneficiaries()" name="dots" slot="start"></ion-spinner>
+              <ion-icon *ngIf="!savingBeneficiaries()" name="checkmark-circle-outline" slot="start"></ion-icon>
+              Guardar Sucesores
             </ion-button>
-            <p class="block-hint" *ngIf="successionBlockReason()">
-              <ion-icon name="information-circle-outline"></ion-icon>
-              {{ successionBlockReason() }}
-            </p>
-          </div>
-
-          <!-- Acción: vender (solo si disponible y tiene permiso) -->
-          <div class="zone-action" *ngIf="niche()?.status === 'available' && canEdit()">
-            <ion-button expand="block" color="success" (click)="goToCreateSale()">
-              <ion-icon slot="start" name="cart-outline"></ion-icon>
-              Iniciar Venta
+            <ion-button expand="block" fill="outline" color="medium" (click)="cancelEditing()">
+              Cancelar
             </ion-button>
           </div>
+        </div>
 
-        </ion-card-content>
-      </ion-card>
-
-      <!-- ── ZONA 2: CONTRATO DE VENTA ─────────────────────────────────────── -->
-      <ion-card class="zone-card zone-debt">
-        <ion-card-header>
-          <ion-card-title>
-            <ion-icon name="cash-outline"></ion-icon>
-            Contrato de Venta
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-
-          <div *ngIf="loadingSale()">
+        <!-- Modo vista -->
+        <ng-template #viewMode>
+          <div *ngIf="loadingBeneficiaries()">
             <ion-spinner name="dots"></ion-spinner>
           </div>
 
-          <!-- Hay contrato activo -->
-          <div *ngIf="!loadingSale() && activeSale()">
-            <div class="debt-row">
-              <span class="label">Folio</span>
-              <span class="value mono">{{ activeSale()?.folio }}</span>
+          <div *ngIf="!loadingBeneficiaries()">
+            <ion-list lines="none" class="nd-beneficiary-list" *ngIf="eligibleBeneficiaries().length > 0">
+              <ion-item *ngFor="let b of eligibleBeneficiaries()">
+                <ion-badge slot="start" color="primary" class="nd-order-badge">{{ b.order }}</ion-badge>
+                <ion-label>
+                  <h3>{{ b.name }}</h3>
+                  <p>{{ getRelationshipLabel(b.relationship) }}</p>
+                </ion-label>
+              </ion-item>
+            </ion-list>
+
+            <div class="nd-no-beneficiaries" *ngIf="eligibleBeneficiaries().length === 0">
+              <p class="nd-no-data">Sin sucesores elegibles</p>
+              <p class="nd-no-data hint" *ngIf="niche()?.status === 'sold'">
+                ⚠ Se requiere al menos un sucesor para iniciar sucesión
+              </p>
             </div>
-            <div class="debt-row">
-              <span class="label">Estado</span>
-              <ion-badge [color]="getSaleStatusColor(activeSale()!.status)">
-                {{ getSaleStatusLabel(activeSale()!.status) }}
-              </ion-badge>
-            </div>
-            <div class="debt-row highlight">
-              <span class="label">Saldo</span>
-              <strong class="balance">{{ activeSale()?.balance | currencyMx }}</strong>
-            </div>
-            <div class="segmented-bar">
-              <div *ngIf="saleDownPaymentProgress() > 0" class="seg seg-paid"
-                [style.width.%]="saleDownPaymentProgress()"></div>
-              <div *ngIf="saleInstallmentsProgress() > 0" class="seg seg-installments"
-                [style.width.%]="saleInstallmentsProgress()"></div>
-            </div>
-            <p class="progress-label">{{ saleProgress() }}% pagado</p>
-            <ion-button expand="block" fill="outline" (click)="goToSale()">
-              <ion-icon slot="start" name="document-text-outline"></ion-icon>
-              Ver Contrato Completo
+
+            <ion-button expand="block" fill="outline"
+              *ngIf="canEdit() && niche()?.status === 'sold'"
+              (click)="startEditingBeneficiaries()">
+              <ion-icon slot="start" name="create-outline"></ion-icon>
+              Editar Sucesores
             </ion-button>
           </div>
+        </ng-template>
 
-          <!-- Sin contrato -->
-          <div *ngIf="!loadingSale() && !activeSale()">
-            <p class="no-data" *ngIf="niche()?.status === 'sold'">Sin contrato activo registrado</p>
-            <p class="no-data" *ngIf="niche()?.status === 'available'">Nicho disponible para venta</p>
-            <p class="no-data" *ngIf="niche()?.status === 'reserved'">Nicho en reserva</p>
-            <p class="no-data" *ngIf="niche()?.status === 'disabled'">—</p>
+      </div>
+
+      <!-- ── TAB: Ocupantes ─────────────────────────────────────────────── -->
+      <div class="nd-tab-content" *ngIf="activeTab() === 'ocupantes'">
+        <ng-container *ngIf="niche()?.occupants?.length; else noOccupants">
+          <ion-list lines="full">
+            <ion-item *ngFor="let occ of niche()?.occupants">
+              <ion-icon slot="start" name="skull-outline" color="medium"></ion-icon>
+              <ion-label>
+                <h3>{{ occ.fullName }}</h3>
+                <p *ngIf="occ.dateOfDeath">{{ occ.dateOfDeath | date:'dd/MM/yyyy' }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ng-container>
+        <ng-template #noOccupants>
+          <p class="nd-no-data" style="padding: 40px 0; text-align: center;">Sin ocupantes físicos registrados</p>
+        </ng-template>
+      </div>
+
+      <!-- ── TAB: Mantenimiento ─────────────────────────────────────────── -->
+      <div class="nd-tab-content" *ngIf="activeTab() === 'mantenimiento'">
+
+        <!-- Año actual status -->
+        <div class="nd-maint-status-bar">
+          <div class="nd-maint-year-label">
+            <ion-icon name="calendar-outline"></ion-icon>
+            Año {{ currentYear }}
+          </div>
+          <span class="nd-maint-status-pill"
+            [class.paid]="currentYearPaid()"
+            [class.pending]="!currentYearPaid()">
+            {{ currentYearPaid() ? '✓ Pagado' : '⚠ Pendiente' }}
+          </span>
+        </div>
+
+        <!-- Botón registrar (solo si nicho vendido y usuario con permisos) -->
+        <ion-button
+          expand="block"
+          color="success"
+          class="nd-maint-register-btn"
+          *ngIf="niche()?.status === 'sold' && canEdit()"
+          (click)="openMaintenanceModal()">
+          <ion-icon slot="start" name="add-outline"></ion-icon>
+          Registrar Pago de Mantenimiento
+        </ion-button>
+
+        <!-- Loading -->
+        <div class="nd-maint-loading" *ngIf="loadingMaintenance()">
+          <ion-spinner name="dots"></ion-spinner>
+        </div>
+
+        <!-- Historial de pagos -->
+        <div class="nd-maint-list" *ngIf="!loadingMaintenance()">
+
+          <div class="nd-maint-empty" *ngIf="maintenancePayments().length === 0">
+            <p class="nd-no-data">Sin pagos de mantenimiento registrados</p>
           </div>
 
-        </ion-card-content>
-      </ion-card>
-
-      <!-- ── ZONA 3: DESIGNACIÓN (SUCESORES) ───────────────────────────────── -->
-      <ion-card class="zone-card zone-designation">
-        <ion-card-header>
-          <ion-card-title>
-            <ion-icon name="people-outline"></ion-icon>
-            Sucesores Designados
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-
-          <!-- MODO EDICIÓN -->
-          <div *ngIf="editingBeneficiaries(); else viewMode">
-            <app-beneficiaries-manager
-              [initialBeneficiaries]="eligibleBeneficiaries()"
-              (beneficiariesChange)="onBeneficiariesChange($event)">
-            </app-beneficiaries-manager>
-            <div class="editor-actions">
-              <ion-button
-                expand="block"
-                [disabled]="savingBeneficiaries()"
-                (click)="saveBeneficiaries()">
-                <ion-spinner *ngIf="savingBeneficiaries()" name="dots" slot="start"></ion-spinner>
-                <ion-icon *ngIf="!savingBeneficiaries()" name="checkmark-circle-outline" slot="start">
-                </ion-icon>
-                Guardar Sucesores
-              </ion-button>
-              <ion-button expand="block" fill="outline" color="medium" (click)="cancelEditing()">
-                Cancelar
-              </ion-button>
+          <div class="nd-maint-item" *ngFor="let payment of maintenancePayments()">
+            <div class="nd-maint-year-col">
+              <span class="nd-maint-year-num">{{ payment.maintenanceYear }}</span>
+              <span class="nd-maint-year-tag">año</span>
             </div>
-          </div>
-
-          <!-- MODO VISTA -->
-          <ng-template #viewMode>
-            <div *ngIf="loadingBeneficiaries()">
-              <ion-spinner name="dots"></ion-spinner>
-            </div>
-
-            <div *ngIf="!loadingBeneficiaries()">
-              <!-- Lista de elegibles -->
-              <ion-list lines="none" class="beneficiary-list" *ngIf="eligibleBeneficiaries().length > 0">
-                <ion-item *ngFor="let b of eligibleBeneficiaries()">
-                  <ion-badge slot="start" color="primary" class="order-badge">{{ b.order }}</ion-badge>
-                  <ion-label>
-                    <h3>{{ b.name }}</h3>
-                    <p>{{ getRelationshipLabel(b.relationship) }}</p>
-                  </ion-label>
-                  <!-- TODO: deceased-beneficiary-modal pendiente -->
-                </ion-item>
-              </ion-list>
-
-              <!-- Sin sucesores -->
-              <div class="no-beneficiaries" *ngIf="eligibleBeneficiaries().length === 0">
-                <p class="no-data">Sin sucesores elegibles</p>
-                <p class="no-data hint" *ngIf="niche()?.status === 'sold'">
-                  ⚠ Se requiere al menos un sucesor para iniciar sucesión
-                </p>
+            <div class="nd-maint-body">
+              <div class="nd-maint-amount">{{ payment.amount | currencyMx }}</div>
+              <div class="nd-maint-meta">
+                <span class="nd-maint-method">{{ getMethodLabel(payment.method) }}</span>
+                <span class="nd-maint-sep">·</span>
+                <span class="nd-maint-date">{{ payment.paymentDate | date:'dd/MM/yyyy' }}</span>
               </div>
-
-              <!-- Botón editar -->
-              <ion-button
-                expand="block"
-                fill="outline"
-                *ngIf="canEdit() && niche()?.status === 'sold'"
-                (click)="startEditingBeneficiaries()">
-                <ion-icon slot="start" name="create-outline"></ion-icon>
-                Editar Sucesores
-              </ion-button>
+              <div class="nd-maint-receipt">Rec. {{ payment.receiptNumber }}</div>
+              <div class="nd-maint-notes" *ngIf="payment.notes">{{ payment.notes }}</div>
             </div>
-          </ng-template>
+          </div>
 
-        </ion-card-content>
-      </ion-card>
+        </div>
+
+      </div>
+
     </div>
-    <!-- ── END ZONES ──────────────────────────────────────────────────────── -->
-
-    <!-- Ocupantes físicos (si existen) -->
-    <ion-card class="section-card" *ngIf="niche()?.occupants?.length">
-      <ion-card-header>
-        <ion-card-title>
-          <ion-icon name="skull-outline"></ion-icon>
-          Ocupantes Físicos ({{ niche()?.occupants?.length }})
-        </ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-list lines="full">
-          <ion-item *ngFor="let occ of niche()?.occupants">
-            <ion-label>
-              <h3>{{ occ.fullName }}</h3>
-              <p *ngIf="occ.dateOfDeath">{{ occ.dateOfDeath | date:'dd/MM/yyyy' }}</p>
-            </ion-label>
-          </ion-item>
-        </ion-list>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- Info del nicho (footer) -->
-    <div class="meta-footer">
-      <div class="meta-row">
-        <span>Módulo</span>
-        <span>{{ niche()?.module }} — {{ nicheService.getModuleName(niche()!.module) }}</span>
-      </div>
-      <div class="meta-row">
-        <span>Ubicación</span>
-        <span>Sección {{ niche()?.section }} · Fila {{ niche()?.row }} · Pos. {{ niche()?.number }}</span>
-      </div>
-      <div class="meta-row" *ngIf="niche()?.notes">
-        <span>Notas</span>
-        <span>{{ niche()?.notes }}</span>
-      </div>
-      <ion-button expand="block" fill="clear" size="small" (click)="openOwnershipHistory()">
-        <ion-icon slot="start" name="time-outline"></ion-icon>
-        Ver Historial de Titularidad
-      </ion-button>
-    </div>
+    <!-- ── END MAIN ───────────────────────────────────────────────────── -->
 
   </div>
-  <!-- ── END MAIN CONTENT ──────────────────────────────────────────────────── -->
 
   <!-- Empty state -->
   <app-empty-state

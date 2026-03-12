@@ -1,16 +1,17 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonSearchbar,
   IonButton, IonIcon, IonSpinner, IonBadge,
-  IonList, IonItem, IonNote, IonCheckbox,
+  IonCheckbox,
   IonRefresher, IonRefresherContent
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   banOutline, checkmarkCircleOutline, timeOutline,
-  personOutline, alertCircleOutline
+  personOutline, alertCircleOutline, eyeOutline
 } from 'ionicons/icons';
 
 import { NicheService } from '../../services/niche.service';
@@ -28,7 +29,7 @@ import { Niche } from '../../models/niche.model';
     CommonModule, FormsModule,
     IonContent, IonSearchbar,
     IonButton, IonIcon, IonSpinner, IonBadge,
-    IonList, IonItem, IonNote, IonCheckbox,
+    IonCheckbox,
     IonRefresher, IonRefresherContent,
     HeaderComponent, EmptyStateComponent
   ]
@@ -62,11 +63,12 @@ export class NichesDisabledPage implements OnInit {
 
   constructor(
     public nicheService: NicheService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private router: Router
   ) {
     addIcons({
       banOutline, checkmarkCircleOutline, timeOutline,
-      personOutline, alertCircleOutline
+      personOutline, alertCircleOutline, eyeOutline
     });
   }
 
@@ -156,6 +158,33 @@ export class NichesDisabledPage implements OnInit {
       },
       error: (err) => {
         this.notificationService.error(err.error?.message || 'Error al habilitar nichos');
+        this.enabling.set(false);
+      }
+    });
+  }
+
+  goToNicheDetail(nicheId: string) {
+    this.router.navigate(['/columbarium/niches', nicheId]);
+  }
+
+  async enableSingle(niche: Niche) {
+    const confirmed = await this.notificationService.confirm(
+      'Habilitar Nicho',
+      `¿Habilitar el nicho ${niche.code}?`
+    );
+    if (!confirmed) return;
+
+    this.enabling.set(true);
+    this.nicheService.enableNiches([niche._id]).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.notificationService.success(`Nicho ${niche.code} habilitado`);
+          this.loadDisabled();
+        }
+        this.enabling.set(false);
+      },
+      error: (err) => {
+        this.notificationService.error(err.error?.message || 'Error al habilitar nicho');
         this.enabling.set(false);
       }
     });
