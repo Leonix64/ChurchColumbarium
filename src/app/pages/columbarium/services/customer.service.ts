@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
 import { Customer } from '../models/customer.model';
-import { Beneficiary } from '../models/beneficiary.model';
 import { ApiResponse } from 'src/app/core/models/api-response.model';
 import { Sale } from '../models/sale.model';
 
@@ -64,26 +63,4 @@ export class CustomerService {
     return this.http.get<ApiResponse<Sale[]>>(`${this.endpoint}/${customerId}/sales`);
   }
 
-  // Actualizar beneficiarios
-  updateBeneficiaries(customerId: string, beneficiaries: Beneficiary[]): Observable<ApiResponse<Customer>> {
-    return this.http.put<ApiResponse<Customer>>(`${this.endpoint}/${customerId}/beneficiaries`, { beneficiaries }).pipe(
-      tap(() => this.getAll().subscribe())
-    );
-  }
-
-  // Marcar beneficiario como fallecido
-  markBeneficiaryDeceased(
-    customerId: string,
-    beneficiaryId: string,
-    deceasedDate?: Date
-  ): Observable<ApiResponse<Customer>> {
-    return this.http.post<ApiResponse<Customer>>(`${this.endpoint}/${customerId}/beneficiaries/${beneficiaryId}/deceased`, { deceasedDate }).pipe(
-      tap(() => this.getAll().subscribe())
-    );
-  }
-
-  // Obtener próximo beneficiario vivo
-  getNextBeneficiary(customerId: string): Observable<ApiResponse<Beneficiary>> {
-    return this.http.get<ApiResponse<Beneficiary>>(`${this.endpoint}/${customerId}/next-beneficiary`);
-  }
 }
