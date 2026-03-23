@@ -14,7 +14,9 @@ export interface Sale {
     monthsToPay: number;
     interestRate: number;
     status: SaleStatus;
-    schedule: AmortizationEntry[];
+    /** Cuotas de amortización — colección separada (AmortSchedule).
+     *  Solo presente en GET /sales/:id; ausente en el listado GET /sales. */
+    schedule?: AmortizationEntry[];
     cancellationInfo?: CancellationInfo; // Info de cancelacion
     refund?: {
         _id: string;
@@ -32,6 +34,7 @@ export interface Sale {
 export type SaleStatus = 'active' | 'paid' | 'cancelled' | 'overdue'; // AGREGADO 'overdue'
 
 export interface AmortizationEntry {
+    _id: string;   // ObjectId del documento en colección amortschedules
     number: number;
     dueDate: Date;
     amount: number;
