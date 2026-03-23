@@ -48,11 +48,8 @@ export class SaleService {
 
   // Registrar pago con modo flexible
   registerPayment(saleId: string, paymentData: RegisterPaymentRequest): Observable<ApiResponse<any>> {
-    console.log('Enviando pago al backend:', paymentData);
-
     return this.http.post<ApiResponse<any>>(`${this.endpoint}/${saleId}/payment`, paymentData).pipe(
-      tap((response) => {
-        console.log('Respuesta del backend:', response);
+      tap(() => {
         // Actualizar la venta especifica
         this.getById(saleId).subscribe();
         // Actualizar lista completa
