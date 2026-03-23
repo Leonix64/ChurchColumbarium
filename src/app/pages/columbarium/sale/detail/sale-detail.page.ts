@@ -82,7 +82,7 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
   nextPendingPayment = computed(() => {
     const s = this.sale();
     if (!s) return null;
-    return s.schedule.find(p =>
+    return s.schedule?.find(p =>
       p.status === 'pending' || p.status === 'partial' || p.status === 'overdue'
     );
   });
@@ -100,13 +100,13 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
   paidPayments = computed(() => {
     const s = this.sale();
     if (!s) return 0;
-    return s.schedule.filter(p => p.status === 'paid').length;
+    return s.schedule?.filter(p => p.status === 'paid').length || 0;
   });
 
   overduePayments = computed(() => {
     const s = this.sale();
     if (!s) return 0;
-    return s.schedule.filter(p => p.status === 'overdue').length;
+    return s.schedule?.filter(p => p.status === 'overdue').length || 0;
   });
 
   canRegisterPayment = computed(() => {
@@ -120,21 +120,21 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
   });
 
   // ── Payment form (ported from PaymentRegisterPage) ─────────────────────────
-  payAmount         = signal<number>(0);
-  payMethod         = signal<PaymentMethod>('cash');
-  payMode           = signal<'free' | 'specific'>('free');
+  payAmount = signal<number>(0);
+  payMethod = signal<PaymentMethod>('cash');
+  payMode = signal<'free' | 'specific'>('free');
   paySpecificNumber = signal<number | null>(null);
-  payNotes          = signal<string>('');
-  payLoading        = signal(false);
+  payNotes = signal<string>('');
+  payLoading = signal(false);
 
   readonly paymentMethods: { value: PaymentMethod; label: string }[] = [
-    { value: 'cash',     label: 'Efectivo' },
-    { value: 'card',     label: 'Tarjeta' },
+    { value: 'cash', label: 'Efectivo' },
+    { value: 'card', label: 'Tarjeta' },
     { value: 'transfer', label: 'Transferencia' }
   ];
 
   pendingPayments = computed<AmortizationEntry[]>(() =>
-    this.sale()?.schedule.filter(
+    this.sale()?.schedule?.filter(
       p => p.status === 'pending' || p.status === 'partial' || p.status === 'overdue'
     ) ?? []
   );
@@ -144,7 +144,7 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
     if (!a || a <= 0) return 'El monto es requerido';
     if (a < 1) return 'Mínimo $1';
     if (this.payMode() === 'specific' && this.paySpecificNumber()) {
-      const entry = this.sale()?.schedule.find(p => p.number === this.paySpecificNumber());
+      const entry = this.sale()?.schedule?.find(p => p.number === this.paySpecificNumber());
       if (entry && a > entry.amountRemaining) {
         return `Excede el saldo de la cuota #${entry.number} ($${entry.amountRemaining.toFixed(2)})`;
       }
@@ -198,10 +198,10 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
     });
 
     this.cancelForm = this.fb.group({
-      reason:       ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
-      refundAmount: [0,  [Validators.min(0)]],
+      reason: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
+      refundAmount: [0, [Validators.min(0)]],
       refundMethod: ['cash'],
-      refundNotes:  [''],
+      refundNotes: [''],
       confirmation: [false, [Validators.requiredTrue]]
     });
   }
@@ -244,7 +244,7 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
     this.payMode.set('free');
     this.paySpecificNumber.set(null);
     this.payNotes.set('');
-    const next = this.sale()?.schedule.find(
+    const next = this.sale()?.schedule?.find(
       p => p.status === 'pending' || p.status === 'partial'
     );
     if (next) this.payAmount.set(next.amountRemaining);
@@ -259,7 +259,7 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
     const n = value !== null && value !== undefined ? Number(value) : null;
     this.paySpecificNumber.set(n && !isNaN(n) ? n : null);
     if (n) {
-      const entry = this.sale()?.schedule.find(p => p.number === n);
+      const entry = this.sale()?.schedule?.find(p => p.number === n);
       if (entry) this.payAmount.set(entry.amountRemaining);
     }
   }
@@ -299,11 +299,11 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
     this.payLoading.set(true);
 
     const payload: RegisterPaymentRequest = {
-      amount:                this.payAmount(),
-      method:                this.payMethod(),
-      paymentMode:           this.payMode(),
+      amount: this.payAmount(),
+      method: this.payMethod(),
+      paymentMode: this.payMode(),
       specificPaymentNumber: this.paySpecificNumber() ?? undefined,
-      notes:                 this.payNotes().trim() || undefined
+      notes: this.payNotes().trim() || undefined
     };
 
     this.saleService.registerPayment(s._id, payload).subscribe({
@@ -326,10 +326,10 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
     if (!sale) return;
 
     this.cancelForm.reset({
-      reason:       '',
+      reason: '',
       refundAmount: 0,
       refundMethod: 'cash',
-      refundNotes:  '',
+      refundNotes: '',
       confirmation: false
     });
 
@@ -428,19 +428,19 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
     });
   }
 
-  get cancelReason()        { return this.cancelForm.get('reason'); }
-  get cancelRefundAmount()  { return this.cancelForm.get('refundAmount'); }
-  get cancelRefundMethod()  { return this.cancelForm.get('refundMethod'); }
-  get cancelConfirmation()  { return this.cancelForm.get('confirmation'); }
+  get cancelReason() { return this.cancelForm.get('reason'); }
+  get cancelRefundAmount() { return this.cancelForm.get('refundAmount'); }
+  get cancelRefundMethod() { return this.cancelForm.get('refundMethod'); }
+  get cancelConfirmation() { return this.cancelForm.get('confirmation'); }
 
   getCancelErrorMessage(field: string): string {
     const control = this.cancelForm.get(field);
     if (!control || !control.errors) return '';
-    if (control.errors['required'])   return 'Campo requerido';
-    if (control.errors['min'])        return `Mínimo: ${control.errors['min'].min}`;
-    if (control.errors['max'])        return `Máximo: $${control.errors['max'].max.toLocaleString('es-MX')}`;
-    if (control.errors['minlength'])  return `Mínimo ${control.errors['minlength'].requiredLength} caracteres`;
-    if (control.errors['maxlength'])  return `Máximo ${control.errors['maxlength'].requiredLength} caracteres`;
+    if (control.errors['required']) return 'Campo requerido';
+    if (control.errors['min']) return `Mínimo: ${control.errors['min'].min}`;
+    if (control.errors['max']) return `Máximo: $${control.errors['max'].max.toLocaleString('es-MX')}`;
+    if (control.errors['minlength']) return `Mínimo ${control.errors['minlength'].requiredLength} caracteres`;
+    if (control.errors['maxlength']) return `Máximo ${control.errors['maxlength'].requiredLength} caracteres`;
     return 'Campo inválido';
   }
 
@@ -453,12 +453,12 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
     const modal = await this.modalCtrl.create({
       component: ResourceHistoryModalComponent,
       componentProps: {
-        resourceId:    s._id,
+        resourceId: s._id,
         resourceTitle: s.folio || 'Venta',
-        resourceType:  'Venta'
+        resourceType: 'Venta'
       },
-      breakpoints:        [0, 0.5, 0.8, 1],
-      initialBreakpoint:  0.8
+      breakpoints: [0, 0.5, 0.8, 1],
+      initialBreakpoint: 0.8
     });
     await modal.present();
   }
@@ -483,10 +483,10 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
     const s = this.sale();
     if (!s) return;
     const customer = s.customer as Customer;
-    const niche    = s.niche as Niche;
+    const niche = s.niche as Niche;
     const text = `Venta: ${s.folio}\nCliente: ${customer.firstName} ${customer.lastName}\nNicho: ${niche.code}\nTotal: $${s.totalAmount.toLocaleString()}\nPagado: $${s.totalPaid.toLocaleString()}\nBalance: $${s.balance.toLocaleString()}\nProgreso: ${this.progress()}%`;
     if (navigator.share) {
-      navigator.share({ title: 'Información de Venta', text }).catch(() => {});
+      navigator.share({ title: 'Información de Venta', text }).catch(() => { });
     } else {
       navigator.clipboard.writeText(text).then(() => this.notificationService.success('Información copiada'));
     }
@@ -494,8 +494,8 @@ export class SaleDetailPage implements OnInit, ViewWillEnter {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
-  getStatusColor(status: string): string   { return this.saleService.getStatusColor(status); }
-  getStatusLabel(status: string): string   { return this.saleService.getStatusLabel(status); }
+  getStatusColor(status: string): string { return this.saleService.getStatusColor(status); }
+  getStatusLabel(status: string): string { return this.saleService.getStatusLabel(status); }
   getPaymentStatusColor(status: string): string { return this.saleService.getPaymentStatusColor(status); }
   getPaymentStatusLabel(status: string): string { return this.saleService.getPaymentStatusLabel(status); }
 
