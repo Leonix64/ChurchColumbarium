@@ -71,7 +71,7 @@ export class NicheService {
   }
 
   updateStatus(id: string, status: string, notes?: string): Observable<ApiResponse<Niche>> {
-    return this.http.put<ApiResponse<Niche>>(`${this.endpoint}/${id}`, { status, notes }).pipe(
+    return this.http.patch<ApiResponse<Niche>>(`${this.endpoint}/${id}`, { status, notes }).pipe(
       tap(() => this.getAll().subscribe())
     );
   }
