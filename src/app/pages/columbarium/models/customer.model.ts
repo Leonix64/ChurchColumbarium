@@ -11,6 +11,8 @@ export interface Customer {
     address?: string;
     emergencyContact?: EmergencyContact;
     beneficiaries?: Beneficiary[];
+    createdBySuccession?: boolean; // true si el cliente fue creado por proceso de sucesión
+    successionDate?: Date;         // Fecha en que se realizó la sucesión
     active: boolean;
     createdAt: Date;
     updatedAt: Date;

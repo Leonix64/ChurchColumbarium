@@ -1,4 +1,5 @@
 import { Customer } from "./customer.model";
+import { OwnershipHistory } from "./beneficiary.model";
 
 export interface Niche {
     _id: string;
@@ -13,6 +14,7 @@ export interface Niche {
     status: 'available' | 'reserved' | 'sold' | 'disabled';
     currentOwner?: string | Customer; // Puede venir populated
     occupants?: any[];                // Difuntos (futuro)
+    ownershipHistory?: OwnershipHistory[]; // Historial de titularidad embebido
     notes?: string;
     disabledReason?: string;
     disabledAt?: Date;
